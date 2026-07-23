@@ -66,10 +66,10 @@ jest.config.js, jest.setup.js
 
 | Feature | Spec | Status |
 |---|---|---|
-| `search` | `specs/search.md` | Home implemented (mock data); Search & Map pending |
+| `search` | `specs/search.md` | Home implemented (mock data); Search & Map and category page (US2-US3) pending |
 | `restaurant` | `specs/restaurant.md` | US1+US2 implemented (mock data); US3–US7 not started |
 | `favorites` | `specs/favorites.md` | Spec drafted (2 user stories), not implemented |
-| `profile` | `specs/profile.md` | Spec drafted (2 user stories), not implemented |
+| `profile` | `specs/profile.md` | Spec drafted (6 user stories), not implemented |
 
 **Note**: `profile` and `favorites` both compose the same route (`app/(tabs)/profile.tsx`) — `profile.md` covers the header/stats/account-menu, `favorites.md`'s User Story 2 covers the favorites rail. Coordinate whichever gets implemented first per each spec's "Notes for the AI Agent."
 
