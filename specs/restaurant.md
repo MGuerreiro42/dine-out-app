@@ -2,7 +2,7 @@
 
 **Feature**: `restaurant` — folder `src/features/restaurant/`
 **Created**: 2026-07-23
-**Status**: Draft
+**Status**: In Progress — User Story 1 and User Story 2 Implemented (mock data); User Stories 3–7 not started
 **Design reference**: `App Flow.dc.html`, frame "2 · Restaurant Detail"
 
 ## Summary
@@ -11,7 +11,7 @@ The page a user lands on after tapping a restaurant anywhere in the app (Home ra
 
 ## User Stories
 
-### User Story 1 - View core restaurant details (Priority: P1)
+### User Story 1 - View core restaurant details (Priority: P1) — **Implemented**
 
 A user who tapped a restaurant card sees a photo gallery, the restaurant's name, a description, defining tags, and the essentials (address, price level, rating) needed to judge fit at a glance.
 
@@ -28,7 +28,7 @@ A user who tapped a restaurant card sees a photo gallery, the restaurant's name,
 
 ---
 
-### User Story 2 - Take a quick action on the restaurant (Priority: P1)
+### User Story 2 - Take a quick action on the restaurant (Priority: P1) — **Implemented**
 
 A user who's decided this restaurant is worth pursuing can immediately see the menu, order takeaway or delivery, or reserve a table, without leaving the app.
 
@@ -127,7 +127,7 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 
 ### Edge Cases
 
-- **Restaurant id doesn't exist in mock data**: the screen currently has no defined behavior for this — **[NEEDS CLARIFICATION: should an unknown id show an empty/error state, redirect back, or is this out of scope while all navigation sources only ever pass known ids?]**
+- **Restaurant id doesn't exist in mock data**: **Resolved during US1 implementation** — renders a plain "Restaurante não encontrado" message instead of crashing. Not a designed empty state (no illustration, no back-to-Home action) — revisit if this becomes reachable in practice rather than a theoretical guard.
 - **Description shorter than the truncation threshold**: "see more" control should not render at all (nothing to expand).
 - **Zero reviews**: the preview review + "view all N reviews" control should not render, or should render an explicit empty state — **[NEEDS CLARIFICATION: which? Not specified by the design, which only shows restaurants with reviews.]**
 - **Single photo**: next/previous controls and the counter badge should either hide or be disabled — showing "1/1" with working-looking arrows that do nothing would be a bug.
@@ -152,8 +152,8 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 - **FR-014**: The system MUST display the restaurant's Instagram handle, a preview photo grid, and a toggleable Follow/Following control (local UI state only — no real Instagram integration).
 - **FR-015**: The system MUST display a "Similar Places" rail; tapping an entry MUST navigate to that restaurant's own detail screen.
 - **FR-016**: The user MUST be able to toggle a restaurant's favorited state from the detail screen, reflecting and updating the shared favorites store defined in `favorites.md`.
-- **FR-017**: The system MUST display contact options (phone, WhatsApp, Instagram) in a dedicated sheet, each simulating a redirect to the respective app.
-- **FR-018**: The system MUST display a tappable address that opens a sheet offering to open the location in a maps app (simulated redirect).
+- **FR-017**: The system MUST display contact options (phone, WhatsApp, Instagram) in a dedicated sheet, each simulating a redirect to the respective app. *(Ownership gap found during US1/US2 implementation: this FR isn't referenced by any User Story's acceptance scenarios. Deferred alongside Opening Hours — needs a home, likely a new User Story 3b or folded into US3, before it's built.)*
+- **FR-018**: The system MUST display a tappable address that opens a sheet offering to open the location in a maps app (simulated redirect). *(Same gap as FR-017 — not covered by US1's acceptance scenarios despite address display being part of US1. The address currently renders as plain text, not tappable. Needs the same story-ownership fix before implementing the tap behavior.)*
 
 ### Key Entities
 
@@ -196,7 +196,8 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 - All navigation sources (Home rails, Similar Places, favorites) always pass a valid, known restaurant `id` — see the Edge Case above for what happens if that assumption breaks.
 - Menu prices are display strings (e.g. `"R$ 89"`), not structured currency values — fine for a prototype, would need revisiting for a real ordering flow.
 - Depends on `src/stores/favorites.ts` existing with the contract `favorites.md` defines — this feature is what actually triggers building it, so sequence the implementation accordingly (favorites store contract first, or in the same pass).
-- Depends on `app/restaurant/[id]` existing as a route (it does, currently a placeholder).
+- Depends on `app/restaurant/[id]` existing as a route (it did, as a placeholder, before US1/US2 replaced it with the real implementation).
+- `app/restaurant/[id].tsx` now reads `id` from `useLocalSearchParams` and coerces it with `Number(id)` — no validation beyond that (see the resolved Edge Case above).
 
 ## Notes for the AI Agent
 
@@ -210,3 +211,4 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 | Date | Change |
 |------|--------|
 | 2026-07-23 | Spec created. No implementation yet. |
+| 2026-07-23 | User Story 1 and User Story 2 implemented (mock data: `src/mocks/restaurantDetails.ts`, all 6 restaurants). New shared `PhotoCarousel` added to `components/ui/`. Found and documented a story-ownership gap for FR-017/FR-018 (Contact sheet, tappable address) — deferred, not covered by this round. Resolved the "unknown id" edge case with a plain fallback message. User Stories 3–7 still not started. |

@@ -61,7 +61,7 @@ specs/                       # this directory — project and feature specs
 | Feature | Spec | Status |
 |---|---|---|
 | `search` | `specs/search.md` | Home implemented (mock data); Search & Map pending |
-| `restaurant` | `specs/restaurant.md` | Spec drafted (7 user stories), not implemented |
+| `restaurant` | `specs/restaurant.md` | US1+US2 implemented (mock data); US3–US7 not started |
 | `favorites` | `specs/favorites.md` | Spec drafted (2 user stories), not implemented |
 
 **Known gap**: the Profile screen's account content (avatar, stats, orders/reservations/payment/notifications/logout) has no owning feature — only its favorites rail is covered, by `favorites.md`. Needs its own feature (likely `profile` or `account`) and spec before that content is implemented.
@@ -76,6 +76,8 @@ specs/                       # this directory — project and feature specs
 - **"Favorited" state is global, not owned by the `favorites` feature.** The like button also appears in `restaurant` (detail). Under the isolation rule (#1/#3), it can't live only in `features/favorites/stores/` — it moves to `src/stores/favorites.ts` (not implemented yet).
 - **`react-native-maps` instead of `expo-maps`.** `expo-maps` doesn't run on web (the official docs confirm an iOS/Android-only fallback) and is less mature. `react-native-maps` is the market standard, with `react-native-map-clustering` as a companion for scale. Trade-off: needs a dev build, doesn't run in Expo Go — gives real use to the KVM/AVD set up previously on this machine (the AVD itself hasn't been created yet).
 - **`RestaurantCard` was born in `components/ui/`, not in `features/search/`.** `restaurant` also needs it (the "Similar Places" section), and features can't import each other.
+- **`RestaurantDetail` extends the shared `Restaurant` type rather than duplicating its fields**, and lives in `src/features/restaurant/types/` (feature-specific), not `src/types/` — the extra detail-screen fields aren't needed by other features, only the base shape is.
+- **A spec can drift internally, not just from the code.** Implementing `restaurant.md`'s US1/US2 surfaced that FR-017 and FR-018 were written into the Functional Requirements list without being referenced by any User Story's acceptance scenarios — a spec-authoring gap, not a code bug. Fixed by annotating both FRs in place rather than silently building or silently dropping them. Worth checking for on future specs before implementing, not just after.
 
 ## Standard Verification
 

@@ -1,0 +1,127 @@
+import type { MenuItem, RestaurantDetail } from '@/features/restaurant/types';
+
+const PHOTOS = {
+  r1: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
+  r2: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
+  r3: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
+  r4: 'https://images.unsplash.com/photo-1558030006-450675393462?w=800&q=80',
+  r5: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80',
+  r6: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800&q=80',
+};
+
+const CHURRASCO_MENU: MenuItem[] = [
+  { name: 'Picanha na brasa', price: 'R$ 89' },
+  { name: 'Fraldinha', price: 'R$ 79' },
+  { name: 'Costela no bafo', price: 'R$ 95' },
+  { name: 'Buffet de saladas', price: 'incluso' },
+  { name: 'Farofa & vinagrete', price: 'incluso' },
+  { name: 'Sobremesa: abacaxi grelhado', price: 'R$ 18' },
+];
+
+const MEDITERRANEO_MENU: MenuItem[] = [
+  { name: 'Mezze compartilhável', price: 'R$ 62' },
+  { name: 'Cordeiro grelhado', price: 'R$ 98' },
+  { name: 'Homus da casa', price: 'R$ 32' },
+  { name: 'Pão sírio artesanal', price: 'incluso' },
+];
+
+const ITALIANA_MENU: MenuItem[] = [
+  { name: 'Tagliatelle ao ragu', price: 'R$ 68' },
+  { name: 'Risoto de funghi', price: 'R$ 74' },
+  { name: 'Pizza margherita', price: 'R$ 56' },
+];
+
+export const RESTAURANT_DETAILS: Record<number, RestaurantDetail> = {
+  1: {
+    id: 1,
+    name: 'Fogo & Brasa',
+    photo: PHOTOS.r1,
+    photos: [PHOTOS.r1, PHOTOS.r4, PHOTOS.r6],
+    rating: '4.8',
+    priceLevel: '$$$',
+    cuisine: 'churrasco',
+    occasion: 'familia',
+    ambient: 'fancy',
+    description:
+      'Um rodízio clássico de churrascaria com carnes selecionadas e cortes nobres, grelhados na brasa no estilo tradicional gaúcho. Ambiente descontraído com música ao vivo às sextas e sábados, ideal para famílias e grupos grandes.',
+    tags: ['Churrasco', 'Rodízio', 'Música ao vivo'],
+    addressShort: 'Av. Paulista, 1200',
+    menu: CHURRASCO_MENU,
+  },
+  2: {
+    id: 2,
+    name: 'Terra Nostra',
+    photo: PHOTOS.r2,
+    photos: [PHOTOS.r2, PHOTOS.r5],
+    rating: '4.5',
+    priceLevel: '$$',
+    cuisine: 'mediterraneo',
+    occasion: 'encontro',
+    ambient: 'cozy',
+    description:
+      'Mezze compartilháveis e terraço iluminado à luz de velas. Cardápio inspirado na costa mediterrânea, com pratos leves e vinhos naturais selecionados a dedo.',
+    tags: ['Terraço', 'Vegetariano-friendly', 'Romântico'],
+    addressShort: 'Rua Oscar Freire, 340',
+    menu: MEDITERRANEO_MENU,
+  },
+  3: {
+    id: 3,
+    name: 'Casa Oliveira',
+    photo: PHOTOS.r3,
+    photos: [PHOTOS.r3],
+    rating: '4.6',
+    priceLevel: '$$',
+    cuisine: 'italiana',
+    occasion: 'grupo',
+    ambient: 'relaxed',
+    description: 'Massas artesanais e forno a lenha, clima de trattoria — feito pra ficar a tarde toda.',
+    tags: ['Massas artesanais', 'Forno a lenha', 'Pet friendly'],
+    addressShort: 'Rua Fradique Coutinho, 88',
+    menu: ITALIANA_MENU,
+  },
+  4: {
+    id: 4,
+    name: 'Brasa Real',
+    photo: PHOTOS.r4,
+    photos: [PHOTOS.r4, PHOTOS.r1],
+    rating: '4.7',
+    priceLevel: '$$$',
+    cuisine: 'churrasco',
+    occasion: 'grupo',
+    ambient: 'fancy',
+    description: 'Espaço amplo para grupos, buffet completo de acompanhamentos e carnes nobres direto da brasa.',
+    tags: ['Grupos grandes', 'Buffet completo', 'Estacionamento'],
+    addressShort: 'Av. Brigadeiro Faria Lima, 2200',
+    menu: CHURRASCO_MENU,
+  },
+  5: {
+    id: 5,
+    name: 'Zeytin Meze',
+    photo: PHOTOS.r5,
+    photos: [PHOTOS.r5, PHOTOS.r2],
+    rating: '4.4',
+    priceLevel: '$$',
+    cuisine: 'mediterraneo',
+    occasion: 'encontro',
+    ambient: 'cozy',
+    description: 'Pratos frios turcos e vinhos naturais, ambiente intimista pra uma noite tranquila a dois.',
+    tags: ['Vinhos naturais', 'Intimista', 'Sem glúten'],
+    addressShort: 'Rua Girassol, 155',
+    menu: MEDITERRANEO_MENU,
+  },
+  6: {
+    id: 6,
+    name: 'Espeto & Cia',
+    photo: PHOTOS.r6,
+    photos: [PHOTOS.r6],
+    rating: '4.3',
+    priceLevel: '$',
+    cuisine: 'churrasco',
+    occasion: 'musica',
+    ambient: 'agitated',
+    description: 'Espetinhos, chope gelado e música ao vivo todo fim de semana — clima de boteco raiz.',
+    tags: ['Música ao vivo', 'Chope gelado', 'Pet friendly'],
+    addressShort: 'Rua Aspicuelta, 45',
+    menu: CHURRASCO_MENU,
+  },
+};
