@@ -24,7 +24,8 @@ The user opens the app and sees the Home screen with restaurants grouped by cuis
 1. **Given** the Home screen loaded, **when** the screen opens, **then** the "Choose your Cuisine" rail shows restaurants from the first cuisine category by default.
 2. **Given** the cuisine rail showing the "Churrasco" category, **when** the user taps the "Italiana" chip, **then** the rail updates to show restaurants with `cuisine: "italiana"`.
 3. **Given** any restaurant rail, **when** the user taps a card, **then** the app navigates to `/restaurant/[id]` with that restaurant's `id`.
-4. **Given** the user taps the menu icon (≡), the location, or a "Dine-in/Bars/Takeout" item, **when** the tap happens, **then** a bottom sheet opens with a simulated message (no real action yet).
+4. **Given** the user taps the location or a "Dine-in/Bars/Takeout" item, **when** the tap happens, **then** a bottom sheet opens with a simulated message (no real action yet).
+5. **Given** the user taps the menu icon (≡), **when** the tap happens, **then** the real navigation sidebar opens — spec'd in `auth.md`'s User Story 3, not redefined here. *(Corrected: previously this also opened a simulated-message sheet like the other icons; the design's "12 · Sidebar Menu" frame replaces that with real navigation.)*
 
 ---
 
@@ -85,6 +86,7 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 - **FR-014**: The system MUST display a subtype-exploration prompt and a row of subtype options; tapping either opens a placeholder sheet.
 - **FR-015**: The system MUST display "trending" and "near you" grids for the active category, same card shape as FR-013 (near-you additionally shows distance).
 - **FR-016**: Tapping a grid card backed by a real restaurant record MUST navigate to that restaurant's detail screen **[NEEDS CLARIFICATION: see Edge Cases — what happens for the category items that currently have no real restaurant id]**.
+- **FR-017**: Tapping the menu icon (≡) MUST open the real navigation sidebar (`auth.md`'s User Story 3) — corrected from the earlier placeholder behavior (see User Story 1's Changelog-noted correction above).
 
 ### Key Entities
 
@@ -104,7 +106,7 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 
 - **Feature folder**: `src/features/search/{api,components,hooks,types}` — `stores/` exists as a placeholder but wasn't used (Home's state is local via `useState`, doesn't need to be Zustand or global).
 - **Reuses from `src/components/ui/`**: `RestaurantCard`, `HorizontalRail`, `Chip` (used by `AmbientSelector`), `RatingBadge`, `BottomSheet`.
-- **Reuses from `src/components/layout/`**: `SearchBar` (decorative), `SideMenu`.
+- **Reuses from `src/components/layout/`**: `SearchBar` (decorative), `SideMenu` — **its real content is now spec'd in `auth.md`'s User Story 3** (navigation drawer with a login-aware header/footer), superseding the placeholder sheet built during the Home round. `search.md` doesn't own or redefine that behavior, just reuses the component.
 - **Global state?** No, for this story. The user's location (`USER_LOCATION`) is hardcoded inside `LocationHeader.tsx` — once it becomes truly dynamic (real geolocation), it migrates to `src/stores/location.ts` (already planned in `PROJECT.md`, not implemented yet).
 - **Types**: `Restaurant` shared (`src/types/restaurant.ts`); `Cuisine`/`Occasion`/`Ambient`/`Benefit` specific (`src/features/search/types/`).
 - **Mocks**: `src/mocks/restaurants.ts`, `src/mocks/discoveryTaxonomies.ts` — fixture data, served over HTTP via `src/mocks/handlers/restaurants.ts` and `discoveryTaxonomies.ts` (MSW), not imported directly by hooks anymore (see `PROJECT.md` principle #4, updated when MSW/testing infra was added). `useRestaurantsQuery`/`useDiscoveryTaxonomiesQuery` call `apiClient.get(...)` and validate the response against the Zod schemas in `src/types/` / `features/search/types/`.
@@ -116,7 +118,7 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 ## Out of Scope
 
 - Real text search (SearchBar is decorative).
-- Real side menu content (SideMenu opens a sheet with a fixed message).
+- ~~Real side menu content~~ — **corrected**: the side menu now has real content, spec'd in `auth.md`. What's still out of scope here: the location and Dine-in/Bars/Takeout popups, which remain simulated-message sheets.
 - The Search & Map screen (US2 above — becomes its own spec when it's its turn).
 - Favorite state on Home cards (the Home design has no favorite icon on cards — that only appears on detail and profile).
 - Real geolocation.
@@ -144,3 +146,4 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 | 2026-07-23 | Spec created retroactively, documenting User Story 1 (Home) already implemented. User Story 2 (Search & Map) recorded as pending, with no detail yet. |
 | 2026-07-23 | Architecture Mapping updated: `useRestaurantsQuery`/`useDiscoveryTaxonomiesQuery` migrated from direct mock import to `apiClient` + MSW (see `PROJECT.md`'s MSW/testing infrastructure entry). No behavior or requirement changed, only how the data gets from the mock file into the hook. |
 | 2026-07-23 | Design updated — added User Story 3 (category page, frame "7 · Category page"), not started. Flagged three real design gaps as `[NEEDS CLARIFICATION]` rather than assumed: no wired entry point to the category page yet, category taxonomy doesn't cover all of Home's cuisines, and two of three categories' mock items lack real restaurant ids. |
+| 2026-07-23 | Corrected User Story 1: the menu icon (≡) now opens the real navigation sidebar (`auth.md`'s User Story 3), not a simulated-message sheet — the design added frame "12 · Sidebar Menu". Location and Dine-in/Bars/Takeout taps are unaffected, still simulated. |

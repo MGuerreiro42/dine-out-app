@@ -14,7 +14,7 @@ Home/explore routes). Low-cost to rename later if it turns out wrong.
 
 ## Summary
 
-The screen fills the gap PROJECT.md flagged: everything on the Profile tab that isn't the favorites rail (that's `favorites.md`'s User Story 2 — this spec composes the same route but doesn't redefine that part). Covers who the user is (avatar, name, email, activity stats), and the account menu, which now leads to four real screens — Orders, Reservations, Payment Methods, Notifications — rather than placeholder sheets. Only "Sair da conta" stays a sheet, since there's no screen to navigate to for logging out and no real auth system to log out of.
+The screen fills the gap PROJECT.md flagged: everything on the Profile tab that isn't the favorites rail (that's `favorites.md`'s User Story 2 — this spec composes the same route but doesn't redefine that part). Covers who the user is (avatar, name, email, activity stats), and the account menu, which now leads to four real screens — Orders, Reservations, Payment Methods, Notifications — rather than placeholder sheets. "Sair da conta" performs a real logout (contract owned by `auth.md`, corrected from an earlier draft that had it as a purely simulated sheet) — there's no screen to navigate to for logging out, but the action itself is real now that `auth.md` exists.
 
 ## User Stories
 
@@ -38,17 +38,17 @@ A user opens the Profile tab and sees who they are (avatar, name, email) and a s
 
 ### User Story 2 - Browse account options (Priority: P2)
 
-A user sees a list of account-related actions and can get to each one — four lead to a real screen (Orders, Reservations, Payment Methods, Notifications), one (Sair da conta) opens a sheet.
+A user sees a list of account-related actions and can get to each one — four lead to a real screen (Orders, Reservations, Payment Methods, Notifications), one (Sair da conta) performs a real, immediate logout.
 
 **Why this priority**: completes the screen visually and structurally, and is the entry point for User Stories 3-6 — but the app is fully usable without it (Home and restaurant detail don't depend on it).
 
-**Independent test**: tap each of Meus pedidos / Minhas reservas / Formas de pagamento / Notificações, confirm each navigates to its own screen with a working back control; tap Sair da conta, confirm a sheet opens instead (no navigation); confirm Sair da conta is visually distinguished (red/danger styling) from the other four.
+**Independent test**: tap each of Meus pedidos / Minhas reservas / Formas de pagamento / Notificações, confirm each navigates to its own screen with a working back control; tap Sair da conta, confirm `isLoggedIn` immediately flips to false (no navigation, no confirmation step) and Sair da conta is visually distinguished (red/danger styling) from the other four.
 
 **Acceptance scenarios**:
 
 1. **Given** the Profile tab, **when** it renders, **then** a list of 5 account options shows: "Meus pedidos," "Minhas reservas," "Formas de pagamento," "Notificações," "Sair da conta."
 2. **Given** the account option list, **when** the user taps "Meus pedidos," "Minhas reservas," "Formas de pagamento," or "Notificações," **then** the app navigates to that option's dedicated screen (User Stories 3-6).
-3. **Given** the account option list, **when** the user taps "Sair da conta," **then** a sheet opens with a simulated-logout message — no navigation, no real session exists to end.
+3. **Given** the account option list, **when** the user taps "Sair da conta," **then** `stores/auth.ts`'s real `logout()` runs immediately — `isLoggedIn` becomes false, no navigation, no confirmation sheet.
 4. **Given** "Sair da conta" in the list, **when** it renders, **then** its text is visually styled as a destructive/danger action (different color from the other four), matching the design.
 
 ---
@@ -132,7 +132,7 @@ A user taps "Notificações" and sees a list of notification categories, each wi
 - **FR-004**: The orders and reservations counts MUST equal the length of this feature's own mock `orders`/`reservations` lists (User Stories 3-4) — resolved: previously these were going to be arbitrary static numbers with nothing behind them; now that real (mock) lists exist, deriving the count from them avoids a second source of truth that could drift.
 - **FR-005**: The system MUST display a list of 5 account options: Meus pedidos, Minhas reservas, Formas de pagamento, Notificações, Sair da conta.
 - **FR-006**: Tapping Meus pedidos, Minhas reservas, Formas de pagamento, or Notificações MUST navigate to that option's own screen.
-- **FR-007**: Tapping Sair da conta MUST open a sheet with a simulated-logout message and MUST NOT perform a real logout (no session exists — see Assumptions). It MUST be visually distinguished (danger/destructive styling) from the other four options.
+- **FR-007**: Tapping Sair da conta MUST perform the real logout (`stores/auth.ts`'s `logout()`, contract owned by `auth.md`) — **corrected**: previously specified as a purely simulated sheet, but the design's Sidebar Menu frame gives logout real, immediate effect with no confirmation, and having two different logout behaviors depending on entry point would be a real inconsistency, not a defensible design choice. It MUST still be visually distinguished (danger/destructive styling) from the other four options.
 - **FR-008**: The My Orders screen MUST list each order's restaurant photo/name, status badge, type, date, item summary, and total.
 - **FR-009**: Tapping an order MUST navigate to that order's restaurant detail screen.
 - **FR-010**: The My Reservations screen MUST list each reservation's restaurant photo/name, status badge, date, time, and party size.
@@ -145,7 +145,7 @@ A user taps "Notificações" and sees a list of notification categories, each wi
 ### Key Entities
 
 - **UserProfile**: the mocked "current user" — initial (avatar letter), name, email. A single hardcoded record, not a list — this project has no multi-user or auth concept yet.
-- **AccountOption**: id, label, a `danger` flag (true only for Sair da conta), and either an `href`-equivalent (which screen it navigates to) or an "opens a sheet" marker for the logout case.
+- **AccountOption**: id, label, a `danger` flag (true only for Sair da conta), and either an `href`-equivalent (which screen it navigates to) or an "invokes the real logout action" marker for the Sair da conta case.
 - **Order**: restaurant reference, status (+ status color/bg), type (delivery/takeaway + provider), date, item summary text, total price (display string, same "not a structured currency amount" treatment as `restaurant.md`'s `MenuItem`).
 - **Reservation**: restaurant reference, status (+ status color/bg), date, time, party size.
 - **PaymentMethod**: brand, last 4 digits, expiry, `isDefault` flag.
@@ -155,17 +155,18 @@ A user taps "Notificações" and sees a list of notification categories, each wi
 
 - **SC-001**: The Profile tab never shows placeholder text ("Profile") once this is implemented — it shows real (mocked) identity and stats immediately, no loading state needed (mock resolves instantly, same as every other feature).
 - **SC-002**: The favorites stat and the Profile favorites rail (`favorites.md`) never disagree with each other — both read the same store, so this is true by construction, not by syncing two counters. Same construction-level guarantee for orders/reservations stats vs. their own list screens (FR-004).
-- **SC-003**: All 5 account options produce a distinct, working response when tapped — 4 real screens, 1 sheet, none is a dead tap target.
+- **SC-003**: All 5 account options produce a distinct, working response when tapped — 4 real screens, 1 real logout action, none is a dead tap target.
 - **SC-004**: A user can go from Profile to any order/reservation's restaurant detail in exactly 2 taps (1 to open My Orders/My Reservations, 1 to tap the specific entry).
 
 ## Architecture Mapping
 
 - **Feature folder**: `src/features/profile/{api,components,types}`. No `stores/` needed — this feature reads the global favorites store (owned by `favorites.md`) but doesn't own any global state; which sheet is open, and each notification's toggle state, are local `useState`.
-- **Reuses from `src/components/ui/`**: `BottomSheet` (Sair da conta only, now — the other four moved off the sheet pattern).
+- **Reuses from `src/components/ui/`**: none of the account options use `BottomSheet` anymore — the four navigate to real screens and Sair da conta is a direct action (contract in `stores/auth.ts`, owned by `auth.md`), corrected from an earlier draft where it opened a sheet.
 - **Reuses from `src/components/layout/`**: none — the Profile screen's header (avatar/name/email) is bespoke to this feature, not the app-wide `SearchBar`/`SideMenu` chrome used on Home/detail. The four new sub-screens use a simple back-button-plus-title header, not `SearchBar`/`SideMenu` either.
 - **Global state**: reads (does not write) `src/stores/favorites.ts` for FR-003 — depends on `favorites.md` being implemented first, or at least having its store contract in place, for the favorites count to be anything other than 0. If `favorites.md` hasn't landed yet when this feature is picked up, either implement `stores/favorites.ts` as part of this work (coordinate so the contract isn't defined twice, same rule as `restaurant.md`/`favorites.md`) or ship with a hardcoded 0 and revisit.
-- **Types**: `UserProfile`, `AccountOption`, `Order`, `Reservation`, `PaymentMethod`, `NotificationSetting` all live in `src/features/profile/types/` — none shared with another feature.
-- **Mocks**: new `src/mocks/currentUser.ts` (one `UserProfile` record), `src/mocks/orders.ts`, `src/mocks/reservations.ts`, `src/mocks/paymentMethods.ts`, `src/mocks/notificationSettings.ts`. Orders/reservations mocks reference real entries from `src/mocks/restaurants.ts`, same cross-mock reference pattern already used by the design (not a new pattern to invent).
+- **Types**: `UserProfile` **promoted to shared `src/types/`** — **corrected**: originally scoped feature-local, but `auth.md`'s Sidebar Menu (a `components/layout/` concern, owned by no single feature) also needs to render the current user's initial/name in its logged-in header, so this can't stay feature-local without a cross-feature import. Same promotion pattern already used for `Restaurant`. `AccountOption`, `Order`, `Reservation`, `PaymentMethod`, `NotificationSetting` stay in `src/features/profile/types/` — none of those are needed anywhere else.
+- **Mocks**: `src/mocks/currentUser.ts` (one `UserProfile` record) **promoted alongside the type** — same file location change, still one hardcoded record. `src/mocks/orders.ts`, `src/mocks/reservations.ts`, `src/mocks/paymentMethods.ts`, `src/mocks/notificationSettings.ts` stay feature-scoped (nothing outside `profile` needs them). Orders/reservations mocks reference real entries from `src/mocks/restaurants.ts`, same cross-mock reference pattern already used by the design (not a new pattern to invent).
+- **New dependency**: reads (does not write) `src/stores/auth.ts` for the corrected FR-007 — depends on `auth.md` being implemented first, or at least having its store contract in place, same sequencing note already established for the `favorites.md` dependency above.
 - **New dependencies**: none.
 - **Routes**: `app/(tabs)/profile.tsx` (currently a placeholder) for User Stories 1-2, plus four new nested routes for User Stories 3-6: `app/profile/orders.tsx`, `app/profile/reservations.tsx`, `app/profile/payment.tsx`, `app/profile/notifications.tsx`. A tab route (`app/(tabs)/profile.tsx`) and a same-named stack folder (`app/profile/`) coexist without conflict in Expo Router — the four new screens are pushed onto the stack from the tab, not tabs themselves.
 - **Sequencing note (unchanged from the previous draft)**: `profile` (this spec) and `favorites.md`'s User Story 2 (the favorites rail) compose the *same* `app/(tabs)/profile.tsx` screen. Whichever lands first should leave a sensible layout for the second to slot into (header → stats → favorites rail → account menu, matching the design's actual order).
@@ -176,12 +177,12 @@ A user taps "Notificações" and sees a list of notification categories, each wi
 - Any real orders/reservations backend, cancellation, rebooking, or filtering — Orders/Reservations are read-only mock lists, display only.
 - Real payment processing or card entry — "Adicionar cartão" is simulated, no PCI-relevant form exists or should be built here.
 - Real push notifications — the Notifications screen's toggles are real local UI state, but nothing in the app actually sends a notification based on them.
-- Real authentication/login/logout — "Sair da conta" is simulated; see PROJECT.md's "Future direction — authentication" note for why this is deliberate, not deferred by oversight.
+- Real backend authentication (credential validation, session persistence, OAuth) — that's `auth.md`'s explicit Out of Scope too; "Sair da conta" performs a real client-side state flip (`stores/auth.ts`'s `logout()`), not a real backend session teardown. **Corrected**: an earlier draft of this bullet said "Sair da conta" itself was simulated — it isn't, only the backend behind it is out of scope.
 - Editing profile info (name, email, avatar) — the design doesn't show an edit affordance on this frame.
 
 ## Assumptions and Dependencies
 
-- Exactly one mocked "current user" exists; there's no login, so there's no concept of switching users or an empty/logged-out state.
+- Exactly one mocked "current user" exists — there's no multi-account switching. **Corrected**: this profile screen itself still assumes a logged-in viewer (it's reached via the tab bar, not gated, but its content only makes sense once `isLoggedIn` is true); the logged-out state now genuinely exists app-wide per `auth.md`, it's just not this screen's concern to render it.
 - Depends on `app/(tabs)/profile.tsx` existing as a route (it does, currently a placeholder).
 - Depends on `src/stores/favorites.ts` for a meaningful (non-zero) favorites count — see Architecture Mapping.
 - Depends on `app/restaurant/[id]` existing (it does) for Orders/Reservations tap-through navigation.
@@ -200,3 +201,4 @@ A user taps "Notificações" and sees a list of notification categories, each wi
 |------|--------|
 | 2026-07-23 | Spec created. No implementation yet. |
 | 2026-07-23 | Design updated (`App Flow.dc.html` grew from ~66KB to ~89KB) — corrected User Story 2 (4 of 5 account options now navigate to real screens, not sheets) and added User Stories 3-6 (My Orders, My Reservations, Payment Methods, Notifications) plus their FRs/types/mocks/routes. Resolved the previous FR-004 `[NEEDS CLARIFICATION]` about orders/reservations counts — they now derive from real (mock) lists instead of being arbitrary numbers. Still no implementation. |
+| 2026-07-23 | Design added Sidebar Menu + Login frames (`auth.md` created). Corrected FR-007, the Summary, User Story 2, its independent test, acceptance scenario 3, the AccountOption entity, and the Architecture Mapping's `BottomSheet`-reuse bullet: the fifth account option ("Sair da conta") performs a real, immediate logout via `stores/auth.ts`, not a simulated confirmation sheet. Promoted `UserProfile`/`currentUser` from feature-local to shared `src/types/`/`src/mocks/` — the Sidebar needs the same current-user data. Corrected the Out of Scope and Assumptions bullets that had described logout and the logged-out state as not existing. Still no implementation. |
