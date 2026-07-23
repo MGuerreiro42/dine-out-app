@@ -1,6 +1,6 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { PhotoCarousel, RatingBadge } from '@/components/ui';
 import { SearchBar } from '@/components/layout';
@@ -12,8 +12,27 @@ const DESCRIPTION_TRUNCATE_LENGTH = 110;
 export default function RestaurantDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: restaurant } = useRestaurantDetailQuery(Number(id));
+  const { data: restaurant, isLoading, isError, refetch } = useRestaurantDetailQuery(Number(id));
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
+        <Text className="text-center text-sm text-muted">Não foi possível carregar o restaurante.</Text>
+        <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
+          <Text className="text-sm font-bold text-white">Tentar de novo</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   if (!restaurant) {
     return (

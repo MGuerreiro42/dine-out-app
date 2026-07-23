@@ -4,8 +4,10 @@ import { useDiscoveryTaxonomiesQuery } from '@/features/search/api/useDiscoveryT
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
 
 export function useHomeDiscovery() {
-  const { data: restaurants = [] } = useRestaurantsQuery();
-  const { data: taxonomies } = useDiscoveryTaxonomiesQuery();
+  const restaurantsQuery = useRestaurantsQuery();
+  const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
+  const { data: restaurants = [] } = restaurantsQuery;
+  const { data: taxonomies } = taxonomiesQuery;
 
   const [activeCuisine, setActiveCuisine] = useState<string | null>(null);
   const [activeOccasion, setActiveOccasion] = useState<string | null>(null);
@@ -25,6 +27,12 @@ export function useHomeDiscovery() {
   const ambientList = restaurants.filter((r) => r.ambient === currentAmbient);
 
   return {
+    isLoading: restaurantsQuery.isLoading || taxonomiesQuery.isLoading,
+    isError: restaurantsQuery.isError || taxonomiesQuery.isError,
+    refetch: () => {
+      restaurantsQuery.refetch();
+      taxonomiesQuery.refetch();
+    },
     restaurants,
     cuisines: cuisines.map((c) => ({ ...c, isActive: c.id === currentCuisine })),
     occasions: occasions.map((o) => ({ ...o, isActive: o.id === currentOccasion })),

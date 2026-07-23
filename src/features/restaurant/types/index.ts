@@ -1,14 +1,18 @@
-import type { Restaurant } from '@/types';
+import { z } from 'zod';
 
-export type MenuItem = {
-  name: string;
-  price: string;
-};
+import { RestaurantSchema } from '@/types';
 
-export type RestaurantDetail = Restaurant & {
-  photos: string[];
-  description: string;
-  tags: string[];
-  addressShort: string;
-  menu: MenuItem[];
-};
+export const MenuItemSchema = z.object({
+  name: z.string(),
+  price: z.string(),
+});
+export type MenuItem = z.infer<typeof MenuItemSchema>;
+
+export const RestaurantDetailSchema = RestaurantSchema.extend({
+  photos: z.array(z.string()),
+  description: z.string(),
+  tags: z.array(z.string()),
+  addressShort: z.string(),
+  menu: z.array(MenuItemSchema),
+});
+export type RestaurantDetail = z.infer<typeof RestaurantDetailSchema>;

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { SearchBar, SideMenu } from '@/components/layout';
 import {
@@ -18,6 +18,9 @@ import type { Restaurant } from '@/types';
 export default function HomeScreen() {
   const router = useRouter();
   const {
+    isLoading,
+    isError,
+    refetch,
     restaurants,
     cuisines,
     occasions,
@@ -34,6 +37,25 @@ export default function HomeScreen() {
   const goToRestaurant = (restaurant: Restaurant) => {
     router.push(`/restaurant/${restaurant.id}`);
   };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
+        <Text className="text-center text-sm text-muted">Não foi possível carregar a Home.</Text>
+        <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
+          <Text className="text-sm font-bold text-white">Tentar de novo</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
