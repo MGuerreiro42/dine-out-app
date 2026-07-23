@@ -41,7 +41,7 @@ An app for discovering bars and restaurants. Current phase: a navigable prototyp
 
 ```
 app/                        # Expo Router routes — thin, delegates to features/
-  (tabs)/{index,explore,profile}.tsx
+  (tabs)/{index,explore,profile}.tsx  # target per the design's bottom tab bar: {index,search,category,profile}.tsx (Home/Buscar/Categorias/Perfil) — not yet renamed/added, see ADR log
   restaurant/[id].tsx
 src/
   components/
@@ -94,6 +94,7 @@ jest.config.js, jest.setup.js
 - **`isLoggedIn` gets a second global store, `src/stores/auth.ts`, mirroring the `stores/favorites.ts` precedent (ADR above).** The Sidebar Menu (a `components/layout/` concern) needs to conditionally render its header/footer based on login state, and `profile.md`'s "Sair da conta" needs to trigger the same real logout — two independent consumers outside any single feature, same "global if >1 feature needs it" rule that promoted favorites. `auth` itself has no `features/auth/` folder yet (unlike `search`/`restaurant`/`favorites`/`profile`, all scaffolded upfront before any spec existed) — it's the first feature discovered entirely through design evolution, so its folder gets created when implementation actually starts, not speculatively in this docs-only round.
 - **`UserProfile` (and its `currentUser` mock) promoted from `features/profile/types/` to shared `src/types/`/`src/mocks/`**, same promotion pattern already used for `Restaurant` (needed by both `search` and `restaurant`). Trigger: the Sidebar Menu, owned by no single feature, needs to read the same current-user data `profile.md` defined to render its logged-in header.
 - **Logout must be one real action regardless of entry point.** Implementing the Sidebar Menu (`auth.md`) surfaced that `profile.md`'s existing "Sair da conta" (in the account-options list) had been specced as a purely simulated confirmation sheet — a second, different logout behavior from the Sidebar's real one. Corrected `profile.md`'s FR-007 to call the same real `stores/auth.ts` `logout()` instead of leaving two inconsistent logout behaviors on the books.
+- **The design added a real bottom tab bar** — an identical 4-item bar (Home, Buscar, Categorias, Perfil) repeated across the "Home", "Category page", and "Profile" frames, only the active item's styling differing between copies. No "Favoritos" tab, consistent with the existing "favorites has no route of its own" ADR above. This resolves a question `search.md` had left open: the `explore` tab (currently an empty placeholder) hosts US2 (Search & Map) only, renamed conceptually to "Buscar" — US3 (Category page) gets its own new "Categorias" tab rather than sharing `explore`, and US3's route turned out to be a fixed tab (`app/(tabs)/category.tsx`), not a dynamic `category/[id]` route as originally guessed. Not yet executed in code — `app/(tabs)/_layout.tsx` still has its original 3 stock tabs; the rename/addition happens when US2 or US3 is actually implemented. One gap flagged, not resolved: the "Search & Map" frame doesn't repeat this tab bar, unlike the other three — recorded as `[NEEDS CLARIFICATION]` in `search.md`.
 
 ## Standard Verification
 
