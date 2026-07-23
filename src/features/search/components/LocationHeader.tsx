@@ -9,13 +9,13 @@ export function LocationHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <View className="mt-3">
+    <View className="mt-3 px-4">
       <Pressable onPress={() => setOpen(true)} className="flex-row items-center gap-1.5">
         <Text className="text-xs">📍</Text>
         <Text className="text-sm font-bold text-ink">{USER_LOCATION.area}</Text>
         <Text className="text-[11px] text-muted">▾</Text>
       </Pressable>
-      <Text className="ml-[19px] mt-0.5 text-xs text-muted">{USER_LOCATION.address}</Text>
+      <Text className="mt-0.5 text-xs text-muted">{USER_LOCATION.address}</Text>
 
       <BottomSheet visible={open} onClose={() => setOpen(false)}>
         <Text className="text-center text-sm text-gray-600">Selecione sua localização atual.</Text>
