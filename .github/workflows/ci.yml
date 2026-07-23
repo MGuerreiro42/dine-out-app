@@ -27,7 +27,7 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Lint
-        run: npx expo lint
+        run: npx biome lint .
 
       - name: Expo config health check
         run: npx expo-doctor
