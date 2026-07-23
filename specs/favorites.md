@@ -24,7 +24,7 @@ Once a user favorites a restaurant from anywhere in the app, that fact is availa
 1. **Given** no restaurants are favorited, **when** the app starts, **then** the favorites store reports an empty set and the Profile favorites rail renders its empty state.
 2. **Given** a restaurant is favorited from its detail screen, **when** the user opens Profile, **then** that restaurant appears in the favorites rail.
 3. **Given** a restaurant is favorited, **when** the user unfavorites it (from wherever the toggle is exposed), **then** it's removed from the favorites rail on next render, and the detail screen's heart icon (if revisited) reflects the change.
-4. **Given** the app is closed and reopened, **when** it restarts — **[NEEDS CLARIFICATION: does favorited state need to persist across app restarts (e.g. via `AsyncStorage`), or is in-memory-only acceptable for this prototype phase? The design doesn't clarify this, and it changes the store's implementation.]**
+4. **Given** the app is closed and reopened, **when** it restarts, **then** favorited state does NOT need to survive the restart at this stage — in-memory-only is acceptable. **Resolved** (was `[NEEDS CLARIFICATION]`): no local persistence (no `AsyncStorage`/`persist` middleware) for now. Favorites will eventually belong to the user account once login exists — see the Future Direction note in Architecture Mapping below — so persisting them client-side now would be throwaway work.
 
 ---
 
@@ -58,7 +58,7 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 - **FR-004**: The system MUST display, inside the Profile screen, a horizontal rail of the currently favorited restaurants as cards.
 - **FR-005**: The user MUST be able to tap a favorited-restaurant card and navigate to its detail screen.
 - **FR-006**: The system MUST show an explicit empty state in the favorites rail area when no restaurants are favorited **[NEEDS CLARIFICATION: exact copy/visual — see edge case above]**.
-- **FR-007**: Favorited state MUST **[NEEDS CLARIFICATION: persist across app restarts, or is in-memory state acceptable for this phase — see User Story 1, scenario 4]**.
+- **FR-007**: Favorited state does NOT need to persist across app restarts at this stage — in-memory only, resettable on reload. This is deliberate, not a shortcut: real persistence will be tied to the user account once authentication exists (see Architecture Mapping's Future Direction note), so a client-side persistence layer built now would be replaced, not extended.
 
 ### Key Entities
 
@@ -86,7 +86,8 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 - **Fetching favorited restaurants' full data**: `favoriteIds` in the store only holds ids, not full `Restaurant` records. `features/favorites/api/useFavoriteRestaurantsQuery.ts` reads `src/mocks/restaurants.ts` directly (same mock `search`'s `useRestaurantsQuery` reads) and filters by the store's `favoriteIds`. This is intentional, small duplication of "a hook that reads the restaurants mock" rather than `favorites` importing `search`'s hook — keeps the features isolated at the cost of two thin query wrappers over the same mock, which stops mattering once this is a real API (each feature would legitimately call its own endpoint anyway).
 - **Types**: no new type needed — reuses the shared `Restaurant` from `src/types/restaurant.ts`.
 - **Mocks**: no new mock file — reuses `src/mocks/restaurants.ts`.
-- **New dependencies**: none. If User Story 1's persistence question resolves to "yes, persist across restarts," Zustand's own `persist` middleware (already part of the installed `zustand` package, no extra dependency) combined with `@react-native-async-storage/async-storage` would be the standard approach — **but that's a new dependency, so if persistence is confirmed as required, that decision needs its own sign-off before implementation, not silently added.**
+- **New dependencies**: none. No persistence middleware needed at this stage (see FR-007) — implement `favoriteIds` as plain in-memory Zustand state, no `persist` middleware, no `AsyncStorage`.
+- **Future direction (not this spec's scope, recorded so it isn't lost)**: favorited restaurants will eventually belong to a user account once a login/auth system exists — at that point, `favoriteIds` stops being client-only Zustand state and becomes server-backed, scoped per user. When that happens, this spec's contract (`toggleFavorite`, `isFavorite`) can likely stay the same at the call-site level — only `useRestaurantsQuery`-style internals change from reading a mock to calling a real, authenticated endpoint. Don't build speculative auth scaffolding now; this is just so the next person (or agent) writing the login/account feature knows favorites is one of the things that'll need migrating.
 
 ## Out of Scope
 
@@ -99,12 +100,12 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 ## Assumptions and Dependencies
 
 - Depends on `app/(tabs)/profile.tsx` existing as a route (it does, currently a placeholder) and on `restaurant.md`'s User Story 7 for the actual UI trigger that writes to the store this spec defines.
-- Assumes, until told otherwise, that in-memory (non-persisted) favorited state is acceptable for this prototype phase — flagged as `[NEEDS CLARIFICATION]` above because it changes the store's implementation, not just its usage.
+- Confirmed: in-memory (non-persisted) favorited state is acceptable for this prototype phase. Persistence is intentionally deferred to a future login/account system, not an oversight — see the Future Direction note in Architecture Mapping.
 
 ## Notes for the AI Agent
 
 - Implement `src/stores/favorites.ts` as part of whichever spec (`favorites.md` or `restaurant.md`'s US7) gets picked up first — check the other spec's `Status` before starting, so the store's contract isn't defined twice or inconsistently.
-- Resolve the persistence `[NEEDS CLARIFICATION]` with the user before writing the store — it's a one-line difference in code (`persist` middleware or not) but the wrong guess means redoing it later.
+- Persistence is resolved: do NOT add `persist` middleware or `AsyncStorage` — plain in-memory Zustand state only (see FR-007).
 - Verification: `npx tsc --noEmit` clean + bundle smoke test on `/profile` per the pattern in the root `CLAUDE.md`. Since this feature has no route of its own, there's no dedicated URL to smoke-test beyond `/profile` and `/restaurant/[id]` (already covered by `restaurant.md`).
 
 ## Changelog
@@ -112,3 +113,4 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 | Date | Change |
 |------|--------|
 | 2026-07-23 | Spec created. No implementation yet. |
+| 2026-07-23 | Resolved the persistence `[NEEDS CLARIFICATION]`: no persistence needed at this stage, in-memory only — deferred to a future login/account system. Empty-state copy `[NEEDS CLARIFICATION]` (FR-006) still open. |
