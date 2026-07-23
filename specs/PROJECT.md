@@ -51,6 +51,7 @@ src/
     search/                  # Home + category discovery + search + Search & Map
     restaurant/               # restaurant detail
     favorites/                 # favorites domain (no route of its own — consumed inside profile)
+    profile/                   # profile header/stats/account menu (shares the profile route with favorites)
   mocks/                     # fixture data (restaurants.ts etc.) + handlers/ (MSW resolvers) + native.ts/browser.ts/enableMocking.ts
   stores/                    # global state (favorites.ts, location.ts — see Decisions below)
   lib/                       # queryClient.ts, apiClient.ts (fetch wrapper, MSW-intercepted)
@@ -68,8 +69,9 @@ jest.config.js, jest.setup.js
 | `search` | `specs/search.md` | Home implemented (mock data); Search & Map pending |
 | `restaurant` | `specs/restaurant.md` | US1+US2 implemented (mock data); US3–US7 not started |
 | `favorites` | `specs/favorites.md` | Spec drafted (2 user stories), not implemented |
+| `profile` | `specs/profile.md` | Spec drafted (2 user stories), not implemented |
 
-**Known gap**: the Profile screen's account content (avatar, stats, orders/reservations/payment/notifications/logout) has no owning feature — only its favorites rail is covered, by `favorites.md`. Needs its own feature (likely `profile` or `account`) and spec before that content is implemented.
+**Note**: `profile` and `favorites` both compose the same route (`app/(tabs)/profile.tsx`) — `profile.md` covers the header/stats/account-menu, `favorites.md`'s User Story 2 covers the favorites rail. Coordinate whichever gets implemented first per each spec's "Notes for the AI Agent."
 
 **Future direction — authentication.** Confirmed (not yet specced): the app will eventually have a login system, and user-owned data (starting with favorites, likely extending to orders/reservations shown in the Profile account menu) will move from local/mock state to being scoped per authenticated user. This is why `favorites.md` deliberately skips client-side persistence now (see its Architecture Mapping) — building `AsyncStorage`-backed persistence today would just be replaced once auth exists. Don't build speculative auth scaffolding ahead of its own spec; this note exists so future feature specs (especially the `profile`/`account` gap above) account for it instead of re-discovering it.
 
