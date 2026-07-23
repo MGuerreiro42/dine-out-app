@@ -33,7 +33,10 @@ Read `specs/PROJECT.md` before making any architecture-level decision (new featu
 
 ```bash
 npx tsc --noEmit
+npx jest
 ```
+
+`npx jest` runs the suite once; `npm test` (`jest --watchAll`) is the watch-mode version for active development. Tests use `msw/native` (not `msw/node` — see the "New library/API question" note above, this project's export-conditions gotcha is documented in `specs/PROJECT.md`'s ADR log) against the same handlers the running app uses, via `jest.setup.js`.
 
 The dev server is usually already running at `localhost:8081` (`npx expo start --web`). Confirm a route bundles clean with:
 

@@ -75,8 +75,8 @@ The user searches by text/location and sees results both on a map (pins) and in 
 - **Reuses from `src/components/layout/`**: `SearchBar` (decorative), `SideMenu`.
 - **Global state?** No, for this story. The user's location (`USER_LOCATION`) is hardcoded inside `LocationHeader.tsx` — once it becomes truly dynamic (real geolocation), it migrates to `src/stores/location.ts` (already planned in `PROJECT.md`, not implemented yet).
 - **Types**: `Restaurant` shared (`src/types/restaurant.ts`); `Cuisine`/`Occasion`/`Ambient`/`Benefit` specific (`src/features/search/types/`).
-- **Mocks**: `src/mocks/restaurants.ts`, `src/mocks/discoveryTaxonomies.ts`.
-- **New dependencies**: none for US1. US2 (Search & Map) already has `react-native-maps` installed ahead of time (decision recorded in `PROJECT.md`), but no map code has been written yet.
+- **Mocks**: `src/mocks/restaurants.ts`, `src/mocks/discoveryTaxonomies.ts` — fixture data, served over HTTP via `src/mocks/handlers/restaurants.ts` and `discoveryTaxonomies.ts` (MSW), not imported directly by hooks anymore (see `PROJECT.md` principle #4, updated when MSW/testing infra was added). `useRestaurantsQuery`/`useDiscoveryTaxonomiesQuery` call `apiClient.get(...)` and validate the response against the Zod schemas in `src/types/` / `features/search/types/`.
+- **New dependencies**: `zod` and `msw` (added when the MSW/testing infrastructure round touched every existing `api/` hook, not specific to this feature — see `PROJECT.md`). US2 (Search & Map) already has `react-native-maps` installed ahead of time (decision recorded in `PROJECT.md`), but no map code has been written yet.
 
 ## Out of Scope
 
@@ -104,3 +104,4 @@ The user searches by text/location and sees results both on a map (pins) and in 
 | Date | Change |
 |------|--------|
 | 2026-07-23 | Spec created retroactively, documenting User Story 1 (Home) already implemented. User Story 2 (Search & Map) recorded as pending, with no detail yet. |
+| 2026-07-23 | Architecture Mapping updated: `useRestaurantsQuery`/`useDiscoveryTaxonomiesQuery` migrated from direct mock import to `apiClient` + MSW (see `PROJECT.md`'s MSW/testing infrastructure entry). No behavior or requirement changed, only how the data gets from the mock file into the hook. |
