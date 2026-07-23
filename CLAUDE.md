@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# restaurante-app
+# dine-out-app
 
 A restaurant/bar discovery app. This file is the implicit context loaded on every prompt in this repo — keep it accurate as the project evolves, and keep it a *pointer* to `specs/`, not a second source of truth. Current phase, backend status, and feature status live in `specs/PROJECT.md`'s Vision and Feature Index — don't restate them here, they'll go stale the moment they change. If this file and `specs/PROJECT.md` ever disagree, `specs/PROJECT.md` wins for architecture/decisions; fix this file to match.
 
@@ -17,7 +17,7 @@ Read `specs/PROJECT.md` before making any architecture-level decision (new featu
 - **Stack**: Expo SDK 57, Expo Router (file-based, routes at `app/`), TypeScript, NativeWind v4 + Tailwind v3, TanStack Query (server state), Zustand (global client state only), `react-native-maps`.
 - **Architecture**: bulletproof-react adapted for React Native. `src/features/<name>/{api,components,hooks,stores,types}` are isolated vertical modules — **features never import each other**. `src/components/ui/` = generic reusable primitives. `src/components/layout/` = structural app frame (search bar, side menu) present on most screens. `src/stores/` = state genuinely needed by more than one feature (see `favorites` in the decision log for why/when something graduates from a feature's own `stores/` to here).
 - **Data**: everything currently reads from `src/mocks/` through a TanStack Query hook in each feature's `api/`. This is the seam for swapping in a real API later without touching components — never read a mock directly from a component.
-- **Naming**: 100% English for folders, files, exports, variables. The product name itself (`restaurante-app`, `app.json` scheme `restauranteapp`) is the one exception — that's a product decision, not a code convention.
+- **Naming**: 100% English — folders, files, exports, variables, and the product name itself (`dine-out-app`, `app.json` scheme `dineoutapp`). No exception needed since the rename; before it, the product name (`restaurante-app`) was a deliberate one, kept in Portuguese as a product decision distinct from the code-naming convention. One exception that *does* remain: `app.json`'s `slug` stays `dine-out-discovery`, not `dine-out-app` — it must match the slug already registered on the linked EAS project (see `specs/PROJECT.md`'s ADR log); changing it locally without recreating that project just produces an `eas init` mismatch error.
 
 ## Working agreements
 

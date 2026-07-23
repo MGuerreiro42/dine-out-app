@@ -1,56 +1,32 @@
-# Welcome to your Expo app 👋
+# Dine Out
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A restaurant and bar discovery app — browse by cuisine, occasion, and ambient vibe, dig into a place's menu and reviews, and (soon) find it on a map. Currently a navigable prototype for business partners: no backend yet, all data comes from local mocks served over a mocked network layer (MSW) so the seam to a real API is already in place.
 
-## Get started
+Built with Expo (React Native + web from one codebase), TypeScript, and a bulletproof-react-inspired architecture. See [`specs/PROJECT.md`](./specs/PROJECT.md) for the full architecture, tech stack, and decision log — this README stays intentionally short.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Getting started
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Opens the dev server at `localhost:8081` — press `w` for web, or scan the QR code with [Expo Go](https://expo.dev/go) for a physical device. Native (iOS/Android) works today; once the Search & Map feature lands (`react-native-maps`), that screen will require a [development build](https://docs.expo.dev/develop/development-builds/introduction/) instead of Expo Go.
 
-### Other setup steps
+## Verification
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npx tsc --noEmit   # typecheck
+npx jest           # unit tests
+npx expo lint      # lint
+```
 
-## Learn more
+See [`CLAUDE.md`](./CLAUDE.md) for the full verification pattern (bundle smoke tests per platform) and the project's working agreements.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Project structure and process
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+This project follows a spec-driven workflow: every feature has a spec in [`specs/`](./specs) (user stories, functional requirements, an architecture mapping) before it's implemented. Start with [`specs/PROJECT.md`](./specs/PROJECT.md) for the architecture and feature index, and [`specs/TEMPLATE.md`](./specs/TEMPLATE.md) for the spec format itself.
 
-## Join the community
+## Deployment
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Not deployed yet. EAS Build is configured (`eas.json`, `preview` profile for internal APK distribution) but no build has been triggered — see the [EAS Build workflow](./.github/workflows/eas-build.yml), manual-trigger only.
