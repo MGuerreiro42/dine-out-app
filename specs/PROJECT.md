@@ -61,8 +61,12 @@ specs/                       # this directory — project and feature specs
 | Feature | Spec | Status |
 |---|---|---|
 | `search` | `specs/search.md` | Home implemented (mock data); Search & Map pending |
-| `restaurant` | `specs/restaurant.md` *(to create)* | Placeholder |
-| `favorites` | `specs/favorites.md` *(to create)* | Placeholder |
+| `restaurant` | `specs/restaurant.md` | Spec drafted (7 user stories), not implemented |
+| `favorites` | `specs/favorites.md` | Spec drafted (2 user stories), not implemented |
+
+**Known gap**: the Profile screen's account content (avatar, stats, orders/reservations/payment/notifications/logout) has no owning feature — only its favorites rail is covered, by `favorites.md`. Needs its own feature (likely `profile` or `account`) and spec before that content is implemented.
+
+**Future direction — authentication.** Confirmed (not yet specced): the app will eventually have a login system, and user-owned data (starting with favorites, likely extending to orders/reservations shown in the Profile account menu) will move from local/mock state to being scoped per authenticated user. This is why `favorites.md` deliberately skips client-side persistence now (see its Architecture Mapping) — building `AsyncStorage`-backed persistence today would just be replaced once auth exists. Don't build speculative auth scaffolding ahead of its own spec; this note exists so future feature specs (especially the `profile`/`account` gap above) account for it instead of re-discovering it.
 
 ## Architectural Decisions (ADR-lite)
 
