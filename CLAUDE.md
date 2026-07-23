@@ -21,6 +21,7 @@ Read `specs/PROJECT.md` before making any architecture-level decision (new featu
 
 ## Working agreements
 
+- **New work happens on its own `feat/<description>` branch, never committed directly to `main`.** Create and check out the branch before writing any code or spec changes for a new task.
 - **Scaffold with the tool's own defaults.** Don't customize CLI flags/options during initial setup — architecture customization is its own separate step, discussed and decided explicitly.
 - **Don't implement business logic ahead of a spec.** Placeholder folders (empty `index.ts` with `export {};`) stay empty until a feature spec in `specs/` explicitly covers that module. If you're about to write logic that isn't backed by a spec, stop and either write the spec first or ask.
 - **Reuse before creating.** Before adding a component, check `src/components/ui/index.ts` and `src/components/layout/index.ts` first. Before adding a store, check whether the state really needs to be global (rule: only if more than one feature needs to read/write it — see Architecture Principles in `specs/PROJECT.md`).
