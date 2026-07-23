@@ -1,16 +1,18 @@
 {
   "expo": {
     "name": "restaurante-app",
-    "slug": "restaurante-app",
+    "slug": "dine-out-discovery",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "restauranteapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.miguelguerreiro.restauranteapp"
     },
     "android": {
+      "package": "com.miguelguerreiro.restauranteapp",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,6 +40,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a8a45b72-e1ae-4277-a418-87ae768684ea"
+      }
+    },
+    "owner": "miguelguerreiro42s-team"
   }
 }
