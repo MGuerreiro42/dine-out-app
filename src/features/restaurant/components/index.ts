@@ -11,4 +11,5 @@ export * from './RedirectOptionsSheetContent';
 export * from './ReserveSheetContent';
 export * from './ReviewsSection';
 export * from './ReviewsSheetContent';
+export * from './SimilarPlacesSection';
 export * from './ThingsToKnowSection';
