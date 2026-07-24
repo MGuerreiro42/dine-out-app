@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
-import { AMBIENTS, BENEFITS, CUISINES, OCCASIONS } from '@/mocks/discoveryTaxonomies';
+import { AMBIENTS, BENEFITS, CATEGORY_SUBTYPES, CUISINES, OCCASIONS } from '@/mocks/discoveryTaxonomies';
 
 export const discoveryTaxonomiesHandlers = [
   http.get('https://api.restaurante.app/discovery-taxonomies', () => {
@@ -9,6 +9,7 @@ export const discoveryTaxonomiesHandlers = [
       occasions: OCCASIONS,
       ambients: AMBIENTS,
       benefits: BENEFITS,
+      categorySubtypes: CATEGORY_SUBTYPES,
     });
   }),
 ];

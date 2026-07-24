@@ -13,9 +13,11 @@ import {
   InstagramSection,
   RedirectOptionsSheetContent,
   ReviewsSection,
+  SimilarPlacesSection,
   ThingsToKnowSection,
 } from '@/features/restaurant/components';
 import { useRestaurantDetailQuery } from '@/features/restaurant/api';
+import { useRestaurantsQuery } from '@/features/search/api';
 
 const DESCRIPTION_TRUNCATE_LENGTH = 110;
 
@@ -23,6 +25,7 @@ export default function RestaurantDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: restaurant, isLoading, isError, refetch } = useRestaurantDetailQuery(Number(id));
+  const { data: allRestaurants } = useRestaurantsQuery();
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
 
@@ -58,6 +61,10 @@ export default function RestaurantDetailScreen() {
     descriptionExpanded || !isDescriptionLong
       ? restaurant.description
       : `${restaurant.description.slice(0, DESCRIPTION_TRUNCATE_LENGTH)}...`;
+
+  const similarPlaces = (allRestaurants ?? [])
+    .filter((r) => r.cuisine === restaurant.cuisine && r.id !== restaurant.id)
+    .slice(0, 3);
 
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
@@ -121,6 +128,11 @@ export default function RestaurantDetailScreen() {
       <ThingsToKnowSection thingsToKnow={restaurant.thingsToKnow} />
 
       <InstagramSection handle={restaurant.instagramHandle} photos={restaurant.instagramPhotos} />
+
+      <SimilarPlacesSection
+        similarPlaces={similarPlaces}
+        onSelect={(similar) => router.replace(`/restaurant/${similar.id}`)}
+      />
 
       <BottomSheet visible={addressSheetOpen} onClose={() => setAddressSheetOpen(false)}>
         <RedirectOptionsSheetContent title="Endereço" options={[{ icon: '🗺️', label: 'Abrir no Google Maps' }]} />
