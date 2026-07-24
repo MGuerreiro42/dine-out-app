@@ -46,6 +46,7 @@ export const RestaurantDetailSchema = RestaurantSchema.extend({
   phone: z.string(),
   whatsapp: z.string(),
   instagramHandle: z.string(),
+  instagramPhotos: z.array(z.string()),
   reviews: z.array(ReviewSchema),
   reviewCount: z.number(),
   highlights: z.array(z.string()),

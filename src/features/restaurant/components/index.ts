@@ -4,6 +4,7 @@ export * from './AmenitiesSheetContent';
 export * from './DetailHeaderActions';
 export * from './HighlightsRow';
 export * from './InfoActionsRow';
+export * from './InstagramSection';
 export * from './MenuSheetContent';
 export * from './OpeningHoursSheetContent';
 export * from './RedirectOptionsSheetContent';

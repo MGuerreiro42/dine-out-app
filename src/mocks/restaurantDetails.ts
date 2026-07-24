@@ -1,5 +1,5 @@
 import type { AppPlace, GoogleAmenityFields, PlaceDetails } from '@/lib/googlePlaces';
-import { PLACES, photoRef } from '@/mocks/restaurants';
+import { PLACES, photoRef, photoUrlForMockName } from '@/mocks/restaurants';
 
 type MenuItem = { name: string; price: string };
 
@@ -205,6 +205,17 @@ function instagramHandleFor(name: string): string {
   return `@${slug}`;
 }
 
+// Instagram photos are plain URLs (see schema.ts's note on why \u2014 no Google
+// contract to mirror here), cycling the same 6-photo pool everything else
+// in the mocks reuses, offset by id so restaurants don't all show the same set.
+function instagramPhotosFor(place: AppPlace): string[] {
+  const idNum = Number(place.id);
+  return Array.from({ length: 6 }, (_, i) => {
+    const poolIndex = ((idNum + i) % 6) + 1;
+    return photoUrlForMockName(`r${poolIndex}`) as string;
+  });
+}
+
 // Reviews are composed from a small per-cuisine content pool (rating+text)
 // combined with shared reviewer-name/relative-time pools cycled by id, not
 // hand-authored per restaurant \u2014 same efficiency precedent as menus/hours.
@@ -300,6 +311,7 @@ export const PLACE_DETAILS: Record<string, PlaceDetails> = Object.fromEntries(
       regularOpeningHours: { weekdayDescriptions: weekdayDescriptionsFor(place) },
       whatsapp: whatsappFor(place.id),
       instagramHandle: instagramHandleFor(place.displayName.text),
+      instagramPhotos: instagramPhotosFor(place),
       thingsToKnow: thingsToKnowFor(place, amenityFields),
       reviews: reviewsFor(place),
       highlights: highlightsFor(place, amenityFields),
