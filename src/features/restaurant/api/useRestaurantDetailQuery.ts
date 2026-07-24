@@ -1,9 +1,46 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { ApiError, apiClient } from '@/lib/apiClient';
-import { GOOGLE_PLACES_BASE_URL, PlaceDetailsSchema, mapPlaceToRestaurant, resolvePlacePhotoUrl } from '@/lib/googlePlaces';
+import {
+  GOOGLE_PLACES_BASE_URL,
+  PlaceDetailsSchema,
+  mapPlaceToRestaurant,
+  resolvePlacePhotoUrl,
+} from '@/lib/googlePlaces';
+import type { GoogleAmenityFields, PlaceDetails } from '@/lib/googlePlaces';
 import { RestaurantDetailSchema } from '@/features/restaurant/types';
-import type { RestaurantDetail } from '@/features/restaurant/types';
+import type { Amenity, OpeningHours, RestaurantDetail } from '@/features/restaurant/types';
+
+/**
+ * Presentation-only lookup: turns Google's real (flat) boolean amenity
+ * fields into the icon+label pairs the Amenities section actually renders.
+ * Not part of the wire contract — Google doesn't send icons.
+ */
+const AMENITY_RULES: { flag: keyof GoogleAmenityFields; icon: string; label: string }[] = [
+  { flag: 'delivery', icon: '🛵', label: 'Delivery' },
+  { flag: 'takeout', icon: '🥡', label: 'Retirada no local' },
+  { flag: 'dineIn', icon: '🍽️', label: 'Consumo no local' },
+  { flag: 'reservable', icon: '📅', label: 'Aceita reservas' },
+  { flag: 'outdoorSeating', icon: '🌳', label: 'Área externa' },
+  { flag: 'liveMusic', icon: '🎵', label: 'Música ao vivo' },
+  { flag: 'goodForGroups', icon: '👥', label: 'Bom para grupos' },
+  { flag: 'goodForChildren', icon: '👶', label: 'Kids friendly' },
+  { flag: 'allowsDogs', icon: '🐾', label: 'Aceita pets' },
+  { flag: 'wheelchairAccessibleEntrance', icon: '♿', label: 'Acessível' },
+  { flag: 'servesVegetarianFood', icon: '🥗', label: 'Opções vegetarianas' },
+  { flag: 'restroom', icon: '🚻', label: 'Banheiro' },
+];
+
+function mapAmenities(place: PlaceDetails): Amenity[] {
+  return AMENITY_RULES.filter((rule) => place[rule.flag]).map(({ icon, label }) => ({ icon, label }));
+}
+
+function mapOpeningHours(weekdayDescriptions: string[]): OpeningHours[] {
+  return weekdayDescriptions.map((entry) => {
+    const [day, hours] = entry.split(': ');
+    return { day, hours: hours ?? '' };
+  });
+}
 
 export function useRestaurantDetailQuery(id: number) {
   return useQuery({
@@ -23,6 +60,12 @@ export function useRestaurantDetailQuery(id: number) {
           tags: place.tags,
           addressShort: place.formattedAddress,
           menu: place.menu,
+          amenities: mapAmenities(place),
+          openingHours: mapOpeningHours(place.regularOpeningHours.weekdayDescriptions),
+          thingsToKnow: place.thingsToKnow,
+          phone: place.internationalPhoneNumber,
+          whatsapp: place.whatsapp,
+          instagramHandle: place.instagramHandle,
         };
 
         return RestaurantDetailSchema.parse(detail);

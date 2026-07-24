@@ -8,11 +8,35 @@ export const MenuItemSchema = z.object({
 });
 export type MenuItem = z.infer<typeof MenuItemSchema>;
 
+export const AmenitySchema = z.object({
+  icon: z.string(),
+  label: z.string(),
+});
+export type Amenity = z.infer<typeof AmenitySchema>;
+
+export const ThingToKnowSchema = z.object({
+  title: z.string(),
+  text: z.string(),
+});
+export type ThingToKnow = z.infer<typeof ThingToKnowSchema>;
+
+export const OpeningHoursSchema = z.object({
+  day: z.string(),
+  hours: z.string(),
+});
+export type OpeningHours = z.infer<typeof OpeningHoursSchema>;
+
 export const RestaurantDetailSchema = RestaurantSchema.extend({
   photos: z.array(z.string()),
   description: z.string(),
   tags: z.array(z.string()),
   addressShort: z.string(),
   menu: z.array(MenuItemSchema),
+  amenities: z.array(AmenitySchema),
+  openingHours: z.array(OpeningHoursSchema),
+  thingsToKnow: z.array(ThingToKnowSchema),
+  phone: z.string(),
+  whatsapp: z.string(),
+  instagramHandle: z.string(),
 });
 export type RestaurantDetail = z.infer<typeof RestaurantDetailSchema>;
