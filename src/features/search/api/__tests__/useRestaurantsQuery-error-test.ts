@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import React from 'react';
 
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
+import { GOOGLE_PLACES_BASE_URL } from '@/lib/googlePlaces';
 import { server } from '@/mocks/native';
 
 function createWrapper() {
@@ -19,7 +20,7 @@ function createWrapper() {
 
 test('surfaces a query error when the endpoint returns a server error', async () => {
   server.use(
-    http.get('https://api.restaurante.app/restaurants', () => new HttpResponse(null, { status: 500 })),
+    http.post(`${GOOGLE_PLACES_BASE_URL}/places\\:searchNearby`, () => new HttpResponse(null, { status: 500 })),
   );
 
   const { result } = await renderHook(() => useRestaurantsQuery(), { wrapper: createWrapper() });
