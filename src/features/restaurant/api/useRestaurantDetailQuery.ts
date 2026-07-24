@@ -9,7 +9,7 @@ import {
 } from '@/lib/googlePlaces';
 import type { GoogleAmenityFields, PlaceDetails } from '@/lib/googlePlaces';
 import { RestaurantDetailSchema } from '@/features/restaurant/types';
-import type { Amenity, OpeningHours, RestaurantDetail } from '@/features/restaurant/types';
+import type { Amenity, OpeningHours, Review, RestaurantDetail } from '@/features/restaurant/types';
 
 /**
  * Presentation-only lookup: turns Google's real (flat) boolean amenity
@@ -42,6 +42,15 @@ function mapOpeningHours(weekdayDescriptions: string[]): OpeningHours[] {
   });
 }
 
+function mapReviews(place: PlaceDetails): Review[] {
+  return place.reviews.map((review) => ({
+    name: review.authorAttribution.displayName,
+    time: review.relativePublishTimeDescription,
+    rating: review.rating,
+    text: review.text.text,
+  }));
+}
+
 export function useRestaurantDetailQuery(id: number) {
   return useQuery({
     queryKey: ['restaurant', id],
@@ -66,6 +75,9 @@ export function useRestaurantDetailQuery(id: number) {
           phone: place.internationalPhoneNumber,
           whatsapp: place.whatsapp,
           instagramHandle: place.instagramHandle,
+          reviews: mapReviews(place),
+          reviewCount: place.userRatingCount,
+          highlights: place.highlights,
         };
 
         return RestaurantDetailSchema.parse(detail);

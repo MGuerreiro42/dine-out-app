@@ -205,6 +205,83 @@ function instagramHandleFor(name: string): string {
   return `@${slug}`;
 }
 
+// Reviews are composed from a small per-cuisine content pool (rating+text)
+// combined with shared reviewer-name/relative-time pools cycled by id, not
+// hand-authored per restaurant \u2014 same efficiency precedent as menus/hours.
+
+type ReviewContent = { rating: number; text: string };
+
+const REVIEWS_BY_PRIMARY_TYPE: Record<string, ReviewContent[]> = {
+  brazilian_restaurant: [
+    { rating: 5, text: 'Melhor rod\u00edzio da cidade! Carnes no ponto certo e atendimento impec\u00e1vel. A picanha estava excelente.' },
+    { rating: 5, text: 'Ambiente \u00f3timo, carnes de primeira e o gar\u00e7om sempre atento pra repor. Voltarei com certeza.' },
+    { rating: 4, text: 'Comida excelente, s\u00f3 achei o pre\u00e7o um pouco salgado pro que oferece.' },
+  ],
+  mediterranean_restaurant: [
+    { rating: 5, text: 'Mezze maravilhoso e vinhos muito bem escolhidos. Lugar perfeito pra uma noite tranquila.' },
+    { rating: 5, text: 'Card\u00e1pio saboroso e bem equilibrado, d\u00e1 pra sentir a qualidade dos ingredientes.' },
+    { rating: 4, text: 'Muito bom, mas o atendimento demorou um pouco mais do que eu esperava.' },
+  ],
+  italian_restaurant: [
+    { rating: 5, text: 'Massa fresca impec\u00e1vel, d\u00e1 pra sentir que \u00e9 feita na hora. Melhor italiana da regi\u00e3o.' },
+    { rating: 5, text: 'Pizza excelente e ambiente aconchegante, perfeito pra um jantar em fam\u00edlia.' },
+    { rating: 4, text: 'Comida muito boa, s\u00f3 achei o sal\u00e3o um pouco apertado nos hor\u00e1rios de pico.' },
+  ],
+  indian_restaurant: [
+    { rating: 5, text: 'Curry maravilhoso, temperos na medida certa. Naan quentinho e fresco.' },
+    { rating: 5, text: 'Melhor comida indiana que j\u00e1 comi em S\u00e3o Paulo. Atendimento super atencioso.' },
+    { rating: 4, text: 'Muito saboroso, s\u00f3 achei os pratos um pouco picantes pro meu gosto.' },
+  ],
+  chinese_restaurant: [
+    { rating: 5, text: 'Pato laqueado espetacular, crocante por fora e suculento por dentro.' },
+    { rating: 5, text: 'Comida chinesa aut\u00eantica, sabores bem definidos e por\u00e7\u00f5es generosas.' },
+    { rating: 4, text: 'Muito bom, mas o tempo de espera foi maior do que o esperado num dia de movimento.' },
+  ],
+};
+
+const REVIEWER_NAMES = [
+  'Christina Lamama',
+  'Marcos Vin\u00edcius',
+  'Ana Beatriz',
+  'Rafael Souza',
+  'Juliana Prado',
+  'Lucas Ferreira',
+  'Camila Rocha',
+  'Bruno Alves',
+  'Fernanda Lima',
+  'Diego Martins',
+];
+
+const RELATIVE_TIMES = ['2 dias atr\u00e1s', '1 semana atr\u00e1s', '3 semanas atr\u00e1s', '1 m\u00eas atr\u00e1s', '2 meses atr\u00e1s'];
+
+function reviewsFor(place: AppPlace) {
+  const idNum = Number(place.id);
+  const contents = REVIEWS_BY_PRIMARY_TYPE[place.primaryType];
+
+  return contents.map((content, i) => ({
+    relativePublishTimeDescription: RELATIVE_TIMES[(idNum + i) % RELATIVE_TIMES.length],
+    rating: content.rating,
+    text: { text: content.text, languageCode: 'pt-BR' },
+    authorAttribution: { displayName: REVIEWER_NAMES[(idNum + i) % REVIEWER_NAMES.length] },
+  }));
+}
+
+// Highlights have no Google equivalent \u2014 derived from the same signals as
+// amenities/thingsToKnow (priceLevel/primaryType/occasion/amenity flags),
+// padded with generic fallbacks so every restaurant gets exactly 3.
+function highlightsFor(place: AppPlace, amenityFields: GoogleAmenityFields): string[] {
+  const candidates: string[] = [];
+  if (place.priceLevel === 'PRICE_LEVEL_INEXPENSIVE') candidates.push('Great value');
+  if (place.primaryType === 'brazilian_restaurant') candidates.push('Big Portions');
+  if (amenityFields.liveMusic) candidates.push('Live music');
+  if (place.occasion === 'encontro') candidates.push('Romantic spot');
+  if (amenityFields.goodForChildren) candidates.push('Family friendly');
+  if (amenityFields.goodForGroups) candidates.push('Great for groups');
+  if (amenityFields.servesVegetarianFood) candidates.push('Vegetarian options');
+  candidates.push('Fast service', 'Variety');
+  return Array.from(new Set(candidates)).slice(0, 3);
+}
+
 export const PLACE_DETAILS: Record<string, PlaceDetails> = Object.fromEntries(
   PLACES.map((place) => {
     const extras = EXTRAS_BY_ID[place.id];
@@ -224,6 +301,8 @@ export const PLACE_DETAILS: Record<string, PlaceDetails> = Object.fromEntries(
       whatsapp: whatsappFor(place.id),
       instagramHandle: instagramHandleFor(place.displayName.text),
       thingsToKnow: thingsToKnowFor(place, amenityFields),
+      reviews: reviewsFor(place),
+      highlights: highlightsFor(place, amenityFields),
     };
 
     return [place.id, details];
