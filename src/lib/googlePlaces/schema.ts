@@ -83,7 +83,15 @@ export const GoogleAmenityFieldsSchema = z.object({
 });
 export type GoogleAmenityFields = z.infer<typeof GoogleAmenityFieldsSchema>;
 
-/** Also custom, also not part of Google's contract: our own menu/tags/thingsToKnow data. */
+/** Real Google Review shape — an exact match for our own Review entity. */
+export const GoogleReviewSchema = z.object({
+  relativePublishTimeDescription: z.string(),
+  rating: z.number(),
+  text: z.object({ text: z.string(), languageCode: z.string() }),
+  authorAttribution: z.object({ displayName: z.string() }),
+});
+
+/** Also custom, also not part of Google's contract: our own menu/tags/thingsToKnow/highlights data. */
 export const PlaceDetailsSchema = AppPlaceSchema.extend({
   editorialSummary: z.object({ text: z.string(), languageCode: z.string() }),
   tags: z.array(z.string()),
@@ -93,6 +101,8 @@ export const PlaceDetailsSchema = AppPlaceSchema.extend({
   whatsapp: z.string(),
   instagramHandle: z.string(),
   thingsToKnow: z.array(z.object({ title: z.string(), text: z.string() })),
+  reviews: z.array(GoogleReviewSchema),
+  highlights: z.array(z.string()),
 }).extend(GoogleAmenityFieldsSchema.shape);
 export type PlaceDetails = z.infer<typeof PlaceDetailsSchema>;
 

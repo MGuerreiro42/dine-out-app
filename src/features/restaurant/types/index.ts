@@ -26,6 +26,14 @@ export const OpeningHoursSchema = z.object({
 });
 export type OpeningHours = z.infer<typeof OpeningHoursSchema>;
 
+export const ReviewSchema = z.object({
+  name: z.string(),
+  time: z.string(),
+  rating: z.number(),
+  text: z.string(),
+});
+export type Review = z.infer<typeof ReviewSchema>;
+
 export const RestaurantDetailSchema = RestaurantSchema.extend({
   photos: z.array(z.string()),
   description: z.string(),
@@ -38,5 +46,8 @@ export const RestaurantDetailSchema = RestaurantSchema.extend({
   phone: z.string(),
   whatsapp: z.string(),
   instagramHandle: z.string(),
+  reviews: z.array(ReviewSchema),
+  reviewCount: z.number(),
+  highlights: z.array(z.string()),
 });
 export type RestaurantDetail = z.infer<typeof RestaurantDetailSchema>;

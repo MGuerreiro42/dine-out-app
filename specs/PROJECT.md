@@ -101,6 +101,7 @@ jest.config.js, jest.setup.js
   - **Gotcha**: MSW's path matcher treats any `:` in a route pattern as a path-param marker, including Google's own `places:searchNearby` action-suffix convention — needs escaping (`places\\:searchNearby`) in the handler registration or it silently won't match.
   - **Out of scope, deliberately**: real geo-radius filtering (the mock accepts but ignores the request body's location), `X-Goog-FieldMask`/`X-Goog-Api-Key` headers (real Google requires them; simulating field-mask-based trimming adds mock complexity with no prototype value), and Google's boolean amenity fields for occasion/ambient.
   - **Extended for `restaurant.md`'s US3** (practical info): `regularOpeningHours.weekdayDescriptions`, `internationalPhoneNumber`, and a curated set of Google's real boolean amenity fields now back opening hours, the contact sheet, and the amenities list — same pattern, not a new decision. `whatsapp`/`instagramHandle`/`thingsToKnow` stay custom, same reasoning as `occasion`/`ambient` above.
+  - **Extended again for US4** (reviews/highlights): Google's real `reviews[]` (`relativePublishTimeDescription`, `rating`, `text.text`, `authorAttribution.displayName`) backs the Reviews section — an exact field-for-field match, no adaptation needed. `highlights` stays custom. Also surfaced that `userRatingCount` (present since the first Google Places round) had never been mapped anywhere — now backs `RestaurantDetail.reviewCount`.
 
 ## Standard Verification
 

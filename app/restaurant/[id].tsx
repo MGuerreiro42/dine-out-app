@@ -8,8 +8,10 @@ import {
   ActionGrid,
   AmenitiesSection,
   DetailHeaderActions,
+  HighlightsRow,
   InfoActionsRow,
   RedirectOptionsSheetContent,
+  ReviewsSection,
   ThingsToKnowSection,
 } from '@/features/restaurant/components';
 import { useRestaurantDetailQuery } from '@/features/restaurant/api';
@@ -111,7 +113,10 @@ export default function RestaurantDetailScreen() {
 
       <AmenitiesSection amenities={restaurant.amenities} />
 
-      {/* Reviews/highlights (US4) go here per the design, once built */}
+      <ReviewsSection rating={restaurant.rating} reviews={restaurant.reviews} reviewCount={restaurant.reviewCount} />
+
+      <HighlightsRow highlights={restaurant.highlights} />
+
       <ThingsToKnowSection thingsToKnow={restaurant.thingsToKnow} />
 
       <BottomSheet visible={addressSheetOpen} onClose={() => setAddressSheetOpen(false)}>

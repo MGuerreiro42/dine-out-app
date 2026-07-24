@@ -2,7 +2,7 @@
 
 **Feature**: `restaurant` — folder `src/features/restaurant/`
 **Created**: 2026-07-23
-**Status**: In Progress — User Stories 1, 2, and 3 Implemented (mock data); User Stories 4–7 not started
+**Status**: In Progress — User Stories 1, 2, 3, and 4 Implemented (mock data); User Stories 5–7 not started
 **Design reference**: `App Flow.dc.html`, frame "2 · Restaurant Detail"
 
 ## Summary
@@ -64,7 +64,7 @@ A user weighing whether to go can check what the place offers (wifi, parking, ac
 
 ---
 
-### User Story 4 - See reviews and highlights (Priority: P2)
+### User Story 4 - See reviews and highlights (Priority: P2) — **Implemented**
 
 A user checks social proof — what other people say, and the standout qualities other diners flagged — before deciding.
 
@@ -130,7 +130,7 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 
 - **Restaurant id doesn't exist in mock data**: **Resolved during US1 implementation** — renders a plain "Restaurante não encontrado" message instead of crashing. Not a designed empty state (no illustration, no back-to-Home action) — revisit if this becomes reachable in practice rather than a theoretical guard.
 - **Description shorter than the truncation threshold**: "see more" control should not render at all (nothing to expand).
-- **Zero reviews**: the preview review + "view all N reviews" control should not render, or should render an explicit empty state — **[NEEDS CLARIFICATION: which? Not specified by the design, which only shows restaurants with reviews.]**
+- **Zero reviews**: **Resolved pragmatically during US4 implementation**: `ReviewsSection` renders nothing at all if `reviews.length === 0` (no preview, no rating header, no "view all" control) — same "hide if nothing to show" treatment already established for `AmenitiesSection`'s "show all N amenities" button. Every mock restaurant has reviews today, so this is a defensive guard, not a designed empty state; revisit if a real backend can ever return zero reviews for a place users can reach.
 - **Single photo**: next/previous controls and the counter badge should either hide or be disabled — showing "1/1" with working-looking arrows that do nothing would be a bug.
 - **Amenities list shorter than the preview cap**: the "show all N amenities" control should not render (nothing more to show).
 - **Rapid double-tap on the like icon**: must not desync from the global store's actual state (no flicker between favorited/not across taps).
@@ -148,8 +148,8 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 - **FR-009**: The system MUST display a capped preview of amenities with an option to view the full list.
 - **FR-010**: The system MUST display the restaurant's opening hours for all seven days of the week, plus any holiday-hours note, on request.
 - **FR-011**: The system MUST display a "Things to know" section (title + text entries) without requiring a tap.
-- **FR-012**: The system MUST display the overall rating and one preview review, with an option to view all reviews.
-- **FR-013**: The system MUST display a row of highlight badges.
+- **FR-012 — Implemented**: The system MUST display the overall rating and one preview review, with an option to view all reviews.
+- **FR-013 — Implemented**: The system MUST display a row of highlight badges.
 - **FR-014**: The system MUST display the restaurant's Instagram handle, a preview photo grid, and a toggleable Follow/Following control (local UI state only — no real Instagram integration).
 - **FR-015**: The system MUST display a "Similar Places" rail; tapping an entry MUST navigate to that restaurant's own detail screen.
 - **FR-016**: The user MUST be able to toggle a restaurant's favorited state from the detail screen, reflecting and updating the shared favorites store defined in `favorites.md`.
@@ -164,7 +164,7 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 
 - **RestaurantDetail**: the full record for a single restaurant — extends the base `Restaurant` shape (id, name, photo, rating, priceLevel) used elsewhere in the app with everything the detail screen needs: `photos` (gallery, plural), `description`, `tags`, `addressShort`, `reviewCount`, `amenities`, `highlights`, `thingsToKnow`, `instagram` (handle), `reviews`, `openingHours`. **US3 added** `phone`, `whatsapp`, `instagramHandle` (scalar contact fields, resolving FR-017's data gap — `instagramHandle` is just the string here, the full grid+follow UI is still US5).
 - **MenuItem**: a single line in the Menu sheet — name, price (display string, e.g. `"R$ 89"` — not a structured currency amount at this stage).
-- **Review**: a single review — reviewer initial/name, relative time, star rating, text.
+- **Review**: a single review — reviewer name, relative time, star rating, text. The avatar's "initial" isn't a stored field — components derive it from `name.charAt(0)`, avoiding a value that could drift out of sync with the name.
 - **Amenity**: an icon + label pair (e.g. "📶 Wifi grátis").
 - **ThingToKnow**: a title + text pair (e.g. "Cancellation policy" / the policy text).
 - **OpeningHours**: a day + hours-range pair, one per day of the week.
@@ -181,12 +181,14 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 - **Feature folder**: `src/features/restaurant/{api,components,hooks,types}`. No `stores/` needed — this feature has no state of its own; the one piece of cross-screen state it touches (favorited) is global and owned by `favorites.md`, not by this feature.
 - **New shared `src/components/ui/` component required**: `PhotoCarousel` (gallery with next/previous + counter). This is genuinely reusable (already flagged as pending in earlier scaffolding notes) — build it in `ui/`, not inside `features/restaurant/components/`, even though it's only used here today.
 - **US3 components** (`features/restaurant/components/`, none shared elsewhere): `InfoActionsRow` (the "Contact & socials"/"Opening Hours" button row, owns its own sheet state, reuses `RedirectOptionsSheetContent` for the Contact sheet — no new sheet-content component needed for FR-017), `OpeningHoursSheetContent`, `AmenitiesSection` (preview + "show all" trigger) + `AmenitiesSheetContent`, `ThingsToKnowSection` (always-visible, no sheet, per FR-011). The tappable address (FR-018) needed no new component — one more `useState` directly in `app/restaurant/[id].tsx`, consistent with how it already manages `descriptionExpanded`.
+- **US4 components**: `ReviewsSection` (rating header + preview review + "view all N reviews" trigger, owns its own sheet state, same self-contained pattern as `AmenitiesSection`; returns `null` entirely when `reviews.length === 0`) + `ReviewsSheetContent` (full list), `HighlightsRow` (always-visible 3-badge row, no sheet, per FR-013).
 - **Reuses from `src/components/ui/`**: `RestaurantCard` (Similar Places rail), `HorizontalRail` (Similar Places rail, Instagram photo grid if a grid layout isn't a better fit — decide at implementation time), `BottomSheet` (every quick-action and info sheet on this screen), `RatingBadge`.
 - **Reuses from `src/components/layout/`**: `SearchBar` (overlaid on the photo gallery, matching the design; its overlay width shrank from `right-3.5` to `right-12` once the icon stack needed room beside it). Does NOT reuse `SideMenu` — the header icon stack on this screen (location/settings/profile/share) is a different, screen-specific set of icons, not the Home hamburger menu. **Implemented**: `features/restaurant/components/DetailHeaderActions.tsx` (FR-019–FR-022) — location reuses `RedirectOptionsSheetContent` (same option as FR-018's address sheet), settings and share use a direct `Alert.alert` (no sheet needed for a single generic message), profile is a real `router.push('/profile')`.
 - **Global state**: yes — reads and writes `src/stores/favorites.ts` (contract defined in `favorites.md`) for User Story 7. This is the first feature to actually consume that store; implementing it here is what turns `stores/favorites.ts` from a documented decision into real code — coordinate with `favorites.md`'s implementation, don't invent a second, divergent favorites API here.
-- **Types**: `RestaurantDetail`, `MenuItem`, `Review`, `Amenity`, `ThingToKnow`, `OpeningHours` all live in `src/features/restaurant/types/` (detail-specific, not shared) and `RestaurantDetail` extends the shared `Restaurant` from `src/types/restaurant.ts` rather than duplicating its fields.
+- **Types**: `RestaurantDetail`, `MenuItem`, `Review`, `Amenity`, `ThingToKnow`, `OpeningHours` all live in `src/features/restaurant/types/` (detail-specific, not shared) and `RestaurantDetail` extends the shared `Restaurant` from `src/types/restaurant.ts` rather than duplicating its fields. `RestaurantDetail.reviewCount` (**added in US4**) turned out to already exist on the wire — it's Google's real `userRatingCount`, present since the very first Google Places round but never mapped to anything until now.
 - **Mocks**: `src/mocks/restaurantDetails.ts`, string-keyed by place `id`, composed from `src/mocks/restaurants.ts`'s 30 base places plus detail-only fields (`editorialSummary`, `tags`, `menu`) — served over HTTP via `src/mocks/handlers/restaurantDetails.ts` (MSW), returning 404 for an unknown id. **Corrected**: `useRestaurantDetailQuery(id)` now calls the Google Places API (New) Place Details contract (`GET .../places/{id}`, single raw object, matching what this handler already did shape-wise), resolves every photo reference through the same two-hop flow as the list, and normalizes to the unchanged `RestaurantDetailSchema` — 404-to-`null` mapping via `ApiError` is unaffected. Full rationale in `PROJECT.md`'s ADR log.
 - **US3 extends the wire contract with more real Google fields**: `regularOpeningHours.weekdayDescriptions` (opening hours), `internationalPhoneNumber` (contact), and a curated set of Google's real boolean amenity fields (`delivery`, `outdoorSeating`, `goodForGroups`, etc.) — mapped to `Amenity` icon+label pairs via a presentation-only lookup table inline in `useRestaurantDetailQuery.ts` (Google doesn't send icons). `whatsapp`, `instagramHandle`, and `thingsToKnow` stay custom, no Google equivalent, same treatment as `menu`/`tags`. Mock data for all 30 restaurants derives these from each place's existing `occasion`/`ambient`/`priceLevel`/`primaryType` rather than being hand-authored per restaurant.
+- **US4 extends it further**: Google's real `reviews[]` (`relativePublishTimeDescription`, `rating`, `text.text`, `authorAttribution.displayName`) is an exact match for `Review` — mapped 1:1 in `useRestaurantDetailQuery.ts`. `highlights` has no Google equivalent and stays custom, same treatment as `thingsToKnow`. Mock reviews are composed from a small per-cuisine content pool (3 rating+text pairs per cuisine) combined with shared reviewer-name/relative-time pools cycled by restaurant `id`, not 90 hand-authored reviews; highlights are derived from the same signals `thingsToKnowFor`/`amenityFieldsFor` already use.
 - **New dependencies**: `zod` and `msw` (added when the MSW/testing infrastructure round touched every existing `api/` hook, not specific to this feature). `PhotoCarousel` itself needed none — built with a plain `ScrollView`/local state, no third-party carousel library.
 
 ## Out of Scope
@@ -205,6 +207,7 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 - Depends on `src/stores/favorites.ts` existing with the contract `favorites.md` defines — this feature is what actually triggers building it, so sequence the implementation accordingly (favorites store contract first, or in the same pass).
 - Depends on `app/restaurant/[id]` existing as a route (it did, as a placeholder, before US1/US2 replaced it with the real implementation).
 - `app/restaurant/[id].tsx` now reads `id` from `useLocalSearchParams` and coerces it with `Number(id)` — no validation beyond that (see the resolved Edge Case above).
+- **Deliberate, not built (US4)**: the design's top price/rating row is a link that jumps to the reviews section (`★ {{rating}} ({{reviewCount}})`). The shared `RatingBadge` (reused on Home cards, where `reviewCount` doesn't apply) is the wrong place to add this, RN's `ScrollView` has no trivial anchor-scroll equivalent, and no FR requires this specific link — FR-012's own "view all N reviews" button in `ReviewsSection` is the actual requirement and the only way to reach the full list. The top badge stays exactly as US1 built it.
 
 ## Notes for the AI Agent
 
@@ -223,3 +226,4 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 | 2026-07-24 | Mock data expanded to 30 restaurants and the wire contract rebuilt to mirror Google Places API (New)'s Place Details shape (`GET .../places/{id}`, two-hop photo resolution, `editorialSummary`→`description`). `RestaurantDetail`/the detail screen/every component are unchanged — normalized at the hook boundary. See `PROJECT.md`'s ADR log. |
 | 2026-07-24 | User Story 3 implemented (amenities, opening hours, things to know), and FR-017/FR-018 (contact sheet, tappable address) resolved alongside it — both folded into US3 rather than left ownerless. New components `InfoActionsRow`, `OpeningHoursSheetContent`, `AmenitiesSection`, `AmenitiesSheetContent`, `ThingsToKnowSection`. Wire contract extended with real Google fields (`regularOpeningHours`, `internationalPhoneNumber`, curated boolean amenity fields) plus custom `whatsapp`/`instagramHandle`/`thingsToKnow`. User Stories 4–7 still not started. |
 | 2026-07-24 | Design cross-reference (post-US3) found a real, previously-undetected spec gap: the photo gallery's header icon stack (location/settings/profile/share) had existed in the design since US1 but was never given an FR or acceptance scenario — worse than FR-017/FR-018's prior gap, which at least had FR numbers. Added acceptance scenario 5 to User Story 1 and new FR-019–FR-022, then implemented all four via `DetailHeaderActions.tsx`. FR-020 (settings icon) marked `[NEEDS CLARIFICATION]` — implemented as a generic simulated placeholder since the design gives no real content for it. |
+| 2026-07-24 | User Story 4 implemented (reviews, highlights). New components `ReviewsSection` + `ReviewsSheetContent`, `HighlightsRow`. Resolved the "zero reviews" `[NEEDS CLARIFICATION]` pragmatically (hide the section entirely, same treatment as `AmenitiesSection`). `RestaurantDetail.reviewCount` maps to Google's real `userRatingCount`, present since the first Google Places round but unused until now. Wire contract extended with Google's real `reviews[]` shape plus custom `highlights`. Noted as a deliberate non-build: the top rating badge doesn't link to the reviews section. User Stories 5–7 still not started. |
