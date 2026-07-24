@@ -1,4 +1,4 @@
-import type { Ambient, Benefit, Cuisine, Occasion } from '@/features/search/types';
+import type { Ambient, Benefit, CategorySubtype, Cuisine, Occasion } from '@/features/search/types';
 
 const PHOTOS = {
   r1: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80',
@@ -36,3 +36,31 @@ export const BENEFITS: Benefit[] = [
   { text: 'Estacionamento garantido' },
   { text: 'Pagamento seguro' },
 ];
+
+export const CATEGORY_SUBTYPES: Record<string, CategorySubtype[]> = {
+  churrasco: [
+    { initial: 'R', label: 'Rodízio' },
+    { initial: 'E', label: 'Espetos' },
+    { initial: 'P', label: 'Prime cuts' },
+  ],
+  mediterraneo: [
+    { initial: 'M', label: 'Mezze' },
+    { initial: 'G', label: 'Grelhados' },
+    { initial: 'V', label: 'Vegetariano' },
+  ],
+  italiana: [
+    { initial: 'M', label: 'Massas' },
+    { initial: 'P', label: 'Pizzas' },
+    { initial: 'R', label: 'Risotos' },
+  ],
+  indiana: [
+    { initial: 'C', label: 'Curry' },
+    { initial: 'T', label: 'Tandoori' },
+    { initial: 'V', label: 'Vegetariano' },
+  ],
+  chinesa: [
+    { initial: 'D', label: 'Dim Sum' },
+    { initial: 'W', label: 'Wok' },
+    { initial: 'P', label: 'Pato' },
+  ],
+};

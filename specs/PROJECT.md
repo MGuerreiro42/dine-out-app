@@ -41,7 +41,7 @@ An app for discovering bars and restaurants. Current phase: a navigable prototyp
 
 ```
 app/                        # Expo Router routes — thin, delegates to features/
-  (tabs)/{index,search,category,profile}.tsx  # 4 real tabs, matching the design's bottom tab bar (Home/Buscar/Categorias/Perfil) — search.tsx and category.tsx are still placeholder screens (US2/US3 not implemented); profile.tsx implemented (profile.md's US1-2), see ADR log
+  (tabs)/{index,search,category,profile}.tsx  # 4 real tabs, matching the design's bottom tab bar (Home/Buscar/Categorias/Perfil) — category.tsx implemented (US3) and profile.tsx implemented (profile.md's US1-2); search.tsx still a placeholder (US2 not implemented), see ADR log
   restaurant/[id].tsx
   profile/{orders,reservations,payment,notifications}.tsx  # trivial PlaceholderScreen routes, pushed from the profile tab — real content is profile.md's US3-6
   login.tsx                  # trivial PlaceholderScreen route — real content is auth.md's User Story 1
@@ -68,7 +68,7 @@ jest.config.js, jest.setup.js
 
 | Feature | Spec | Status |
 |---|---|---|
-| `search` | `specs/search.md` | Home implemented (mock data); Search & Map and category page (US2-US3) pending |
+| `search` | `specs/search.md` | Home (US1) and Category page (US3) implemented (mock data); Search & Map (US2) pending |
 | `restaurant` | `specs/restaurant.md` | US1+US2 implemented (mock data); US3–US7 not started |
 | `favorites` | `specs/favorites.md` | Spec drafted (2 user stories), not implemented — but its global store (`stores/favorites.ts`) already exists, built ahead of schedule in `profile.md`'s round (see ADR log) |
 | `profile` | `specs/profile.md` | US1+US2 implemented (mock data); US3-US6 not started |

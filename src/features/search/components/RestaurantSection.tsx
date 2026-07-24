@@ -9,9 +9,16 @@ type RestaurantSectionProps = {
   restaurants: Restaurant[];
   onSelectRestaurant: (restaurant: Restaurant) => void;
   viewAllMessage?: string;
+  onViewAll?: () => void;
 };
 
-export function RestaurantSection({ title, restaurants, onSelectRestaurant, viewAllMessage }: RestaurantSectionProps) {
+export function RestaurantSection({
+  title,
+  restaurants,
+  onSelectRestaurant,
+  viewAllMessage,
+  onViewAll,
+}: RestaurantSectionProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
@@ -26,9 +33,9 @@ export function RestaurantSection({ title, restaurants, onSelectRestaurant, view
           <RestaurantCard key={restaurant.id} restaurant={restaurant} onPress={onSelectRestaurant} />
         ))}
       </HorizontalRail>
-      {viewAllMessage ? (
+      {onViewAll || viewAllMessage ? (
         <View className="px-4 pb-1.5 pt-0.5">
-          <Pressable onPress={() => setSheetOpen(true)}>
+          <Pressable onPress={onViewAll ?? (() => setSheetOpen(true))}>
             <Text className="text-[13px] font-bold text-ink underline">view all</Text>
           </Pressable>
         </View>
