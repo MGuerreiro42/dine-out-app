@@ -7,6 +7,7 @@ import { SearchBar } from '@/components/layout';
 import {
   ActionGrid,
   AmenitiesSection,
+  DetailHeaderActions,
   InfoActionsRow,
   RedirectOptionsSheetContent,
   ThingsToKnowSection,
@@ -65,9 +66,10 @@ export default function RestaurantDetailScreen() {
         >
           <Text className="text-xl leading-none text-white">‹</Text>
         </Pressable>
-        <View className="absolute left-16 right-3.5 top-3.5">
+        <View className="absolute left-16 right-12 top-3.5">
           <SearchBar />
         </View>
+        <DetailHeaderActions />
       </View>
 
       <View className="px-4 pt-4">

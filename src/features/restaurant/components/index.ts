@@ -1,6 +1,7 @@
 export * from './ActionGrid';
 export * from './AmenitiesSection';
 export * from './AmenitiesSheetContent';
+export * from './DetailHeaderActions';
 export * from './InfoActionsRow';
 export * from './MenuSheetContent';
 export * from './OpeningHoursSheetContent';
