@@ -71,7 +71,7 @@ export default function RestaurantDetailScreen() {
       <View>
         <PhotoCarousel photos={restaurant.photos} />
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
           className="absolute left-3.5 top-3.5 h-10 w-10 items-center justify-center rounded-full bg-black/45"
         >
           <Text className="text-xl leading-none text-white">‹</Text>
