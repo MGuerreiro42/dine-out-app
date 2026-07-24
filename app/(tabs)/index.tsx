@@ -79,7 +79,10 @@ export default function HomeScreen() {
       <RestaurantSection
         restaurants={cuisineList}
         onSelectRestaurant={goToRestaurant}
-        viewAllMessage="Veja todos os restaurantes desta cozinha."
+        onViewAll={() => {
+          const activeCuisineId = cuisines.find((c) => c.isActive)?.id;
+          router.push({ pathname: '/category', params: activeCuisineId ? { cuisine: activeCuisineId } : {} });
+        }}
       />
 
       <View className="px-4 pb-1 pt-5">

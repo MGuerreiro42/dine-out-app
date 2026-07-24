@@ -2,8 +2,8 @@
 
 **Feature**: `search` — folder `src/features/search/`
 **Created**: 2026-07-23 *(retroactive — spec written after the Home implementation, as a validation of `TEMPLATE.md`)*
-**Status**: In Progress — User Story 1 (Home) Implemented, User Stories 2-3 not started
-**Design reference**: `App Flow.dc.html`, frame "1 · Home" (implemented), frame "3 · Search & Map" (pending), frame "7 · Category page" (pending)
+**Status**: In Progress — User Stories 1 and 3 (Home, Category page) Implemented; User Story 2 (Search & Map) not started
+**Design reference**: `App Flow.dc.html`, frame "1 · Home" (implemented), frame "3 · Search & Map" (pending), frame "7 · Category page" (implemented)
 
 ## Summary
 
@@ -41,13 +41,13 @@ The user searches by text/location and sees results both on a map (pins) and in 
 
 ---
 
-### User Story 3 - Browse a cuisine category page (Priority: P2) — **Not Started**
+### User Story 3 - Browse a cuisine category page (Priority: P2) — **Implemented**
 
-The user lands on a dedicated page for one cuisine category (e.g. Pizza) and sees a hero banner, the best-rated places in that category, a way to explore by sub-style, trending places, and places near them — all without leaving the category.
+The user lands on a dedicated page for one cuisine category (e.g. Churrasco) and sees a hero banner, the best-rated places in that category, a way to explore by sub-style, trending places, and places near them — all without leaving the category.
 
 **Why this priority**: a richer, editorial way to browse one category in depth, complementing Home's lighter "a few cards per category" rails — but Home alone already provides a full discovery MVP without it.
 
-**Independent test**: open a category page directly (no entry point is wired yet — see Edge Cases), confirm the hero banner, best-rated grid, subtype row, trending grid, and near-you grid all render for the active category; tap a different category tab, confirm the whole page's content switches; tap a restaurant card, confirm navigation to its detail.
+**Independent test**: from Home, tap a cuisine chip then its rail's "view all" — confirm navigation to the Categorias tab with that cuisine preselected; confirm the hero banner, best-rated grid, subtype row, trending grid, and near-you grid all render for the active category; tap a different category tab, confirm the whole page's content switches; tap a restaurant card, confirm navigation to its detail.
 
 **Acceptance scenarios**:
 
@@ -57,7 +57,7 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 4. **Given** the category page, **when** it renders, **then** a "best rated" grid (2 columns) shows places in that category, each with photo, a rating badge overlaid on the photo, name, cuisine label + price, and an optional discount pill.
 5. **Given** the category page, **when** it renders, **then** a prompt ("What's the flavour today? Explore by style") and a row of subtype icons show below the best-rated grid; tapping either opens a placeholder sheet (subtype filtering isn't real yet).
 6. **Given** the category page, **when** it renders, **then** a "trending" grid and a "near you" grid (near-you cards additionally show distance) render below, same card shape as the best-rated grid.
-7. **Given** any restaurant card on the page, **when** tapped, **then** the app navigates to that restaurant's detail screen — **for cards backed by a real restaurant record only, see Edge Cases for the ones that aren't.**
+7. **Given** any restaurant card on the page, **when** tapped, **then** the app navigates to that restaurant's detail screen — every card is backed by a real `Restaurant` record (champions/trending/near-you are all derived client-side from the same 30-restaurant mock, see Edge Cases).
 
 ---
 
@@ -66,9 +66,10 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 - **Empty filtered list** (a category with no matching restaurant in the mock): falls back to the first 3 restaurants in the overall list, so a rail is never empty. *(Implemented in `useHomeDiscovery.ts`.)*
 - **Before the mock "resolves"** (first render before `useQuery` populates `data`): rails render empty momentarily — imperceptible in practice because the mock resolves synchronously, but the behavior exists and will matter once it's a real API with real latency.
 - **`restaurants[0]` missing** (empty restaurant list): `FeaturedBanner` doesn't render (guard already implemented in the Home component).
-- **No entry point to the category page (US3) exists in the current design**: Home's cuisine "view all" still opens a placeholder sheet (`setHomePopup('view-all-cuisine')`), it doesn't navigate to the category page. The category page's own back control goes to Home, implying that *is* the intended entry point, but nothing currently triggers the navigation. **[NEEDS CLARIFICATION: should Home's cuisine "view all" be wired to open the matching category page once US3 is implemented? Not resolving here — this is a design-completeness gap, not an implementation detail to guess at.]**
-- **Category taxonomy is incomplete relative to Home's**: the design's category data only covers 3 categories (Pizza, Churrasco, Indiana). "Pizza" isn't in the `Cuisine` taxonomy Home's `CuisineSelector` uses (5 cuisines: churrasco/mediterraneo/italiana/indiana/chinesa) — 3 of those 5 have no category page yet, and Home has a cuisine with no matching category page content. **[NEEDS CLARIFICATION: should "Pizza" be added to the base cuisine taxonomy, and should every cuisine eventually get a category page, or is category-page coverage intentionally partial?]**
-- **Two of three categories' mock items have no restaurant `id`**: Pizza's and Indiana's category items are separate mock objects (`name`, `photo`, `rating`, etc.) that don't correspond to any real `Restaurant` record's `id` — tapping them can't actually navigate to a real detail screen as the design currently models it. Churrasco's category items are fine (derived from real `RESTAURANTS` entries). **[NEEDS CLARIFICATION: should every category's items become real `Restaurant` records (giving them ids), or is a separate, non-navigable "editorial" item shape intentional for category pages? Affects FR/Key Entity design, not resolving by assumption.]**
+- **Entry point to the category page (US3)**: **resolved** — Home's cuisine rail's "view all" (`RestaurantSection`'s new `onViewAll` prop) navigates to `/category` with the active cuisine preselected via a `cuisine` query param, instead of opening the old placeholder sheet. Occasion's "view all" is untouched, still a simulated sheet — there's no occasion-based category page. The category page itself has no back control (see the design-inconsistency note below); switching categories happens via its own in-page tabs or the bottom tab bar.
+- **Category taxonomy coverage**: **resolved** — category tabs reuse the exact same 5-cuisine `CUISINES` taxonomy Home's `CuisineSelector` already uses (churrasco/mediterraneo/italiana/indiana/chinesa). No separate "Pizza" taxonomy; every cuisine gets a category page for free, with no coverage gap against Home.
+- **Category items' restaurant identity**: **resolved** — champions/trending/near-you are all derived directly from the same 30-restaurant `restaurants.ts` mock via `useRestaurantsQuery` (same pattern as the restaurant detail screen's Similar Places rail), not separate editorial mock objects. Every card is a real, navigable `Restaurant`. Accepted limitation of a 6-restaurants-per-cuisine prototype dataset: 3 grids of 4 (12 slots) drawn from only 6 items per cuisine means the same restaurant can appear in more than one grid — not a bug, just the mock data's scale.
+- **Design inconsistency found and corrected**: the design frame still shows a `‹` back arrow to Home in the category page's header, left over from before the bottom tab bar existed (when this was presumably a stack-pushed screen, not a peer tab). A back arrow on a tab root is confusing/redundant with tab-switching, so it was dropped from the implementation — same "correct real inconsistencies rather than copy them" discipline applied elsewhere in this project (e.g. the sidebar logout fix).
 - **Bottom tab bar is confirmed real UI**: the design repeats an identical 4-item tab bar (Home, Buscar, Categorias, Perfil — no Favoritos, consistent with `favorites.md`'s "no route of its own" decision) across three frames: "1 · Home", "7 · Category page", "6 · Profile" — only the active item's styling differs between copies. The "3 · Search & Map" frame's own markup doesn't happen to include it, but the user confirmed the real behavior: tapping "Buscar" on Home replaces Home with the map, i.e. Search & Map is a normal tab destination reached through the same tab switch as Category page/Profile — **resolved**: it gets the tab bar too (with "Buscar" as the active item), same as the other three; the frame's missing copy was a design-canvas omission, not an intentional tab-chrome-free screen.
 
 ## Functional Requirements
@@ -83,12 +84,12 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 - **FR-008**: The system MUST display 3 quick-navigation shortcuts (Dine-in, Bars, Takeout); tapping any of them shows simulated feedback, with no real navigation.
 - **FR-009**: The system MUST display a static grid of 4 institutional benefits (text only, no interaction).
 - **FR-010**: The system MUST allow searching restaurants by text and viewing results on a map with a draggable list **[NEEDS CLARIFICATION: this story (US2) has no detailed requirement yet — free text? voice search? which filters combine with the map?]**
-- **FR-011**: The system MUST display a row of category tabs; tapping one MUST switch the entire page's content to that category.
-- **FR-012**: The system MUST display a hero banner (photo + label) for the active category, with a "View on map" link.
-- **FR-013**: The system MUST display a "best rated" grid of category items, each with photo, an overlaid rating badge, name, cuisine label + price, and an optional discount pill.
-- **FR-014**: The system MUST display a subtype-exploration prompt and a row of subtype options; tapping either opens a placeholder sheet.
-- **FR-015**: The system MUST display "trending" and "near you" grids for the active category, same card shape as FR-013 (near-you additionally shows distance).
-- **FR-016**: Tapping a grid card backed by a real restaurant record MUST navigate to that restaurant's detail screen **[NEEDS CLARIFICATION: see Edge Cases — what happens for the category items that currently have no real restaurant id]**.
+- **FR-011 — Implemented**: The system MUST display a row of category tabs (the same 5-cuisine taxonomy as Home); tapping one MUST switch the entire page's content to that category.
+- **FR-012 — Implemented**: The system MUST display a hero banner (photo + label) for the active category, with a "View on map" link that navigates to the Search & Map tab.
+- **FR-013 — Implemented**: The system MUST display a "best rated" grid of category items (the cuisine's restaurants sorted by rating desc, top 4), each with photo, an overlaid rating badge, name, cuisine label + price, and an optional discount pill (derived at render time from `priceLevel`, not authored per restaurant — presentation-only, no wire-contract field).
+- **FR-014 — Implemented**: The system MUST display a subtype-exploration prompt and a row of subtype options; tapping either opens a placeholder sheet (subtype filtering isn't real).
+- **FR-015 — Implemented**: The system MUST display "trending" (sorted by `id` asc, top 4) and "near you" (top 4, with a deterministic mock `distance` per restaurant) grids for the active category, same card shape as FR-013.
+- **FR-016 — Implemented**: Tapping any grid card MUST navigate to that restaurant's detail screen — every card is backed by a real `Restaurant` record (see Edge Cases).
 - **FR-017**: Tapping the menu icon (≡) MUST open the real navigation sidebar (`auth.md`'s User Story 3) — corrected from the earlier placeholder behavior (see User Story 1's Changelog-noted correction above).
 - **FR-018 — Implemented**: On Home, Search & Map, Category page, and Profile, the system MUST display a bottom tab bar with 4 items — Home, Buscar, Categorias, Perfil — each navigating to its respective tab and visually highlighting whichever is active. Structural, cross-feature UI; owned/recorded in `PROJECT.md`'s Folder Structure and ADR log (same cross-reference treatment already used for `SideMenu` pointing at `auth.md`), not redefined per-feature here.
 
@@ -96,8 +97,8 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 
 - **Restaurant**: a listable restaurant — name, photo, rating, price range, and the 3 classification categories (cuisine/occasion/ambient) used for this feature's filters. Full shape in `src/types/restaurant.ts` (shared with the `restaurant` feature).
 - **Cuisine / Occasion / Ambient**: category taxonomies — id, label, and a visual attribute (photo for cuisine, initial for occasion). Specific to this feature, not shared.
-- **Category**: a browsable category page's content — id, label, hero photo, a list of subtypes (initial + label), and three item lists (champions/"best rated", trending, near-you). Whether its items are full `Restaurant` records or a separate shape is an open question — see Edge Cases.
-- **CategorySubtype**: initial (icon letter) + label, e.g. "R" / "Rodízio" under the Churrasco category. Not navigable yet (opens a placeholder sheet).
+- **Category**: not a separate stored entity — a browsable category page's content (hero photo, three item lists) is derived at render time from `Cuisine` + the existing `Restaurant` list via `useCategoryDiscovery`. Its three item lists (champions/"best rated", trending, near-you) are plain `Restaurant` records (extended with a presentation-only `cuisineLabel`/`discount`/`distance`, see `DiscoveryCardData` in Architecture Mapping) — no separate editorial shape.
+- **CategorySubtype**: `initial` (icon letter) + `label`, e.g. "R" / "Rodízio" under the Churrasco category. Sourced from `discoveryTaxonomies`' new `categorySubtypes` map (keyed by cuisine id, 3 per cuisine). Not navigable yet (opens a placeholder sheet).
 
 ## Success Criteria
 
@@ -115,9 +116,9 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 - **Types**: `Restaurant` shared (`src/types/restaurant.ts`); `Cuisine`/`Occasion`/`Ambient`/`Benefit` specific (`src/features/search/types/`).
 - **Mocks**: `src/mocks/restaurants.ts` (30 places, 6 per cuisine — fixed the pre-existing gap where Indiana/Chinesa had zero mock restaurants), `src/mocks/discoveryTaxonomies.ts` — served over HTTP via `src/mocks/handlers/restaurants.ts` and `discoveryTaxonomies.ts` (MSW). **Corrected**: `useRestaurantsQuery` no longer calls a bare custom endpoint — it speaks the Google Places API (New) Nearby Search contract (`POST .../places:searchNearby`, `{ places: [...] }` response, two-hop photo resolution), normalized to the unchanged `Restaurant` shape at the hook boundary. Full rationale and the wire-vs-domain-type split in `PROJECT.md`'s ADR log. `useDiscoveryTaxonomiesQuery` is unaffected — taxonomies aren't part of Google's contract, still `apiClient.get('/discovery-taxonomies')` against the app's own mock base URL.
 - **New dependencies**: `zod` and `msw` (added when the MSW/testing infrastructure round touched every existing `api/` hook, not specific to this feature — see `PROJECT.md`). US2 (Search & Map) already has `react-native-maps` installed ahead of time (decision recorded in `PROJECT.md`), but no map code has been written yet. US3 (category page) needs none.
-- **New shared `src/components/ui/` component likely needed for US3**: the category page's grid cards (rating badge overlaid on the photo, optional discount pill, grid layout) are visually distinct from the existing `RestaurantCard` (rail-context card with rating below the photo, no overlay, no discount concept). Proposing a new component (e.g. `DiscoveryCard`) rather than overloading `RestaurantCard` with a rarely-used display mode — confirm at implementation time once the shape is fully settled (depends on how the Edge Cases' `[NEEDS CLARIFICATION]` about item data shape resolves).
+- **`DiscoveryCard`** (`features/search/components/DiscoveryCard.tsx`) — **Implemented**: the category page's grid card (rating badge overlaid on the photo, optional discount pill, grid layout), visually distinct enough from `RestaurantCard` (rail-context card, rating below photo, no overlay/discount) to warrant its own component. Lives in `features/search/components/`, not `components/ui/` — corrected from the earlier proposal to promote it to shared, since only `search` needs it right now (Architecture Principle #3: promote to shared only when a second feature actually needs it). `CategoryTabsRow` reuses the existing `Chip` directly, no new primitive needed there.
 - **Route for US3**: a fixed tab route, `app/(tabs)/category.tsx`, no dynamic segment — **corrected**: previously guessed as `app/category/[id].tsx` matching `app/restaurant/[id].tsx`'s pattern, but the design's new bottom tab bar (see Edge Cases and `PROJECT.md`'s ADR log) links straight to the category page with no id. Switching category (Pizza/Churrasco/Indiana) happens *inside* the page via its own in-page tabs, already covered by FR-011/US3 scenario 2 — that's state, not routing.
-- **Mocks for US3**: new `src/mocks/categories.ts`.
+- **Mocks for US3 — Implemented**: no new mock file. `src/mocks/discoveryTaxonomies.ts` extended with `CATEGORY_SUBTYPES` (3 per cuisine, 15 total), served via the existing `discoveryTaxonomies` handler's response. Champions/trending/near-you need no new mock data at all — derived client-side from the existing `useRestaurantsQuery` result inside `useCategoryDiscovery.ts`.
 
 ## Out of Scope
 
@@ -139,9 +140,8 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 ## Notes for the AI Agent
 
 - User Story 2 (Search & Map) requires a plan-mode decision before coding — it touches a native library (`react-native-maps`), and the Expo Go vs dev build trade-off needs to be confirmed with the user before the first line of code.
-- Before creating a new component for US2 or US3: check whether `RestaurantCard`/`BottomSheet`/`HorizontalRail` already cover what's needed (US2's map result list looks reusable; US3's grid cards likely don't fit `RestaurantCard`'s existing shape — see Architecture Mapping).
-- Before starting US3, resolve its `[NEEDS CLARIFICATION]` items (entry point, taxonomy coverage, item data shape) with the user — they change what the Key Entities and FRs actually mean, not just cosmetic details.
-- Verification: `npx tsc --noEmit` clean + bundle smoke test (route `/`, and later the `search` tab once US2 exists, the `category` tab once US3 exists — **corrected**: US3's route is a fixed tab, not `/category/[id]`, see Architecture Mapping).
+- Before creating a new component for US2: check whether `RestaurantCard`/`BottomSheet`/`HorizontalRail`/`DiscoveryCard` already cover what's needed (US2's map result list looks reusable from one of these).
+- Verification: `npx tsc --noEmit` clean + bundle smoke test (route `/`, `category` tab, and `/category?cuisine=<id>` deep link; later the `search` tab once US2 exists).
 
 ## Changelog
 
@@ -155,3 +155,4 @@ The user lands on a dedicated page for one cuisine category (e.g. Pizza) and see
 | 2026-07-23 | Resolved the previous round's `[NEEDS CLARIFICATION]` about the tab bar's absence on Search & Map: user confirmed tapping "Buscar" replaces Home with the map as a normal tab switch, so Search & Map gets the tab bar too — the frame's missing copy in the design canvas was an omission, not deliberate. FR-018 and User Story 2 updated accordingly. |
 | 2026-07-23 | FR-018 implemented on `feat/bottom-tab-bar`: `app/(tabs)/_layout.tsx` now has the real 4 tabs (`index`/`search`/`category`/`profile`), styled with the design's exact `ink`/`muted` active/inactive colors, icons following the project's existing emoji convention. `search.tsx` (renamed from `explore.tsx`) and the new `category.tsx` remain trivial placeholders — US2/US3 content is separate, unstarted work. |
 | 2026-07-24 | Mock data expanded to 30 restaurants (6 per cuisine, fixing Indiana/Chinesa's zero-coverage gap) and the mocked wire contract rebuilt to mirror Google Places API (New) — `useRestaurantsQuery` now speaks Nearby Search's real shape end-to-end (POST, `{places:[...]}`, two-hop photo resolution). `Restaurant`/`useHomeDiscovery`/every Home component are unchanged — normalization happens once, at the hook boundary. See `PROJECT.md`'s ADR log. |
+| 2026-07-24 | User Story 3 (Category page) implemented on `feat/category-page`, resolving all 3 `[NEEDS CLARIFICATION]` edge cases now that the data model had matured past them: category tabs reuse Home's exact 5-cuisine taxonomy (no separate/partial taxonomy needed), champions/trending/near-you are derived client-side from the existing 30-restaurant mock via a new `useCategoryDiscovery` hook (no new restaurant mocks/endpoints, only a small `categorySubtypes` taxonomy addition), and Home's cuisine "view all" now navigates to `/category?cuisine=<id>` instead of opening a placeholder sheet (`RestaurantSection`'s new `onViewAll` prop; occasion's rail unaffected). New `DiscoveryCard`/`CategoryTabsRow`/`SubtypeRow` components in `features/search/components/`. One design inconsistency corrected: dropped the category page's leftover back arrow, redundant now that it's a tab-bar root rather than a stack-pushed screen. FR-011–FR-016 marked Implemented. |

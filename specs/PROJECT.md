@@ -41,7 +41,7 @@ An app for discovering bars and restaurants. Current phase: a navigable prototyp
 
 ```
 app/                        # Expo Router routes — thin, delegates to features/
-  (tabs)/{index,search,category,profile}.tsx  # 4 real tabs, matching the design's bottom tab bar (Home/Buscar/Categorias/Perfil) — search.tsx and category.tsx are still placeholder screens (US2/US3 not implemented), see ADR log
+  (tabs)/{index,search,category,profile}.tsx  # 4 real tabs, matching the design's bottom tab bar (Home/Buscar/Categorias/Perfil) — category.tsx implemented (US3); search.tsx still a placeholder (US2 not implemented), see ADR log
   restaurant/[id].tsx
 src/
   components/
@@ -66,7 +66,7 @@ jest.config.js, jest.setup.js
 
 | Feature | Spec | Status |
 |---|---|---|
-| `search` | `specs/search.md` | Home implemented (mock data); Search & Map and category page (US2-US3) pending |
+| `search` | `specs/search.md` | Home (US1) and Category page (US3) implemented (mock data); Search & Map (US2) pending |
 | `restaurant` | `specs/restaurant.md` | US1+US2 implemented (mock data); US3–US7 not started |
 | `favorites` | `specs/favorites.md` | Spec drafted (2 user stories), not implemented |
 | `profile` | `specs/profile.md` | Spec drafted (6 user stories), not implemented |
