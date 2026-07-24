@@ -2,9 +2,16 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
-import { PhotoCarousel, RatingBadge } from '@/components/ui';
+import { BottomSheet, PhotoCarousel, RatingBadge } from '@/components/ui';
 import { SearchBar } from '@/components/layout';
-import { ActionGrid } from '@/features/restaurant/components';
+import {
+  ActionGrid,
+  AmenitiesSection,
+  DetailHeaderActions,
+  InfoActionsRow,
+  RedirectOptionsSheetContent,
+  ThingsToKnowSection,
+} from '@/features/restaurant/components';
 import { useRestaurantDetailQuery } from '@/features/restaurant/api';
 
 const DESCRIPTION_TRUNCATE_LENGTH = 110;
@@ -14,6 +21,7 @@ export default function RestaurantDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: restaurant, isLoading, isError, refetch } = useRestaurantDetailQuery(Number(id));
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [addressSheetOpen, setAddressSheetOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -58,9 +66,10 @@ export default function RestaurantDetailScreen() {
         >
           <Text className="text-xl leading-none text-white">‹</Text>
         </Pressable>
-        <View className="absolute left-16 right-3.5 top-3.5">
+        <View className="absolute left-16 right-12 top-3.5">
           <SearchBar />
         </View>
+        <DetailHeaderActions />
       </View>
 
       <View className="px-4 pt-4">
@@ -84,12 +93,30 @@ export default function RestaurantDetailScreen() {
       </View>
 
       <View className="mt-3.5 flex-row items-center justify-between border-b border-gray-100 px-4 pb-4">
-        <Text className="text-[13px] text-ink">📍 {restaurant.addressShort}</Text>
+        <Pressable onPress={() => setAddressSheetOpen(true)}>
+          <Text className="text-[13px] text-ink">📍 {restaurant.addressShort}</Text>
+        </Pressable>
         <Text className="text-[13px] font-bold text-ink">{restaurant.priceLevel}</Text>
         <RatingBadge rating={restaurant.rating} priceLevel={restaurant.priceLevel} />
       </View>
 
       <ActionGrid menu={restaurant.menu} />
+
+      <InfoActionsRow
+        phone={restaurant.phone}
+        whatsapp={restaurant.whatsapp}
+        instagramHandle={restaurant.instagramHandle}
+        openingHours={restaurant.openingHours}
+      />
+
+      <AmenitiesSection amenities={restaurant.amenities} />
+
+      {/* Reviews/highlights (US4) go here per the design, once built */}
+      <ThingsToKnowSection thingsToKnow={restaurant.thingsToKnow} />
+
+      <BottomSheet visible={addressSheetOpen} onClose={() => setAddressSheetOpen(false)}>
+        <RedirectOptionsSheetContent title="Endereço" options={[{ icon: '🗺️', label: 'Abrir no Google Maps' }]} />
+      </BottomSheet>
     </ScrollView>
   );
 }

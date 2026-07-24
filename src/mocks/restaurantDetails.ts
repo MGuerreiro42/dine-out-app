@@ -1,4 +1,4 @@
-import type { PlaceDetails } from '@/lib/googlePlaces';
+import type { AppPlace, GoogleAmenityFields, PlaceDetails } from '@/lib/googlePlaces';
 import { PLACES, photoRef } from '@/mocks/restaurants';
 
 type MenuItem = { name: string; price: string };
@@ -82,18 +82,148 @@ const EXTRAS_BY_ID: Record<string, { description: string; tags: string[] }> = {
   '30': { description: 'Karaokê nos fundos e petiscos até tarde — point animado de fim de semana.', tags: ['Karaokê', 'Aberto até tarde', 'Petiscos variados'] },
 };
 
+// Practical-info fields (opening hours, amenity flags, contact) are derived
+// from each place's existing occasion/ambient/priceLevel/primaryType rather
+// than hand-authored per restaurant — same efficiency precedent as reusing
+// menus per cuisine above.
+
+const OPENING_HOURS_PATTERNS: Record<string, string[]> = {
+  STANDARD: [
+    'Segunda-feira: 11:30 – 15:00, 18:30 – 23:00',
+    'Terça-feira: 11:30 – 15:00, 18:30 – 23:00',
+    'Quarta-feira: 11:30 – 15:00, 18:30 – 23:00',
+    'Quinta-feira: 11:30 – 15:00, 18:30 – 23:00',
+    'Sexta-feira: 11:30 – 15:00, 18:30 – 23:30',
+    'Sábado: 12:00 – 23:30',
+    'Domingo: 12:00 – 22:00',
+  ],
+  DINNER_ONLY_CLOSED_MONDAY: [
+    'Segunda-feira: Fechado',
+    'Terça-feira: 18:00 – 00:00',
+    'Quarta-feira: 18:00 – 00:00',
+    'Quinta-feira: 18:00 – 00:00',
+    'Sexta-feira: 18:00 – 01:00',
+    'Sábado: 18:00 – 01:00',
+    'Domingo: 18:00 – 23:00',
+  ],
+  ALL_DAY: [
+    'Segunda-feira: 11:00 – 23:00',
+    'Terça-feira: 11:00 – 23:00',
+    'Quarta-feira: 11:00 – 23:00',
+    'Quinta-feira: 11:00 – 23:00',
+    'Sexta-feira: 11:00 – 00:00',
+    'Sábado: 11:00 – 00:00',
+    'Domingo: 11:00 – 22:00',
+  ],
+  LATE_NIGHT_WEEKEND: [
+    'Segunda-feira: Fechado',
+    'Terça-feira: 18:00 – 23:00',
+    'Quarta-feira: 18:00 – 23:00',
+    'Quinta-feira: 18:00 – 23:00',
+    'Sexta-feira: 18:00 – 01:00',
+    'Sábado: 18:00 – 01:00',
+    'Domingo: 12:00 – 17:00',
+  ],
+};
+
+function weekdayDescriptionsFor(place: AppPlace): string[] {
+  if (place.occasion === 'musica') return OPENING_HOURS_PATTERNS.LATE_NIGHT_WEEKEND;
+  if (place.ambient === 'fancy') return OPENING_HOURS_PATTERNS.DINNER_ONLY_CLOSED_MONDAY;
+  if (place.ambient === 'agitated') return OPENING_HOURS_PATTERNS.ALL_DAY;
+  return OPENING_HOURS_PATTERNS.STANDARD;
+}
+
+function amenityFieldsFor(place: AppPlace): GoogleAmenityFields {
+  return {
+    delivery: true,
+    takeout: true,
+    dineIn: true,
+    reservable: place.priceLevel !== 'PRICE_LEVEL_INEXPENSIVE',
+    outdoorSeating: place.ambient === 'cozy' || place.ambient === 'relaxed',
+    liveMusic: place.occasion === 'musica',
+    goodForGroups: place.occasion === 'grupo',
+    goodForChildren: place.occasion === 'familia',
+    allowsDogs: place.ambient === 'relaxed' || place.ambient === 'cozy',
+    wheelchairAccessibleEntrance: true,
+    servesVegetarianFood: place.primaryType === 'mediterranean_restaurant' || place.primaryType === 'indian_restaurant',
+    restroom: true,
+  };
+}
+
+type ThingToKnowItem = { title: string; text: string };
+
+const CANCELLATION: ThingToKnowItem = {
+  title: 'Política de cancelamento',
+  text: 'Cancelamentos com até 2h de antecedência não geram cobrança.',
+};
+const DRESS_CODE_SMART: ThingToKnowItem = { title: 'Traje', text: 'Traje esporte-fino recomendado à noite.' };
+const DRESS_CODE_CASUAL: ThingToKnowItem = { title: 'Traje', text: 'Traje esportivo, sem restrições.' };
+const PARKING: ThingToKnowItem = {
+  title: 'Estacionamento',
+  text: 'Manobrista disponível nos finais de semana.',
+};
+const KIDS: ThingToKnowItem = {
+  title: 'Crianças',
+  text: 'Cadeirões disponíveis mediante solicitação.',
+};
+const SAFETY: ThingToKnowItem = {
+  title: 'Segurança e propriedade',
+  text: 'Ambiente climatizado, câmeras de segurança no salão.',
+};
+
+function thingsToKnowFor(place: AppPlace, amenityFields: GoogleAmenityFields): ThingToKnowItem[] {
+  const isUpscale = place.priceLevel === 'PRICE_LEVEL_EXPENSIVE' || place.priceLevel === 'PRICE_LEVEL_VERY_EXPENSIVE';
+  const items = [CANCELLATION, isUpscale ? DRESS_CODE_SMART : DRESS_CODE_CASUAL];
+
+  if (amenityFields.reservable) {
+    items.push(PARKING);
+  } else if (amenityFields.goodForChildren) {
+    items.push(KIDS);
+  } else {
+    items.push(SAFETY);
+  }
+
+  return items;
+}
+
+function phoneFor(id: string): string {
+  const n = Number(id);
+  return `+55 11 3${String(1000 + n).padStart(4, '0')}-${String(4000 + n * 3).padStart(4, '0')}`;
+}
+
+function whatsappFor(id: string): string {
+  const n = Number(id);
+  return `+55 11 9${String(5000 + n).padStart(4, '0')}-${String(6000 + n * 3).padStart(4, '0')}`;
+}
+
+function instagramHandleFor(name: string): string {
+  const slug = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+  return `@${slug}`;
+}
+
 export const PLACE_DETAILS: Record<string, PlaceDetails> = Object.fromEntries(
   PLACES.map((place) => {
     const extras = EXTRAS_BY_ID[place.id];
     const primaryPoolIndex = Number(place.photos[0].name.replace('r', ''));
     const secondaryPoolIndex = (primaryPoolIndex % 6) + 1;
+    const amenityFields = amenityFieldsFor(place);
 
     const details: PlaceDetails = {
       ...place,
+      ...amenityFields,
       photos: [photoRef(primaryPoolIndex), photoRef(secondaryPoolIndex)],
       editorialSummary: { text: extras.description, languageCode: 'pt-BR' },
       tags: extras.tags,
       menu: MENU_BY_PRIMARY_TYPE[place.primaryType],
+      internationalPhoneNumber: phoneFor(place.id),
+      regularOpeningHours: { weekdayDescriptions: weekdayDescriptionsFor(place) },
+      whatsapp: whatsappFor(place.id),
+      instagramHandle: instagramHandleFor(place.displayName.text),
+      thingsToKnow: thingsToKnowFor(place, amenityFields),
     };
 
     return [place.id, details];

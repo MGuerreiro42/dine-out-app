@@ -54,12 +54,46 @@ export const NearbySearchResponseSchema = z.object({
   places: z.array(AppPlaceSchema),
 });
 
-/** Also custom, also not part of Google's contract: our own menu/tags data. */
+/**
+ * Real Google fields relevant to "practical info before committing" (opening
+ * hours, phone, amenities) — a curated subset of Place's actual boolean
+ * amenity fields, not all of them.
+ */
+export const GoogleOpeningHoursSchema = z.object({
+  weekdayDescriptions: z.array(z.string()),
+});
+
+/**
+ * Google's real boolean amenity fields are flat, top-level fields on Place —
+ * kept flat here too, not grouped, for the same reason.
+ */
+export const GoogleAmenityFieldsSchema = z.object({
+  delivery: z.boolean(),
+  takeout: z.boolean(),
+  dineIn: z.boolean(),
+  reservable: z.boolean(),
+  outdoorSeating: z.boolean(),
+  liveMusic: z.boolean(),
+  goodForGroups: z.boolean(),
+  goodForChildren: z.boolean(),
+  allowsDogs: z.boolean(),
+  wheelchairAccessibleEntrance: z.boolean(),
+  servesVegetarianFood: z.boolean(),
+  restroom: z.boolean(),
+});
+export type GoogleAmenityFields = z.infer<typeof GoogleAmenityFieldsSchema>;
+
+/** Also custom, also not part of Google's contract: our own menu/tags/thingsToKnow data. */
 export const PlaceDetailsSchema = AppPlaceSchema.extend({
   editorialSummary: z.object({ text: z.string(), languageCode: z.string() }),
   tags: z.array(z.string()),
   menu: z.array(z.object({ name: z.string(), price: z.string() })),
-});
+  internationalPhoneNumber: z.string(),
+  regularOpeningHours: GoogleOpeningHoursSchema,
+  whatsapp: z.string(),
+  instagramHandle: z.string(),
+  thingsToKnow: z.array(z.object({ title: z.string(), text: z.string() })),
+}).extend(GoogleAmenityFieldsSchema.shape);
 export type PlaceDetails = z.infer<typeof PlaceDetailsSchema>;
 
 export const PhotoMediaResponseSchema = z.object({
