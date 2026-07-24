@@ -1,16 +1,18 @@
 import { http, HttpResponse } from 'msw';
 
-import { RESTAURANT_DETAILS } from '@/mocks/restaurantDetails';
+import { GOOGLE_PLACES_BASE_URL } from '@/lib/googlePlaces';
+import { PLACE_DETAILS } from '@/mocks/restaurantDetails';
 
 export const restaurantDetailsHandlers = [
-  http.get('https://api.restaurante.app/restaurants/:id', ({ params }) => {
-    const id = Number(params.id);
-    const restaurant = RESTAURANT_DETAILS[id];
+  // Place Details (New) shape: GET .../places/{id} -> a single raw Place object.
+  http.get(`${GOOGLE_PLACES_BASE_URL}/places/:id`, ({ params }) => {
+    const id = String(params.id);
+    const place = PLACE_DETAILS[id];
 
-    if (!restaurant) {
+    if (!place) {
       return new HttpResponse(null, { status: 404 });
     }
 
-    return HttpResponse.json(restaurant);
+    return HttpResponse.json(place);
   }),
 ];

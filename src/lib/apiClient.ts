@@ -9,8 +9,9 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`);
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const url = path.startsWith('http') ? path : `${BASE_URL}${path}`;
+  const response = await fetch(url, init);
 
   if (!response.ok) {
     throw new ApiError(path, response.status);
@@ -21,4 +22,10 @@ async function request<T>(path: string): Promise<T> {
 
 export const apiClient = {
   get: <T>(path: string) => request<T>(path),
+  post: <T>(path: string, body: unknown) =>
+    request<T>(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
 };
