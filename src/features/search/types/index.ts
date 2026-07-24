@@ -25,10 +25,17 @@ export const BenefitSchema = z.object({
 });
 export type Benefit = z.infer<typeof BenefitSchema>;
 
+export const CategorySubtypeSchema = z.object({
+  initial: z.string(),
+  label: z.string(),
+});
+export type CategorySubtype = z.infer<typeof CategorySubtypeSchema>;
+
 export const DiscoveryTaxonomiesSchema = z.object({
   cuisines: z.array(CuisineSchema),
   occasions: z.array(OccasionSchema),
   ambients: z.array(AmbientSchema),
   benefits: z.array(BenefitSchema),
+  categorySubtypes: z.record(z.string(), z.array(CategorySubtypeSchema)),
 });
 export type DiscoveryTaxonomies = z.infer<typeof DiscoveryTaxonomiesSchema>;
