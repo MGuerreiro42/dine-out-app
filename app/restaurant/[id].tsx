@@ -10,6 +10,7 @@ import {
   DetailHeaderActions,
   HighlightsRow,
   InfoActionsRow,
+  InstagramSection,
   RedirectOptionsSheetContent,
   ReviewsSection,
   ThingsToKnowSection,
@@ -118,6 +119,8 @@ export default function RestaurantDetailScreen() {
       <HighlightsRow highlights={restaurant.highlights} />
 
       <ThingsToKnowSection thingsToKnow={restaurant.thingsToKnow} />
+
+      <InstagramSection handle={restaurant.instagramHandle} photos={restaurant.instagramPhotos} />
 
       <BottomSheet visible={addressSheetOpen} onClose={() => setAddressSheetOpen(false)}>
         <RedirectOptionsSheetContent title="Endereço" options={[{ icon: '🗺️', label: 'Abrir no Google Maps' }]} />

@@ -100,6 +100,10 @@ export const PlaceDetailsSchema = AppPlaceSchema.extend({
   regularOpeningHours: GoogleOpeningHoursSchema,
   whatsapp: z.string(),
   instagramHandle: z.string(),
+  // Plain URLs, not routed through the photo-reference two-hop flow that
+  // mirrors Google's real photo contract — Instagram has no such contract
+  // to mirror here, so simulating a fake two-hop would add nothing.
+  instagramPhotos: z.array(z.string()),
   thingsToKnow: z.array(z.object({ title: z.string(), text: z.string() })),
   reviews: z.array(GoogleReviewSchema),
   highlights: z.array(z.string()),

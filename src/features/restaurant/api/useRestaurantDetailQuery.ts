@@ -75,6 +75,7 @@ export function useRestaurantDetailQuery(id: number) {
           phone: place.internationalPhoneNumber,
           whatsapp: place.whatsapp,
           instagramHandle: place.instagramHandle,
+          instagramPhotos: place.instagramPhotos,
           reviews: mapReviews(place),
           reviewCount: place.userRatingCount,
           highlights: place.highlights,
