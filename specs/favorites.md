@@ -73,7 +73,7 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 ## Architecture Mapping
 
 - **Feature folder**: `src/features/favorites/{api,components,types}`. The scaffolded `stores/` placeholder in this folder **stays empty** — this is intentional, not an oversight: the actual state lives in `src/stores/favorites.ts` (global), because it's read and written by `restaurant` too, and features can't import each other's local stores. `favorites` is the feature that *owns the contract* for that global store, not the folder it physically lives in.
-- **`src/stores/favorites.ts` (global, Zustand) — this spec is where its contract is defined**:
+- **`src/stores/favorites.ts` (global, Zustand) — this spec is where its contract is defined, already implemented**: built in `profile.md`'s round (`feat/profile-menu`), ahead of this spec and ahead of `restaurant.md`'s US7 too — the user chose to build it early so Profile's favorites-count stat would be real from day one, rather than a `0` placeholder. Contract matches exactly what's defined below, no drift:
   ```ts
   type FavoritesStore = {
     favoriteIds: Set<number>;
@@ -104,7 +104,7 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 
 ## Notes for the AI Agent
 
-- Implement `src/stores/favorites.ts` as part of whichever spec (`favorites.md` or `restaurant.md`'s US7) gets picked up first — check the other spec's `Status` before starting, so the store's contract isn't defined twice or inconsistently.
+- `src/stores/favorites.ts` already exists (built in `profile.md`'s round) — don't recreate it. This spec's remaining job is the actual UI: the favorite icon on the restaurant detail screen (`restaurant.md`'s US7) and the favorites rail on Profile (User Story 2 below).
 - Persistence is resolved: do NOT add `persist` middleware or `AsyncStorage` — plain in-memory Zustand state only (see FR-007).
 - Verification: `npx tsc --noEmit` clean + bundle smoke test on `/profile` per the pattern in the root `CLAUDE.md`. Since this feature has no route of its own, there's no dedicated URL to smoke-test beyond `/profile` and `/restaurant/[id]` (already covered by `restaurant.md`).
 
@@ -114,3 +114,4 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 |------|--------|
 | 2026-07-23 | Spec created. No implementation yet. |
 | 2026-07-23 | Resolved the persistence `[NEEDS CLARIFICATION]`: no persistence needed at this stage, in-memory only — deferred to a future login/account system. Empty-state copy `[NEEDS CLARIFICATION]` (FR-006) still open. |
+| 2026-07-24 | `src/stores/favorites.ts` was built in `profile.md`'s round (`feat/profile-menu`), ahead of this spec, so Profile's favorites-count stat would be real from day one — contract matches exactly what this spec already specified, no drift. This spec's own User Stories (the like icon, the favorites rail) are still not implemented. |

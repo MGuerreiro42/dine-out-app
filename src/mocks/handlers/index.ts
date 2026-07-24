@@ -1,3 +1,4 @@
+import { currentUserHandlers } from './currentUser';
 import { discoveryTaxonomiesHandlers } from './discoveryTaxonomies';
 import { placePhotosHandlers } from './placePhotos';
 import { restaurantDetailsHandlers } from './restaurantDetails';
@@ -8,4 +9,5 @@ export const handlers = [
   ...restaurantDetailsHandlers,
   ...placePhotosHandlers,
   ...discoveryTaxonomiesHandlers,
+  ...currentUserHandlers,
 ];

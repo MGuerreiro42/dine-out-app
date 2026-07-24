@@ -110,7 +110,7 @@ A logged-in user taps "Sair da conta" in the sidebar and is immediately logged o
 ## Architecture Mapping
 
 - **Feature folder**: `src/features/auth/{components,types}` — doesn't exist yet, needs scaffolding when this is implemented (see Notes for the AI Agent). No `api/` — nothing here calls `apiClient`, it's pure local/global state. No `hooks/` unless a thin wrapper around the store proves useful at implementation time.
-- **Global state**: new `src/stores/auth.ts` (Zustand, mirroring `src/stores/favorites.ts`'s shape):
+- **Global state — already implemented, don't recreate**: `src/stores/auth.ts` was built in `profile.md`'s round (`feat/profile-menu`), ahead of this spec, because Profile's own `isLoggedIn`-conditional header and its logout button both needed it first. Contract matches exactly what was planned here:
   ```ts
   type AuthStore = {
     isLoggedIn: boolean;
@@ -118,11 +118,11 @@ A logged-in user taps "Sair da conta" in the sidebar and is immediately logged o
     logout: () => void;
   };
   ```
-  Any feature needing login state (the Sidebar, `profile.md`'s corrected logout) reads/writes this directly — no feature imports another's local state.
+  Default `isLoggedIn: true` (matching the design's own mock default) — the `[NEEDS CLARIFICATION]` below about the "real" first-run default is still open, untouched by that implementation. Any feature needing login state (the Sidebar, `profile.md`'s logout) reads/writes this directly — no feature imports another's local state.
 - **Reuses from `src/components/ui/`**: `BottomSheet` is *not* used for the sidebar (it's a side-anchored drawer, not a bottom sheet) — likely needs its own primitive if nothing suitable exists yet; confirm at implementation time rather than forcing `BottomSheet` into a shape it wasn't built for.
 - **`components/layout/SideMenu.tsx` gets its real implementation here.** It already exists as a placeholder (built during the Home round, opens a `BottomSheet` with a fixed message) — this spec is what replaces that placeholder with the real drawer (User Story 3). `search.md` is corrected to point here instead of re-describing the placeholder behavior.
 - **`UserProfile` promotion**: the sidebar's logged-in header needs the same current-user data `profile.md` already mocks. Rather than the Sidebar (a `components/layout/` concern owned by no single feature) importing from `features/profile/`, `UserProfile` and its mock get promoted to shared `src/types/` and `src/mocks/` — see the correction recorded in `profile.md`'s own Changelog, not re-specified here.
-- **Route**: new `app/login.tsx` — a single route handling both modes via local `isSignup` state, matching the design's single `login-frame`.
+- **Route**: `app/login.tsx` — **already scaffolded, as a placeholder**: `profile.md`'s round needed somewhere real for its "Entrar ou criar conta" CTA to navigate to, so the route exists today as a trivial `PlaceholderScreen` (back button + "Em breve"). This spec's job is to replace that placeholder body with the real single-route, both-modes-via-`isSignup` content matching the design's `login-frame` — the route itself doesn't need to be created.
 - **New dependencies**: none.
 
 ## Out of Scope
@@ -153,3 +153,4 @@ A logged-in user taps "Sair da conta" in the sidebar and is immediately logged o
 | Date | Change |
 |------|--------|
 | 2026-07-23 | Spec created, alongside corrections to `profile.md` (FR-007's logout) and `search.md` (SideMenu's real content) — see their own Changelogs. No implementation yet. |
+| 2026-07-24 | `src/stores/auth.ts` and `app/login.tsx` (as a placeholder) were built in `profile.md`'s round (`feat/profile-menu`), ahead of this spec — both match exactly what this spec already specified, no contract drift. Still no implementation of this spec's own User Stories (Login/Signup content, Sidebar). |
