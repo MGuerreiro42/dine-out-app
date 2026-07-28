@@ -1,10 +1,31 @@
+import { type Href, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text } from 'react-native';
+import { Modal, Pressable, Text, View } from 'react-native';
 
-import { BottomSheet } from '@/components/ui';
+import { CURRENT_USER } from '@/mocks/currentUser';
+import { useAuthStore } from '@/stores/auth';
+
+const NAV_ITEMS = [
+  { label: 'Home', icon: '🏠', route: '/' },
+  { label: 'Buscar', icon: '🔎', route: '/search' },
+  { label: 'Categorias', icon: '📂', route: '/category' },
+  { label: 'Favoritos', icon: '❤️', route: '/profile' },
+  { label: 'Meus pedidos', icon: '🧾', route: '/profile/orders' },
+  { label: 'Minhas reservas', icon: '📅', route: '/profile/reservations' },
+  { label: 'Notificações', icon: '🔔', route: '/profile/notifications' },
+] as const;
 
 export function SideMenu() {
+  const router = useRouter();
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const logout = useAuthStore((s) => s.logout);
   const [open, setOpen] = useState(false);
+
+  const close = () => setOpen(false);
+  const goTo = (route: string) => {
+    close();
+    router.push(route as Href);
+  };
 
   return (
     <>
@@ -14,12 +35,66 @@ export function SideMenu() {
       >
         <Text className="text-lg leading-none text-white">≡</Text>
       </Pressable>
-      <BottomSheet visible={open} onClose={() => setOpen(false)}>
-        <Text className="text-center text-sm text-gray-600">Abrindo menu principal do app...</Text>
-        <Pressable onPress={() => setOpen(false)} className="mt-1.5 rounded-xl bg-ink p-3.5">
-          <Text className="text-center text-sm font-bold text-white">Fechar</Text>
+
+      <Modal visible={open} transparent animationType="fade" onRequestClose={close}>
+        <Pressable onPress={close} className="flex-1 flex-row bg-black/35">
+          <Pressable onPress={(e) => e.stopPropagation()} className="h-full w-[82%] bg-white p-5">
+            <View className="mb-4 flex-row items-center justify-between">
+              <Pressable
+                onPress={close}
+                className="h-8 w-8 items-center justify-center rounded-full bg-sand"
+              >
+                <Text className="text-sm leading-none text-ink">«</Text>
+              </Pressable>
+              <Pressable
+                onPress={close}
+                className="h-8 w-8 items-center justify-center rounded-full bg-sand"
+              >
+                <Text className="text-sm leading-none text-ink">✕</Text>
+              </Pressable>
+            </View>
+
+            {isLoggedIn ? (
+              <Pressable onPress={() => goTo('/profile')} className="mb-6 flex-row items-center gap-3">
+                <View className="h-12 w-12 items-center justify-center rounded-full bg-gold">
+                  <Text className="text-base font-bold text-ink">{CURRENT_USER.initial}</Text>
+                </View>
+                <View>
+                  <Text className="text-sm font-bold text-ink">{CURRENT_USER.name}</Text>
+                  <Text className="text-[11px] text-muted">Ver perfil</Text>
+                </View>
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={() => goTo('/login')}
+                className="mb-6 items-center rounded-xl bg-ink py-3.5"
+              >
+                <Text className="text-[13px] font-bold text-white">Entrar ou criar conta</Text>
+              </Pressable>
+            )}
+
+            <View className="gap-0.5">
+              {NAV_ITEMS.map((item) => (
+                <Pressable
+                  key={item.label}
+                  onPress={() => goTo(item.route)}
+                  className="flex-row items-center gap-3.5 border-b border-sand py-3.5"
+                >
+                  <Text className="text-sm font-bold text-ink">
+                    {item.icon} {item.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {isLoggedIn ? (
+              <Pressable onPress={logout} className="mt-auto py-3.5">
+                <Text className="text-sm font-bold text-[#b23b3b]">Sair da conta</Text>
+              </Pressable>
+            ) : null}
+          </Pressable>
         </Pressable>
-      </BottomSheet>
+      </Modal>
     </>
   );
 }
