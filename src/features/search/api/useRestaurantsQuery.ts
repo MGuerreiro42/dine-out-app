@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { apiClient } from '@/lib/apiClient';
@@ -17,14 +17,31 @@ const RestaurantsResponseSchema = z.array(RestaurantSchema);
 // Exported for reuse as the Search & Map screen's initial map region.
 export const MOCK_LOCATION = { latitude: -23.561, longitude: -46.656 };
 
-export function useRestaurantsQuery() {
+export function useRestaurantsQuery(query?: string) {
+  const trimmedQuery = query?.trim();
+
   return useQuery({
-    queryKey: ['restaurants'],
+    queryKey: ['restaurants', trimmedQuery || null],
+    // Each keystroke's debounced value is a new queryKey — without this,
+    // the screen would flash to its full isLoading state (hiding the search
+    // bar itself) on every search term change instead of just updating the
+    // list in place.
+    placeholderData: keepPreviousData,
     queryFn: async () => {
-      const data = await apiClient.post<unknown>(`${GOOGLE_PLACES_BASE_URL}/places:searchNearby`, {
-        includedTypes: ['restaurant'],
-        locationRestriction: { circle: { center: MOCK_LOCATION, radius: 5000 } },
-      });
+      // Google's real Nearby Search (New) has no free-text query support —
+      // Text Search (New) is a genuinely separate endpoint for that (see
+      // PROJECT.md's ADR log). Mirrored here rather than bolting an ad-hoc
+      // text param onto searchNearby, which the mock wouldn't rehearse.
+      const data = trimmedQuery
+        ? await apiClient.post<unknown>(`${GOOGLE_PLACES_BASE_URL}/places:searchText`, {
+            textQuery: trimmedQuery,
+            includedType: 'restaurant',
+            locationBias: { circle: { center: MOCK_LOCATION, radius: 5000 } },
+          })
+        : await apiClient.post<unknown>(`${GOOGLE_PLACES_BASE_URL}/places:searchNearby`, {
+            includedTypes: ['restaurant'],
+            locationRestriction: { circle: { center: MOCK_LOCATION, radius: 5000 } },
+          });
       const { places } = NearbySearchResponseSchema.parse(data);
 
       // Many places share the same underlying photo reference (the mock

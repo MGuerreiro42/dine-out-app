@@ -77,7 +77,7 @@ export default function RestaurantDetailScreen() {
           <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={20} color="#fff" />
         </Pressable>
         <View className="absolute left-16 right-12 top-3.5">
-          <SearchBar />
+          <SearchBar editable={false} />
         </View>
         <DetailHeaderActions />
       </View>

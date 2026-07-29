@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { SearchBar, SideMenu } from '@/components/layout';
@@ -12,11 +13,13 @@ import {
   QuickNavRow,
   RestaurantSection,
 } from '@/features/search/components';
-import { useHomeDiscovery } from '@/features/search/hooks';
+import { useDebouncedValue, useHomeDiscovery } from '@/features/search/hooks';
 import type { Restaurant } from '@/types';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearchText = useDebouncedValue(searchText);
   const {
     isLoading,
     isError,
@@ -32,7 +35,7 @@ export default function HomeScreen() {
     setActiveCuisine,
     setActiveOccasion,
     setActiveAmbient,
-  } = useHomeDiscovery();
+  } = useHomeDiscovery(debouncedSearchText);
 
   const goToRestaurant = (restaurant: Restaurant) => {
     router.push(`/restaurant/${restaurant.id}`);
@@ -60,7 +63,7 @@ export default function HomeScreen() {
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
       <View className="flex-row items-center gap-2.5 px-4 pt-4">
-        <SearchBar />
+        <SearchBar value={searchText} onChangeText={setSearchText} />
         <SideMenu />
       </View>
 

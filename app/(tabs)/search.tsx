@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 
 import { MapResultCard, MapResultsSheet, MapSearchBar, SearchMapView } from '@/features/search/components';
-import { useSearchMapDiscovery } from '@/features/search/hooks';
+import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hooks';
 import type { MapResultData } from '@/features/search/hooks';
 
 export default function SearchScreen() {
   const router = useRouter();
-  const { isLoading, isError, refetch, restaurants, results } = useSearchMapDiscovery();
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearchText = useDebouncedValue(searchText);
+  const { isLoading, isError, refetch, restaurants, results } = useSearchMapDiscovery(debouncedSearchText);
   // Falls back to the window height until onLayout reports the real
   // (slightly smaller, tab-bar-excluded) container size, so the sheet is
   // never zero-height/invisible even for the first render or if layout
@@ -44,7 +46,7 @@ export default function SearchScreen() {
       <View className="absolute bottom-0 left-0 right-0 top-0">
         <SearchMapView restaurants={restaurants} onSelectRestaurant={goToRestaurant} />
       </View>
-      <MapSearchBar />
+      <MapSearchBar value={searchText} onChangeText={setSearchText} />
       <MapResultsSheet count={results.length} containerHeight={containerHeight}>
         <ScrollView contentContainerStyle={{ gap: 16 }} showsVerticalScrollIndicator={false}>
           {results.map((restaurant) => (

@@ -28,8 +28,8 @@ function toMapResult(
   };
 }
 
-export function useSearchMapDiscovery() {
-  const restaurantsQuery = useRestaurantsQuery();
+export function useSearchMapDiscovery(searchQuery?: string) {
+  const restaurantsQuery = useRestaurantsQuery(searchQuery);
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
   const { data: restaurants = [] } = restaurantsQuery;
   const { data: taxonomies } = taxonomiesQuery;

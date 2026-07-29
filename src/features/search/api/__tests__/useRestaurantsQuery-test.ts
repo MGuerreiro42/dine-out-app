@@ -23,3 +23,21 @@ test('resolves the restaurant list through MSW', async () => {
   expect(result.current.data?.length).toBeGreaterThan(0);
   expect(result.current.data?.[0]).toMatchObject({ id: expect.any(Number), name: expect.any(String) });
 });
+
+test('filters by name via the Text Search (New) mock endpoint', async () => {
+  const { result } = await renderHook(() => useRestaurantsQuery('Fogo'), { wrapper: createWrapper() });
+
+  await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+  expect(result.current.data?.length).toBeGreaterThan(0);
+  expect(result.current.data?.every((r) => r.name.toLowerCase().includes('fogo'))).toBe(true);
+});
+
+test('filters by cuisine label via the Text Search (New) mock endpoint', async () => {
+  const { result } = await renderHook(() => useRestaurantsQuery('churrasco'), { wrapper: createWrapper() });
+
+  await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+  expect(result.current.data?.length).toBeGreaterThan(0);
+  expect(result.current.data?.every((r) => r.cuisine === 'churrasco')).toBe(true);
+});
