@@ -43,8 +43,8 @@ const BLOCKS: { top: Percent; left: Percent; width: Percent; height: Percent }[]
 function MapBackdrop() {
   return (
     <View className="absolute inset-0 overflow-hidden bg-[#e9e4da]">
-      {BLOCKS.map((block, index) => (
-        <View key={index} className="absolute rounded-sm bg-[#ded7c9]" style={block} />
+      {BLOCKS.map((block) => (
+        <View key={`${block.top}-${block.left}`} className="absolute rounded-sm bg-[#ded7c9]" style={block} />
       ))}
       {STREET_ROWS.map((top) => (
         <View key={top} className="absolute left-0 right-0 h-1.5 bg-[#d4cdbe]" style={{ top }} />
@@ -60,7 +60,7 @@ function MapBackdrop() {
 // live MapView on web (Metro picks this file over SearchMapView.tsx for the
 // web platform), so restaurants isn't used here yet, only once a native dev
 // build makes the real map testable.
-export function SearchMapView({}: SearchMapViewProps) {
+export function SearchMapView(_props: SearchMapViewProps) {
   return (
     <View className="flex-1 items-center justify-center px-8">
       <MapBackdrop />
