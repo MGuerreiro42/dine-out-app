@@ -2,18 +2,23 @@ import { type Href, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 
+import { Icon, type IconSpec } from '@/components/ui';
 import { CURRENT_USER } from '@/mocks/currentUser';
 import { useAuthStore } from '@/stores/auth';
 
-const NAV_ITEMS = [
-  { label: 'Home', icon: '🏠', route: '/' },
-  { label: 'Buscar', icon: '🔎', route: '/search' },
-  { label: 'Categorias', icon: '📂', route: '/category' },
-  { label: 'Favoritos', icon: '❤️', route: '/profile' },
-  { label: 'Meus pedidos', icon: '🧾', route: '/profile/orders' },
-  { label: 'Minhas reservas', icon: '📅', route: '/profile/reservations' },
-  { label: 'Notificações', icon: '🔔', route: '/profile/notifications' },
-] as const;
+const NAV_ITEMS: { label: string; icon: IconSpec; route: string }[] = [
+  { label: 'Home', icon: { set: 'Ionicons', name: 'home-outline' }, route: '/' },
+  { label: 'Buscar', icon: { set: 'Ionicons', name: 'search-outline' }, route: '/search' },
+  { label: 'Categorias', icon: { set: 'Ionicons', name: 'grid-outline' }, route: '/category' },
+  { label: 'Favoritos', icon: { set: 'Ionicons', name: 'heart-outline' }, route: '/profile' },
+  { label: 'Meus pedidos', icon: { set: 'Ionicons', name: 'receipt-outline' }, route: '/profile/orders' },
+  { label: 'Minhas reservas', icon: { set: 'Ionicons', name: 'calendar-outline' }, route: '/profile/reservations' },
+  {
+    label: 'Notificações',
+    icon: { set: 'Ionicons', name: 'notifications-outline' },
+    route: '/profile/notifications',
+  },
+];
 
 export function SideMenu() {
   const router = useRouter();
@@ -33,7 +38,7 @@ export function SideMenu() {
         onPress={() => setOpen(true)}
         className="h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-ink"
       >
-        <Text className="text-lg leading-none text-white">≡</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'menu' }} size={20} color="#fff" />
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={close}>
@@ -44,13 +49,13 @@ export function SideMenu() {
                 onPress={close}
                 className="h-8 w-8 items-center justify-center rounded-full bg-sand"
               >
-                <Text className="text-sm leading-none text-ink">«</Text>
+                <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={16} />
               </Pressable>
               <Pressable
                 onPress={close}
                 className="h-8 w-8 items-center justify-center rounded-full bg-sand"
               >
-                <Text className="text-sm leading-none text-ink">✕</Text>
+                <Icon spec={{ set: 'Ionicons', name: 'close' }} size={16} />
               </Pressable>
             </View>
 
@@ -80,9 +85,8 @@ export function SideMenu() {
                   onPress={() => goTo(item.route)}
                   className="flex-row items-center gap-3.5 border-b border-sand py-3.5"
                 >
-                  <Text className="text-sm font-bold text-ink">
-                    {item.icon} {item.label}
-                  </Text>
+                  <Icon spec={item.icon} size={18} />
+                  <Text className="text-sm font-bold text-ink">{item.label}</Text>
                 </Pressable>
               ))}
             </View>

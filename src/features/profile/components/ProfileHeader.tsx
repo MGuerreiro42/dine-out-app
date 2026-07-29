@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { Icon } from '@/components/ui';
 import type { UserProfile } from '@/types';
 
 type ProfileHeaderProps = {
@@ -21,7 +22,7 @@ export function ProfileHeader({ isLoggedIn, userProfile }: ProfileHeaderProps) {
       ) : (
         <View className="mt-2 items-center gap-2">
           <View className="h-[72px] w-[72px] items-center justify-center rounded-full bg-[#2a2622]">
-            <Text className="text-2xl text-muted">👤</Text>
+            <Icon spec={{ set: 'Ionicons', name: 'person-circle-outline' }} size={40} color="#8a8580" />
           </View>
           <Text className="text-base font-bold text-white">Visitante</Text>
           <Text className="max-w-[260px] text-center text-xs text-[#bdb6ae]">

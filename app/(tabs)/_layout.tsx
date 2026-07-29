@@ -1,15 +1,21 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import type { ColorValue } from 'react-native';
 
-const TAB_ICONS = {
-  index: '🏠',
-  search: '🔍',
-  category: '🗂️',
-  profile: '👤',
-} as const;
+import { Icon, type IconSpec } from '@/components/ui';
 
-function TabIcon({ name }: { name: keyof typeof TAB_ICONS }) {
-  return <Text style={{ fontSize: 20 }}>{TAB_ICONS[name]}</Text>;
+const TAB_ICONS: Record<string, IconSpec> = {
+  index: { set: 'Ionicons', name: 'home-outline' },
+  search: { set: 'Ionicons', name: 'search-outline' },
+  category: { set: 'Ionicons', name: 'grid-outline' },
+  profile: { set: 'Ionicons', name: 'person-outline' },
+};
+
+// tabBarIcon's `color` is typed as RN's ColorValue (which allows opaque
+// platform color refs, not just strings) — this app only ever passes the
+// plain hex strings set via tabBarActiveTintColor/tabBarInactiveTintColor
+// above, so narrowing here is safe.
+function TabIcon({ name, color }: { name: keyof typeof TAB_ICONS; color: ColorValue }) {
+  return <Icon spec={TAB_ICONS[name]} size={20} color={color as string} />;
 }
 
 export default function TabsLayout() {
@@ -25,19 +31,19 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Home', tabBarIcon: () => <TabIcon name="index" /> }}
+        options={{ title: 'Home', tabBarIcon: ({ color }) => <TabIcon name="index" color={color} /> }}
       />
       <Tabs.Screen
         name="search"
-        options={{ title: 'Buscar', tabBarIcon: () => <TabIcon name="search" /> }}
+        options={{ title: 'Buscar', tabBarIcon: ({ color }) => <TabIcon name="search" color={color} /> }}
       />
       <Tabs.Screen
         name="category"
-        options={{ title: 'Categorias', tabBarIcon: () => <TabIcon name="category" /> }}
+        options={{ title: 'Categorias', tabBarIcon: ({ color }) => <TabIcon name="category" color={color} /> }}
       />
       <Tabs.Screen
         name="profile"
-        options={{ title: 'Perfil', tabBarIcon: () => <TabIcon name="profile" /> }}
+        options={{ title: 'Perfil', tabBarIcon: ({ color }) => <TabIcon name="profile" color={color} /> }}
       />
     </Tabs>
   );

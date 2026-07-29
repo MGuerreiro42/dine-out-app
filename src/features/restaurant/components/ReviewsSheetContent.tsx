@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { StarRating } from '@/components/ui';
 import type { Review } from '@/features/restaurant/types';
 
 type ReviewsSheetContentProps = {
@@ -22,7 +23,9 @@ export function ReviewsSheetContent({ reviews }: ReviewsSheetContentProps) {
                 <Text className="text-[11px] text-muted">{review.time}</Text>
               </View>
             </View>
-            <Text className="mb-1.5 text-[13px] text-gold">{'★'.repeat(Math.round(review.rating))}</Text>
+            <View className="mb-1.5">
+              <StarRating rating={review.rating} size={13} color="#c9a24b" />
+            </View>
             <Text className="text-[13px] leading-5 text-gray-600">{review.text}</Text>
           </View>
         ))}

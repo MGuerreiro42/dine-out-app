@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BottomSheet } from '@/components/ui';
+import { BottomSheet, Icon, type IconSpec } from '@/components/ui';
 import type { MenuItem } from '@/features/restaurant/types';
 
 import { MenuSheetContent } from './MenuSheetContent';
@@ -10,11 +10,11 @@ import { ReserveSheetContent } from './ReserveSheetContent';
 
 type ActionKey = 'menu' | 'takeaway' | 'delivery' | 'reserve';
 
-const ACTIONS: { key: ActionKey; icon: string; label: string }[] = [
-  { key: 'menu', icon: '🍽️', label: 'Menu' },
-  { key: 'takeaway', icon: '🥡', label: 'Takeaway' },
-  { key: 'delivery', icon: '🛵', label: 'Delivery' },
-  { key: 'reserve', icon: '📅', label: 'Reserve' },
+const ACTIONS: { key: ActionKey; icon: IconSpec; label: string }[] = [
+  { key: 'menu', icon: { set: 'Ionicons', name: 'restaurant-outline' }, label: 'Menu' },
+  { key: 'takeaway', icon: { set: 'MaterialCommunityIcons', name: 'food-takeout-box' }, label: 'Takeaway' },
+  { key: 'delivery', icon: { set: 'MaterialCommunityIcons', name: 'moped-outline' }, label: 'Delivery' },
+  { key: 'reserve', icon: { set: 'Ionicons', name: 'calendar-outline' }, label: 'Reserve' },
 ];
 
 type ActionGridProps = {
@@ -29,7 +29,7 @@ export function ActionGrid({ menu }: ActionGridProps) {
       {ACTIONS.map((action) => (
         <Pressable key={action.key} onPress={() => setOpenAction(action.key)} className="items-center gap-1.5">
           <View className="h-12 w-12 items-center justify-center rounded-2xl bg-sand">
-            <Text className="text-lg">{action.icon}</Text>
+            <Icon spec={action.icon} size={22} />
           </View>
           <Text className="text-xs font-bold text-ink">{action.label}</Text>
         </Pressable>
@@ -41,8 +41,8 @@ export function ActionGrid({ menu }: ActionGridProps) {
           <RedirectOptionsSheetContent
             title="Takeaway"
             options={[
-              { icon: '🛍️', label: 'Pedir pelo iFood' },
-              { icon: '🌐', label: 'Site do restaurante' },
+              { icon: { set: 'Ionicons', name: 'bag-outline' }, label: 'Pedir pelo iFood' },
+              { icon: { set: 'Ionicons', name: 'globe-outline' }, label: 'Site do restaurante' },
             ]}
           />
         ) : null}
@@ -50,8 +50,8 @@ export function ActionGrid({ menu }: ActionGridProps) {
           <RedirectOptionsSheetContent
             title="Delivery"
             options={[
-              { icon: '🛍️', label: 'iFood' },
-              { icon: '🚗', label: 'Uber Eats' },
+              { icon: { set: 'Ionicons', name: 'bag-outline' }, label: 'iFood' },
+              { icon: { set: 'Ionicons', name: 'car-outline' }, label: 'Uber Eats' },
             ]}
           />
         ) : null}

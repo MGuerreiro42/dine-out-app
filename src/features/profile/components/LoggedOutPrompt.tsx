@@ -1,5 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
+import { Icon } from '@/components/ui';
+
 type LoggedOutPromptProps = {
   onLogin: () => void;
   onExploreRestaurants: () => void;
@@ -31,14 +33,14 @@ export function LoggedOutPrompt({
           className="flex-row items-center justify-between border-b border-sand py-3.5"
         >
           <Text className="text-sm font-bold text-ink">Explorar restaurantes</Text>
-          <Text className="text-gray-300">›</Text>
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={16} color="#d1d5db" />
         </Pressable>
         <Pressable
           onPress={onSearchOnMap}
           className="flex-row items-center justify-between border-b border-sand py-3.5"
         >
           <Text className="text-sm font-bold text-ink">Buscar no mapa</Text>
-          <Text className="text-gray-300">›</Text>
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={16} color="#d1d5db" />
         </Pressable>
         <Pressable onPress={onNotificationPreferences} className="py-3.5">
           <Text className="text-sm font-bold text-ink">Preferências de notificação</Text>

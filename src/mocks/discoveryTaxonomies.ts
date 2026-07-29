@@ -1,4 +1,16 @@
+import type { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+
+import type { IconSpec } from '@/components/ui/Icon';
 import type { Ambient, Benefit, CategorySubtype, Cuisine, Occasion } from '@/features/search/types';
+
+// Overloaded per set so each call site still gets a compile-time check
+// against that set's real glyph names, despite the shared helper.
+function icon(set: 'Ionicons', name: keyof typeof Ionicons.glyphMap): IconSpec;
+function icon(set: 'MaterialCommunityIcons', name: keyof typeof MaterialCommunityIcons.glyphMap): IconSpec;
+function icon(set: 'MaterialIcons', name: keyof typeof MaterialIcons.glyphMap): IconSpec;
+function icon(set: IconSpec['set'], name: string): IconSpec {
+  return { set, name } as IconSpec;
+}
 
 const PHOTOS = {
   r1: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80',
@@ -17,10 +29,10 @@ export const CUISINES: Cuisine[] = [
 ];
 
 export const OCCASIONS: Occasion[] = [
-  { id: 'encontro', label: 'Encontro', initial: 'E' },
-  { id: 'grupo', label: 'Grupo grande', initial: 'G' },
-  { id: 'familia', label: 'Família', initial: 'F' },
-  { id: 'musica', label: 'Música ao vivo', initial: 'M' },
+  { id: 'encontro', label: 'Encontro', icon: icon('Ionicons', 'heart-outline') },
+  { id: 'grupo', label: 'Grupo grande', icon: icon('Ionicons', 'people-outline') },
+  { id: 'familia', label: 'Família', icon: icon('MaterialCommunityIcons', 'human-male-female-child') },
+  { id: 'musica', label: 'Música ao vivo', icon: icon('Ionicons', 'musical-notes-outline') },
 ];
 
 export const AMBIENTS: Ambient[] = [
@@ -39,28 +51,28 @@ export const BENEFITS: Benefit[] = [
 
 export const CATEGORY_SUBTYPES: Record<string, CategorySubtype[]> = {
   churrasco: [
-    { initial: 'R', label: 'Rodízio' },
-    { initial: 'E', label: 'Espetos' },
-    { initial: 'P', label: 'Prime cuts' },
+    { icon: icon('MaterialCommunityIcons', 'grill'), label: 'Rodízio' },
+    { icon: icon('MaterialCommunityIcons', 'fire'), label: 'Espetos' },
+    { icon: icon('MaterialCommunityIcons', 'food-steak'), label: 'Prime cuts' },
   ],
   mediterraneo: [
-    { initial: 'M', label: 'Mezze' },
-    { initial: 'G', label: 'Grelhados' },
-    { initial: 'V', label: 'Vegetariano' },
+    { icon: icon('MaterialCommunityIcons', 'bowl-mix'), label: 'Mezze' },
+    { icon: icon('MaterialCommunityIcons', 'grill'), label: 'Grelhados' },
+    { icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Vegetariano' },
   ],
   italiana: [
-    { initial: 'M', label: 'Massas' },
-    { initial: 'P', label: 'Pizzas' },
-    { initial: 'R', label: 'Risotos' },
+    { icon: icon('MaterialCommunityIcons', 'pasta'), label: 'Massas' },
+    { icon: icon('MaterialCommunityIcons', 'pizza'), label: 'Pizzas' },
+    { icon: icon('MaterialCommunityIcons', 'rice'), label: 'Risotos' },
   ],
   indiana: [
-    { initial: 'C', label: 'Curry' },
-    { initial: 'T', label: 'Tandoori' },
-    { initial: 'V', label: 'Vegetariano' },
+    { icon: icon('MaterialCommunityIcons', 'pot-mix'), label: 'Curry' },
+    { icon: icon('MaterialCommunityIcons', 'fire'), label: 'Tandoori' },
+    { icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Vegetariano' },
   ],
   chinesa: [
-    { initial: 'D', label: 'Dim Sum' },
-    { initial: 'W', label: 'Wok' },
-    { initial: 'P', label: 'Pato' },
+    { icon: icon('MaterialCommunityIcons', 'bowl-mix'), label: 'Dim Sum' },
+    { icon: icon('MaterialCommunityIcons', 'pan'), label: 'Wok' },
+    { icon: icon('MaterialCommunityIcons', 'duck'), label: 'Pato' },
   ],
 };

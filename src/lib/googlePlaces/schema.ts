@@ -29,6 +29,7 @@ export const GooglePlaceSchema = z.object({
   id: z.string(),
   displayName: z.object({ text: z.string(), languageCode: z.string() }),
   formattedAddress: z.string(),
+  location: z.object({ latitude: z.number(), longitude: z.number() }),
   rating: z.number(),
   userRatingCount: z.number(),
   priceLevel: GooglePriceLevelSchema,

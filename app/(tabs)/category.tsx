@@ -5,12 +5,14 @@ import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'rea
 import { BottomSheet } from '@/components/ui';
 import { SearchBar } from '@/components/layout';
 import { CategoryTabsRow, DiscoveryCard, SubtypeRow } from '@/features/search/components';
-import { useCategoryDiscovery } from '@/features/search/hooks';
+import { useCategoryDiscovery, useDebouncedValue } from '@/features/search/hooks';
 import type { DiscoveryCardData } from '@/features/search/hooks';
 
 export default function CategoryScreen() {
   const router = useRouter();
   const { cuisine } = useLocalSearchParams<{ cuisine?: string }>();
+  const [searchText, setSearchText] = useState('');
+  const debouncedSearchText = useDebouncedValue(searchText);
   const {
     isLoading,
     isError,
@@ -23,7 +25,7 @@ export default function CategoryScreen() {
     trending,
     nearYou,
     setActiveCuisine,
-  } = useCategoryDiscovery(cuisine);
+  } = useCategoryDiscovery(cuisine, debouncedSearchText);
   const [viewMoreMessage, setViewMoreMessage] = useState<string | null>(null);
 
   const goToRestaurant = (restaurant: DiscoveryCardData) => {
@@ -52,7 +54,7 @@ export default function CategoryScreen() {
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
       <View className="px-4 pt-4">
-        <SearchBar />
+        <SearchBar value={searchText} onChangeText={setSearchText} />
         <View className="mt-3.5">
           <CategoryTabsRow cuisines={cuisines} onSelect={setActiveCuisine} />
         </View>

@@ -60,7 +60,11 @@ export default function HomeScreen() {
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
       <View className="flex-row items-center gap-2.5 px-4 pt-4">
-        <SearchBar />
+        <Pressable onPress={() => router.push('/search')} className="flex-1">
+          <View pointerEvents="none">
+            <SearchBar editable={false} />
+          </View>
+        </Pressable>
         <SideMenu />
       </View>
 

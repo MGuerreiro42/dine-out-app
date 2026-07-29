@@ -21,8 +21,8 @@ function toDiscoveryCard(restaurant: Restaurant, cuisineLabel: string, distance?
   };
 }
 
-export function useCategoryDiscovery(initialCuisine?: string) {
-  const restaurantsQuery = useRestaurantsQuery();
+export function useCategoryDiscovery(initialCuisine?: string, searchQuery?: string) {
+  const restaurantsQuery = useRestaurantsQuery(searchQuery);
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
   const { data: restaurants = [] } = restaurantsQuery;
   const { data: taxonomies } = taxonomiesQuery;

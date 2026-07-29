@@ -1,7 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BottomSheet } from '@/components/ui';
+import { BottomSheet, StarRating } from '@/components/ui';
 import type { Review } from '@/features/restaurant/types';
 
 import { ReviewsSheetContent } from './ReviewsSheetContent';
@@ -24,7 +25,10 @@ export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionP
     <View className="border-t border-gray-100 px-4 py-5">
       <View className="mb-3 flex-row items-center justify-between">
         <Text className="text-base font-bold text-ink">What Our Customers Think</Text>
-        <Text className="text-[13px] font-bold text-ink">★ {rating}</Text>
+        <View className="flex-row items-center gap-1">
+          <Ionicons name="star" size={13} color="#161311" />
+          <Text className="text-[13px] font-bold text-ink">{rating}</Text>
+        </View>
       </View>
 
       <View className="rounded-2xl bg-sand-light p-3.5">
@@ -37,7 +41,9 @@ export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionP
             <Text className="text-[11px] text-muted">{preview.time}</Text>
           </View>
         </View>
-        <Text className="mb-1.5 text-[13px] text-gold">{'★'.repeat(Math.round(preview.rating))}</Text>
+        <View className="mb-1.5">
+          <StarRating rating={preview.rating} size={13} color="#c9a24b" />
+        </View>
         <Text className="text-[13px] leading-5 text-gray-600">{preview.text}</Text>
       </View>
 

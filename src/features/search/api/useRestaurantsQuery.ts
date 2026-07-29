@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { apiClient } from '@/lib/apiClient';
@@ -14,24 +14,52 @@ const RestaurantsResponseSchema = z.array(RestaurantSchema);
 
 // Matches LocationHeader's own hardcoded mock location — real geolocation
 // is a separate, not-yet-built concern (see search.md's Assumptions).
-const MOCK_LOCATION = { latitude: -23.561, longitude: -46.656 };
+// Exported for reuse as the Search & Map screen's initial map region.
+export const MOCK_LOCATION = { latitude: -23.561, longitude: -46.656 };
 
-export function useRestaurantsQuery() {
+export function useRestaurantsQuery(query?: string) {
+  const trimmedQuery = query?.trim();
+
   return useQuery({
-    queryKey: ['restaurants'],
+    queryKey: ['restaurants', trimmedQuery || null],
+    // Each keystroke's debounced value is a new queryKey — without this,
+    // the screen would flash to its full isLoading state (hiding the search
+    // bar itself) on every search term change instead of just updating the
+    // list in place.
+    placeholderData: keepPreviousData,
     queryFn: async () => {
-      const data = await apiClient.post<unknown>(`${GOOGLE_PLACES_BASE_URL}/places:searchNearby`, {
-        includedTypes: ['restaurant'],
-        locationRestriction: { circle: { center: MOCK_LOCATION, radius: 5000 } },
-      });
+      // Google's real Nearby Search (New) has no free-text query support —
+      // Text Search (New) is a genuinely separate endpoint for that (see
+      // PROJECT.md's ADR log). Mirrored here rather than bolting an ad-hoc
+      // text param onto searchNearby, which the mock wouldn't rehearse.
+      const data = trimmedQuery
+        ? await apiClient.post<unknown>(`${GOOGLE_PLACES_BASE_URL}/places:searchText`, {
+            textQuery: trimmedQuery,
+            includedType: 'restaurant',
+            locationBias: { circle: { center: MOCK_LOCATION, radius: 5000 } },
+          })
+        : await apiClient.post<unknown>(`${GOOGLE_PLACES_BASE_URL}/places:searchNearby`, {
+            includedTypes: ['restaurant'],
+            locationRestriction: { circle: { center: MOCK_LOCATION, radius: 5000 } },
+          });
       const { places } = NearbySearchResponseSchema.parse(data);
 
-      const restaurants = await Promise.all(
-        places.map(async (place) => {
-          const photoUrl = await resolvePlacePhotoUrl(place.photos[0].name);
-          return mapPlaceToRestaurant(place, photoUrl);
-        }),
+      // Many places share the same underlying photo reference (the mock
+      // pool only has 6 unique photos across 30 restaurants) — resolve each
+      // unique reference once instead of once per place.
+      const uniquePhotoNames = [...new Set(places.map((place) => place.photos[0].name))];
+      const photoUrlEntries = await Promise.all(
+        uniquePhotoNames.map(async (name) => [name, await resolvePlacePhotoUrl(name)] as const),
       );
+      const photoUrlByName = new Map(photoUrlEntries);
+
+      const restaurants = places.map((place) => {
+        const photoUrl = photoUrlByName.get(place.photos[0].name);
+        if (!photoUrl) {
+          throw new Error(`No resolved photo URL for "${place.photos[0].name}"`);
+        }
+        return mapPlaceToRestaurant(place, photoUrl);
+      });
 
       return RestaurantsResponseSchema.parse(restaurants);
     },

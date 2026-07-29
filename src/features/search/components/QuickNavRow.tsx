@@ -1,13 +1,28 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BottomSheet } from '@/components/ui';
+import { BottomSheet, Icon, type IconSpec } from '@/components/ui';
 
-const QUICK_NAV_OPTIONS = [
-  { id: 'dine-in', label: 'Dine-in', icon: '🍽️', message: 'Explorando opções para comer no local.' },
-  { id: 'bars', label: 'Bars', icon: '🍸', message: 'Explorando bares e drinks por perto.' },
-  { id: 'takeout', label: 'Takeout', icon: '🥡', message: 'Explorando opções de retirada.' },
-] as const;
+const QUICK_NAV_OPTIONS: { id: string; label: string; icon: IconSpec; message: string }[] = [
+  {
+    id: 'dine-in',
+    label: 'Dine-in',
+    icon: { set: 'Ionicons', name: 'restaurant-outline' },
+    message: 'Explorando opções para comer no local.',
+  },
+  {
+    id: 'bars',
+    label: 'Bars',
+    icon: { set: 'MaterialCommunityIcons', name: 'glass-cocktail' },
+    message: 'Explorando bares e drinks por perto.',
+  },
+  {
+    id: 'takeout',
+    label: 'Takeout',
+    icon: { set: 'MaterialCommunityIcons', name: 'food-takeout-box' },
+    message: 'Explorando opções de retirada.',
+  },
+];
 
 export function QuickNavRow() {
   const [openMessage, setOpenMessage] = useState<string | null>(null);
@@ -21,7 +36,7 @@ export function QuickNavRow() {
           className="items-center gap-1.5"
         >
           <View className="h-[52px] w-[52px] items-center justify-center rounded-full bg-sand">
-            <Text className="text-lg">{option.icon}</Text>
+            <Icon spec={option.icon} size={22} />
           </View>
           <Text className="text-[11px] font-bold text-ink">{option.label}</Text>
         </Pressable>
