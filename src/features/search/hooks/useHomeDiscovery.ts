@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api/useDiscoveryTaxonomiesQuery';
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
 
-export function useHomeDiscovery(searchQuery?: string) {
-  const restaurantsQuery = useRestaurantsQuery(searchQuery);
+export function useHomeDiscovery() {
+  const restaurantsQuery = useRestaurantsQuery();
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
   const { data: restaurants = [] } = restaurantsQuery;
   const { data: taxonomies } = taxonomiesQuery;
