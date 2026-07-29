@@ -47,7 +47,7 @@ export default function SearchScreen() {
         <SearchMapView restaurants={restaurants} onSelectRestaurant={goToRestaurant} />
       </View>
       <MapSearchBar value={searchText} onChangeText={setSearchText} />
-      <MapResultsSheet count={results.length} containerHeight={containerHeight}>
+      <MapResultsSheet count={results.length} containerHeight={containerHeight} searchQuery={debouncedSearchText}>
         <ScrollView contentContainerStyle={{ gap: 16 }} showsVerticalScrollIndicator={false}>
           {results.map((restaurant) => (
             <MapResultCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />

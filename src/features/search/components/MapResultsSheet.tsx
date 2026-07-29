@@ -18,6 +18,7 @@ const SPRING_CONFIG = { damping: 28, stiffness: 260, overshootClamping: true };
 type MapResultsSheetProps = {
   count: number;
   containerHeight: number;
+  searchQuery?: string;
   children: ReactNode;
 };
 
@@ -30,7 +31,7 @@ type MapResultsSheetProps = {
 // `useWindowDimensions()` — the screen's actual content area is smaller than
 // the full window (the bottom tab bar eats into it), so the window size
 // would overstate how tall the sheet should be.
-export function MapResultsSheet({ count, containerHeight, children }: MapResultsSheetProps) {
+export function MapResultsSheet({ count, containerHeight, searchQuery, children }: MapResultsSheetProps) {
   const sheetHeight = containerHeight * EXPANDED_RATIO;
   const maxTranslateY = Math.max(sheetHeight - COLLAPSED_VISIBLE_HEIGHT, 0);
 
@@ -40,6 +41,14 @@ export function MapResultsSheet({ count, containerHeight, children }: MapResults
   useEffect(() => {
     translateY.value = maxTranslateY;
   }, [maxTranslateY, translateY]);
+
+  // Maximize the sheet so results are actually visible as soon as the user
+  // starts searching, instead of requiring a manual drag every time.
+  useEffect(() => {
+    if (searchQuery?.trim()) {
+      translateY.value = withSpring(0, SPRING_CONFIG);
+    }
+  }, [searchQuery, translateY]);
 
   const pan = Gesture.Pan()
     .onStart(() => {
