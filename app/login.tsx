@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
 
+import { Icon } from '@/components/ui';
 import { AuthForm } from '@/features/auth/components';
 import { useAuthStore } from '@/stores/auth';
 
@@ -16,7 +17,7 @@ export default function LoginScreen() {
         onPress={() => router.replace('/')}
         className="mx-6 mt-6 h-9 w-9 items-center justify-center rounded-full bg-sand"
       >
-        <Text className="text-lg leading-none text-ink">‹</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} />
       </Pressable>
       <AuthForm
         isSignup={isSignup}

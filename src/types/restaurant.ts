@@ -9,6 +9,9 @@ export const RestaurantSchema = z.object({
   cuisine: z.string(),
   occasion: z.string(),
   ambient: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  reviewCount: z.number(),
 });
 
 export type Restaurant = z.infer<typeof RestaurantSchema>;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BottomSheet } from '@/components/ui';
+import { BottomSheet, Icon } from '@/components/ui';
 import type { CategorySubtype } from '@/features/search/types';
 
 type SubtypeRowProps = {
@@ -23,7 +23,7 @@ export function SubtypeRow({ subtypes }: SubtypeRowProps) {
         {subtypes.map((subtype) => (
           <Pressable key={subtype.label} onPress={() => setSheetOpen(true)} className="items-center gap-1.5">
             <View className="h-[52px] w-[52px] items-center justify-center rounded-2xl bg-sand">
-              <Text className="text-base font-bold text-ink">{subtype.initial}</Text>
+              <Icon spec={subtype.icon} size={22} />
             </View>
             <Text className="text-[11px] font-bold text-ink">{subtype.label}</Text>
           </Pressable>

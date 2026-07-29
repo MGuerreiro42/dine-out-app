@@ -1,6 +1,8 @@
 import { type Href, useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
+import { Icon } from './Icon';
+
 type PlaceholderScreenProps = {
   title: string;
   fallbackRoute: string;
@@ -16,7 +18,7 @@ export function PlaceholderScreen({ title, fallbackRoute }: PlaceholderScreenPro
           onPress={() => (router.canGoBack() ? router.back() : router.replace(fallbackRoute as Href))}
           className="h-10 w-10 items-center justify-center rounded-xl bg-sand"
         >
-          <Text className="text-xl leading-none text-ink">‹</Text>
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={20} />
         </Pressable>
         <Text className="text-lg font-bold text-ink">{title}</Text>
       </View>

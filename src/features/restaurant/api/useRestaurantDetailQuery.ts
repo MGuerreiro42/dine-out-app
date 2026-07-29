@@ -1,5 +1,7 @@
+import type { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 
+import type { IconSpec } from '@/components/ui/Icon';
 import { ApiError, apiClient } from '@/lib/apiClient';
 import {
   GOOGLE_PLACES_BASE_URL,
@@ -11,24 +13,33 @@ import type { GoogleAmenityFields, PlaceDetails } from '@/lib/googlePlaces';
 import { RestaurantDetailSchema } from '@/features/restaurant/types';
 import type { Amenity, OpeningHours, Review, RestaurantDetail } from '@/features/restaurant/types';
 
+// Overloaded per set so each rule below still gets a compile-time check
+// against that set's real glyph names.
+function icon(set: 'Ionicons', name: keyof typeof Ionicons.glyphMap): IconSpec;
+function icon(set: 'MaterialCommunityIcons', name: keyof typeof MaterialCommunityIcons.glyphMap): IconSpec;
+function icon(set: 'MaterialIcons', name: keyof typeof MaterialIcons.glyphMap): IconSpec;
+function icon(set: IconSpec['set'], name: string): IconSpec {
+  return { set, name } as IconSpec;
+}
+
 /**
  * Presentation-only lookup: turns Google's real (flat) boolean amenity
  * fields into the icon+label pairs the Amenities section actually renders.
  * Not part of the wire contract — Google doesn't send icons.
  */
-const AMENITY_RULES: { flag: keyof GoogleAmenityFields; icon: string; label: string }[] = [
-  { flag: 'delivery', icon: '🛵', label: 'Delivery' },
-  { flag: 'takeout', icon: '🥡', label: 'Retirada no local' },
-  { flag: 'dineIn', icon: '🍽️', label: 'Consumo no local' },
-  { flag: 'reservable', icon: '📅', label: 'Aceita reservas' },
-  { flag: 'outdoorSeating', icon: '🌳', label: 'Área externa' },
-  { flag: 'liveMusic', icon: '🎵', label: 'Música ao vivo' },
-  { flag: 'goodForGroups', icon: '👥', label: 'Bom para grupos' },
-  { flag: 'goodForChildren', icon: '👶', label: 'Kids friendly' },
-  { flag: 'allowsDogs', icon: '🐾', label: 'Aceita pets' },
-  { flag: 'wheelchairAccessibleEntrance', icon: '♿', label: 'Acessível' },
-  { flag: 'servesVegetarianFood', icon: '🥗', label: 'Opções vegetarianas' },
-  { flag: 'restroom', icon: '🚻', label: 'Banheiro' },
+const AMENITY_RULES: { flag: keyof GoogleAmenityFields; icon: IconSpec; label: string }[] = [
+  { flag: 'delivery', icon: icon('MaterialCommunityIcons', 'moped-outline'), label: 'Delivery' },
+  { flag: 'takeout', icon: icon('MaterialCommunityIcons', 'food-takeout-box'), label: 'Retirada no local' },
+  { flag: 'dineIn', icon: icon('Ionicons', 'restaurant-outline'), label: 'Consumo no local' },
+  { flag: 'reservable', icon: icon('Ionicons', 'calendar-outline'), label: 'Aceita reservas' },
+  { flag: 'outdoorSeating', icon: icon('Ionicons', 'sunny-outline'), label: 'Área externa' },
+  { flag: 'liveMusic', icon: icon('Ionicons', 'musical-notes-outline'), label: 'Música ao vivo' },
+  { flag: 'goodForGroups', icon: icon('Ionicons', 'people-outline'), label: 'Bom para grupos' },
+  { flag: 'goodForChildren', icon: icon('MaterialIcons', 'child-care'), label: 'Kids friendly' },
+  { flag: 'allowsDogs', icon: icon('MaterialCommunityIcons', 'paw'), label: 'Aceita pets' },
+  { flag: 'wheelchairAccessibleEntrance', icon: icon('Ionicons', 'accessibility-outline'), label: 'Acessível' },
+  { flag: 'servesVegetarianFood', icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Opções vegetarianas' },
+  { flag: 'restroom', icon: icon('MaterialIcons', 'wc'), label: 'Banheiro' },
 ];
 
 function mapAmenities(place: PlaceDetails): Amenity[] {

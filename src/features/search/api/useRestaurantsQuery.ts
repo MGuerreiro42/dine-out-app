@@ -14,7 +14,8 @@ const RestaurantsResponseSchema = z.array(RestaurantSchema);
 
 // Matches LocationHeader's own hardcoded mock location — real geolocation
 // is a separate, not-yet-built concern (see search.md's Assumptions).
-const MOCK_LOCATION = { latitude: -23.561, longitude: -46.656 };
+// Exported for reuse as the Search & Map screen's initial map region.
+export const MOCK_LOCATION = { latitude: -23.561, longitude: -46.656 };
 
 export function useRestaurantsQuery() {
   return useQuery({
@@ -26,12 +27,22 @@ export function useRestaurantsQuery() {
       });
       const { places } = NearbySearchResponseSchema.parse(data);
 
-      const restaurants = await Promise.all(
-        places.map(async (place) => {
-          const photoUrl = await resolvePlacePhotoUrl(place.photos[0].name);
-          return mapPlaceToRestaurant(place, photoUrl);
-        }),
+      // Many places share the same underlying photo reference (the mock
+      // pool only has 6 unique photos across 30 restaurants) — resolve each
+      // unique reference once instead of once per place.
+      const uniquePhotoNames = [...new Set(places.map((place) => place.photos[0].name))];
+      const photoUrlEntries = await Promise.all(
+        uniquePhotoNames.map(async (name) => [name, await resolvePlacePhotoUrl(name)] as const),
       );
+      const photoUrlByName = new Map(photoUrlEntries);
+
+      const restaurants = places.map((place) => {
+        const photoUrl = photoUrlByName.get(place.photos[0].name);
+        if (!photoUrl) {
+          throw new Error(`No resolved photo URL for "${place.photos[0].name}"`);
+        }
+        return mapPlaceToRestaurant(place, photoUrl);
+      });
 
       return RestaurantsResponseSchema.parse(restaurants);
     },

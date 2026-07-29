@@ -1,7 +1,9 @@
 import { Alert, Pressable, Text, View } from 'react-native';
 
+import { Icon, type IconSpec } from '@/components/ui';
+
 type RedirectOption = {
-  icon: string;
+  icon: IconSpec;
   label: string;
 };
 
@@ -18,11 +20,10 @@ export function RedirectOptionsSheetContent({ title, options }: RedirectOptionsS
         <Pressable
           key={option.label}
           onPress={() => Alert.alert('Simulação', `Redirecionaria para ${option.label}`)}
-          className="mb-2.5 rounded-xl bg-sand-light p-4"
+          className="mb-2.5 flex-row items-center gap-2.5 rounded-xl bg-sand-light p-4"
         >
-          <Text className="text-sm font-bold text-ink">
-            {option.icon} {option.label}
-          </Text>
+          <Icon spec={option.icon} size={18} />
+          <Text className="text-sm font-bold text-ink">{option.label}</Text>
         </Pressable>
       ))}
     </View>

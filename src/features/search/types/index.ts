@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { IconSpecSchema } from '@/components/ui/Icon';
+
 export const CuisineSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -10,7 +12,7 @@ export type Cuisine = z.infer<typeof CuisineSchema>;
 export const OccasionSchema = z.object({
   id: z.string(),
   label: z.string(),
-  initial: z.string(),
+  icon: IconSpecSchema,
 });
 export type Occasion = z.infer<typeof OccasionSchema>;
 
@@ -26,7 +28,7 @@ export const BenefitSchema = z.object({
 export type Benefit = z.infer<typeof BenefitSchema>;
 
 export const CategorySubtypeSchema = z.object({
-  initial: z.string(),
+  icon: IconSpecSchema,
   label: z.string(),
 });
 export type CategorySubtype = z.infer<typeof CategorySubtypeSchema>;

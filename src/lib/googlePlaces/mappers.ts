@@ -41,5 +41,8 @@ export function mapPlaceToRestaurant(place: AppPlace, photoUrl: string): Restaur
     cuisine: mapPrimaryTypeToCuisine(place.primaryType),
     occasion: place.occasion,
     ambient: place.ambient,
+    latitude: place.location.latitude,
+    longitude: place.location.longitude,
+    reviewCount: place.userRatingCount,
   };
 }

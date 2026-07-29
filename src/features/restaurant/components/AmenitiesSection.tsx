@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BottomSheet } from '@/components/ui';
+import { BottomSheet, Icon } from '@/components/ui';
 import type { Amenity } from '@/features/restaurant/types';
 
 import { AmenitiesSheetContent } from './AmenitiesSheetContent';
@@ -22,7 +22,7 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
       <View className="gap-2.5">
         {preview.map((amenity) => (
           <View key={amenity.label} className="flex-row items-center gap-2.5">
-            <Text className="text-base">{amenity.icon}</Text>
+            <Icon spec={amenity.icon} size={18} />
             <Text className="text-sm text-ink">{amenity.label}</Text>
           </View>
         ))}

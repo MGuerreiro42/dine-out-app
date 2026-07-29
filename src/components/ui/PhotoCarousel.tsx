@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 
+import { Icon } from './Icon';
+
 type PhotoCarouselProps = {
   photos: string[];
 };
@@ -23,13 +25,13 @@ export function PhotoCarousel({ photos }: PhotoCarouselProps) {
             onPress={goPrev}
             className="absolute left-2.5 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
           >
-            <Text className="text-lg leading-none text-white">‹</Text>
+            <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} color="#fff" />
           </Pressable>
           <Pressable
             onPress={goNext}
             className="absolute right-2.5 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
           >
-            <Text className="text-lg leading-none text-white">›</Text>
+            <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={18} color="#fff" />
           </Pressable>
           <View className="absolute bottom-3 right-3.5 rounded-full bg-black/55 px-2.5 py-1">
             <Text className="text-xs text-white">

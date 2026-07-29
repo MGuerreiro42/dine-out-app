@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { IconSpecSchema } from '@/components/ui/Icon';
 import { RestaurantSchema } from '@/types';
 
 export const MenuItemSchema = z.object({
@@ -9,7 +10,7 @@ export const MenuItemSchema = z.object({
 export type MenuItem = z.infer<typeof MenuItemSchema>;
 
 export const AmenitySchema = z.object({
-  icon: z.string(),
+  icon: IconSpecSchema,
   label: z.string(),
 });
 export type Amenity = z.infer<typeof AmenitySchema>;

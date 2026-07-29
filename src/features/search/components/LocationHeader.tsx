@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BottomSheet } from '@/components/ui';
+import { BottomSheet, Icon } from '@/components/ui';
 
 const USER_LOCATION = { area: 'Sheetal Park', address: 'Manharpura 1, Dharam Nagar Society' };
 
@@ -11,9 +11,9 @@ export function LocationHeader() {
   return (
     <View className="mt-3 px-4">
       <Pressable onPress={() => setOpen(true)} className="flex-row items-center gap-1.5">
-        <Text className="text-xs">📍</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={13} color="#161311" />
         <Text className="text-sm font-bold text-ink">{USER_LOCATION.area}</Text>
-        <Text className="text-[11px] text-muted">▾</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={12} color="#8a8580" />
       </Pressable>
       <Text className="mt-0.5 text-xs text-muted">{USER_LOCATION.address}</Text>
 

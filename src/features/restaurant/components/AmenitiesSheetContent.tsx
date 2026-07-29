@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { Icon } from '@/components/ui';
 import type { Amenity } from '@/features/restaurant/types';
 
 type AmenitiesSheetContentProps = {
@@ -13,7 +14,7 @@ export function AmenitiesSheetContent({ amenities }: AmenitiesSheetContentProps)
       <View className="gap-3">
         {amenities.map((amenity) => (
           <View key={amenity.label} className="flex-row items-center gap-2.5">
-            <Text className="text-base">{amenity.icon}</Text>
+            <Icon spec={amenity.icon} size={18} />
             <Text className="text-sm text-ink">{amenity.label}</Text>
           </View>
         ))}
