@@ -6,8 +6,16 @@ import { Platform } from 'react-native';
 // mocking entirely — it never resolves queries itself, only the client does.
 const isRealBrowser = Platform.OS === 'web' && typeof document !== 'undefined';
 
+// There's no real backend yet (see CLAUDE.md — every feature reads through
+// src/mocks/ for now), so gating strictly on __DEV__ meant every release
+// build (including EAS's "preview" internal-distribution APKs, built with
+// __DEV__ false) shipped with nothing able to load. EXPO_PUBLIC_ENABLE_MOCKS
+// lets a specific build profile opt back in without touching this file —
+// see eas.json's "preview" profile.
+const mocksEnabled = __DEV__ || process.env.EXPO_PUBLIC_ENABLE_MOCKS === 'true';
+
 export async function enableMocking() {
-  if (!__DEV__) {
+  if (!mocksEnabled) {
     return;
   }
 
