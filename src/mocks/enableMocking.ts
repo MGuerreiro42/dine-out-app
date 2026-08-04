@@ -19,15 +19,24 @@ export async function enableMocking() {
     return;
   }
 
-  if (Platform.OS === 'web') {
-    if (!isRealBrowser) {
+  // enableMocking() is fire-and-forget from _layout.tsx (nothing awaits it),
+  // so a thrown/rejected error here previously vanished silently — every
+  // screen just failed to load with no trace of why. Logging keeps the next
+  // "mocks silently didn't start" case from taking hours to track down
+  // again (see polyfills.ts's MessageEvent stub for the first one).
+  try {
+    if (Platform.OS === 'web') {
+      if (!isRealBrowser) {
+        return;
+      }
+      const { worker } = await import('./browser');
+      await worker.start({ onUnhandledRequest: 'bypass' });
       return;
     }
-    const { worker } = await import('./browser');
-    await worker.start({ onUnhandledRequest: 'bypass' });
-    return;
-  }
 
-  const { server } = await import('./native');
-  server.listen();
+    const { server } = await import('./native');
+    server.listen({ onUnhandledRequest: 'warn' });
+  } catch (error) {
+    console.error('[enableMocking] failed to start mock server:', error);
+  }
 }
