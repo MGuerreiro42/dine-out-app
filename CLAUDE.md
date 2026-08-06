@@ -9,6 +9,7 @@ A restaurant/bar discovery app. This file is the implicit context loaded on ever
 - **Full architecture, tech stack, folder tree, feature index, and decision log**: `specs/PROJECT.md`.
 - **Contract for writing/reading any feature spec**: `specs/TEMPLATE.md`.
 - **Per-feature specs** (what's implemented, what's pending, functional requirements): `specs/<feature>.md`, one per feature in `src/features/`. See `specs/PROJECT.md`'s Feature Index for which ones exist and their status.
+- **Cross-feature user flow inventory** (how screens chain together into end-to-end journeys, spanning multiple features): `specs/FLOWS.md`. An index over the per-feature specs, not a second source of truth — it cites the owning spec/User Story for every step rather than redefining requirements.
 
 Read `specs/PROJECT.md` before making any architecture-level decision (new feature, new global store, new shared component, new dependency). This file only summarizes what you need for day-to-day work; it deliberately does not repeat the full decision log.
 
