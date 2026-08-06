@@ -75,17 +75,23 @@ export function MapResultsSheet({ count, containerHeight, searchQuery, children 
   }));
 
   return (
-    <Animated.View
-      style={[{ height: sheetHeight }, animatedStyle]}
-      className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white shadow-lg"
-    >
-      <GestureDetector gesture={handleGesture}>
-        <View className="pb-1.5 pt-3.5">
-          <View className="mx-auto h-1 w-9 rounded-full bg-gray-300" />
-          <Text className="mt-2 px-4 text-xs font-bold text-ink">{count} restaurantes encontrados</Text>
-        </View>
-      </GestureDetector>
-      <View className="flex-1 px-4 pb-4 pt-1">{children}</View>
+    // Animated.View carries only the animated transform + explicit numeric
+    // height — no Tailwind className here. Mixing an inline `style` array
+    // with `className` on the same component is a known NativeWind/
+    // Reanimated interop gotcha (className-derived styles can silently no-op,
+    // not just colors — same class of bug as Framer Motion's transform-
+    // ownership issue). All real styling (bg, radius, shadow) lives on the
+    // plain inner View instead, which has no competing style prop at all.
+    <Animated.View style={[{ height: sheetHeight }, animatedStyle]} className="absolute bottom-0 left-0 right-0">
+      <View className="h-full rounded-t-3xl bg-white shadow-lg">
+        <GestureDetector gesture={handleGesture}>
+          <View className="pb-1.5 pt-3.5">
+            <View className="mx-auto h-1 w-9 rounded-full bg-gray-300" />
+            <Text className="mt-2 px-4 text-xs font-bold text-ink">{count} restaurantes encontrados</Text>
+          </View>
+        </GestureDetector>
+        <View className="flex-1 px-4 pb-4 pt-1">{children}</View>
+      </View>
     </Animated.View>
   );
 }
