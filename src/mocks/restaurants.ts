@@ -4,8 +4,8 @@ import type { AppPlace, GooglePriceLevel } from '@/lib/googlePlaces';
  * Same 6 Unsplash photos the app has always used (no more exist in the
  * source design to pull from) — the pool is now referenced by opaque mock
  * photo names instead of direct URLs, resolved through the two-hop photo
- * flow in src/mocks/handlers/placePhotos.ts, mirroring Google Places API
- * (New)'s real photo-reference contract.
+ * flow in src/mocks/repository.ts's getPlacePhotoUrl, mirroring Google
+ * Places API (New)'s real photo-reference contract.
  */
 const PHOTO_URL_POOL = [
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80',

@@ -7,9 +7,6 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "EXPO_PUBLIC_ENABLE_MOCKS": "true"
       }
     },
     "production": {

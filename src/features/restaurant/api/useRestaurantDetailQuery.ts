@@ -2,14 +2,9 @@ import type { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vect
 import { useQuery } from '@tanstack/react-query';
 
 import type { IconSpec } from '@/components/ui/Icon';
-import { ApiError, apiClient } from '@/lib/apiClient';
-import {
-  GOOGLE_PLACES_BASE_URL,
-  PlaceDetailsSchema,
-  mapPlaceToRestaurant,
-  resolvePlacePhotoUrl,
-} from '@/lib/googlePlaces';
+import { PlaceDetailsSchema, mapPlaceToRestaurant, resolvePlacePhotoUrl } from '@/lib/googlePlaces';
 import type { GoogleAmenityFields, PlaceDetails } from '@/lib/googlePlaces';
+import { getPlaceDetails } from '@/mocks/repository';
 import { RestaurantDetailSchema } from '@/features/restaurant/types';
 import type { Amenity, OpeningHours, Review, RestaurantDetail } from '@/features/restaurant/types';
 
@@ -66,39 +61,36 @@ export function useRestaurantDetailQuery(id: number) {
   return useQuery({
     queryKey: ['restaurant', id],
     queryFn: async () => {
-      try {
-        const data = await apiClient.get<unknown>(`${GOOGLE_PLACES_BASE_URL}/places/${id}`);
-        const place = PlaceDetailsSchema.parse(data);
-
-        const photoUrls = await Promise.all(place.photos.map((photo) => resolvePlacePhotoUrl(photo.name)));
-        const base = mapPlaceToRestaurant(place, photoUrls[0]);
-
-        const detail: RestaurantDetail = {
-          ...base,
-          photos: photoUrls,
-          description: place.editorialSummary.text,
-          tags: place.tags,
-          addressShort: place.formattedAddress,
-          menu: place.menu,
-          amenities: mapAmenities(place),
-          openingHours: mapOpeningHours(place.regularOpeningHours.weekdayDescriptions),
-          thingsToKnow: place.thingsToKnow,
-          phone: place.internationalPhoneNumber,
-          whatsapp: place.whatsapp,
-          instagramHandle: place.instagramHandle,
-          instagramPhotos: place.instagramPhotos,
-          reviews: mapReviews(place),
-          reviewCount: place.userRatingCount,
-          highlights: place.highlights,
-        };
-
-        return RestaurantDetailSchema.parse(detail);
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          return null;
-        }
-        throw error;
+      const data = await getPlaceDetails(String(id));
+      if (!data) {
+        return null;
       }
+
+      const place = PlaceDetailsSchema.parse(data);
+
+      const photoUrls = await Promise.all(place.photos.map((photo) => resolvePlacePhotoUrl(photo.name)));
+      const base = mapPlaceToRestaurant(place, photoUrls[0]);
+
+      const detail: RestaurantDetail = {
+        ...base,
+        photos: photoUrls,
+        description: place.editorialSummary.text,
+        tags: place.tags,
+        addressShort: place.formattedAddress,
+        menu: place.menu,
+        amenities: mapAmenities(place),
+        openingHours: mapOpeningHours(place.regularOpeningHours.weekdayDescriptions),
+        thingsToKnow: place.thingsToKnow,
+        phone: place.internationalPhoneNumber,
+        whatsapp: place.whatsapp,
+        instagramHandle: place.instagramHandle,
+        instagramPhotos: place.instagramPhotos,
+        reviews: mapReviews(place),
+        reviewCount: place.userRatingCount,
+        highlights: place.highlights,
+      };
+
+      return RestaurantDetailSchema.parse(detail);
     },
   });
 }
