@@ -59,7 +59,9 @@ Swap `platform=ios` for `android` or `web`. If a bundling error is happening, th
 These are specific to this developer's machine, not the project itself — kept here because they'll bite again if forgotten:
 
 - **npm 12 on this machine breaks `npm pack --dry-run --json`** for tools that parse it (e.g. `create-expo-app`) — it returns an object instead of the expected array. Workaround: install a scoped `npm@10` in a temp prefix and prepend its `bin/` to `PATH` just for the affected command. Not a project bug — don't try to "fix" it in the repo.
-- **`react-native-maps` does not run in Expo Go** — testing any screen that uses it requires a native dev build. If no Android emulator AVD exists yet when that work starts, create one first (KVM acceleration is already set up on this machine).
+- **`react-native-maps` does not run in Expo Go** — testing any screen that uses it requires a native dev build. An AVD now exists (`dine_out_dev`, Android 36, Google Play x86_64) — boot it with `npm run emulator` (`scripts/run-emulator.sh`), not directly.
+- **`avdmanager`-created AVDs live in `~/.config/.android/avd`, but the `emulator` binary defaults to the legacy `~/.android/avd`** — without exporting `ANDROID_AVD_HOME` to the former, the emulator reports the AVD as not existing even though `avdmanager list avd` sees it fine. `scripts/run-emulator.sh` sets this automatically.
+- **Boot the emulator with `-gpu host`, not the default `swiftshader` (software rendering)** — this machine has a real, working GPU (AMD, Mesa/radeonsi); `swiftshader` was observed to lock up the whole system under load. `scripts/run-emulator.sh` already passes this flag — don't boot the emulator any other way.
 - **New native/visual dependency? Get sign-off in the spec first.** Icons, for instance, may or may not be backed by an icon library depending on what a given spec's Architecture Mapping decided — check it, don't assume, and don't add a dependency like `react-native-svg` or `@expo/vector-icons` silently.
 
 ## Design source
