@@ -2,8 +2,8 @@
 
 **Feature**: `search` — folder `src/features/search/`
 **Created**: 2026-07-23 *(retroactive — spec written after the Home implementation, as a validation of `TEMPLATE.md`)*
-**Status**: Implemented — User Stories 1, 2, and 3 (Home, Search & Map, Category page) all Implemented
-**Design reference**: `App Flow.dc.html`, frame "1 · Home" (implemented), frame "2 · Search & Map" (implemented), frame "3 · Category page" (implemented). *(Corrected: the canvas's own frame numbering shifted since this spec was first written — frame numbers updated to match, no content change.)*
+**Status**: In Progress — User Stories 1, 2, and 3 (Home, Search & Map, Category page) Implemented; User Stories 4, 5, and 6 (address management, Categories Overview, Occasion page) documented from a design expansion, Not Started
+**Design reference**: `App Flow.dc.html` — frame "1 · Home" (implemented; frames "1b"/"1c" are the same `home-frame`'s address-popup/add-address-form overlays, see US4, not started), frame "2 · Search & Map" (implemented), frame "3 · Categories Overview" (US5, not started), frame "4 · Category page" (implemented as US3), frame "4b · Occasion page" (US6, not started). *(Canvas frame numbers/labels have shifted more than once since this spec was first written — always re-check the live canvas rather than trusting a cached number.)*
 
 ## Summary
 
@@ -69,12 +69,48 @@ The user lands on a dedicated page for one cuisine category (e.g. Churrasco) and
 
 ---
 
+### User Story 4 - Manage the delivery/search address (Priority: P3) — **Not Started**
+
+The user taps Home's location header and sees a bottom sheet listing saved addresses (label, full address, an icon, a checkmark on the currently-selected one); tapping one selects it. A "+ Adicionar novo endereço" button opens a second sheet — a full add-address form (label, street, number, complement, neighborhood, CEP, city, state, country, an address-type icon picker, a "Selecionar no mapa" affordance, and a Save button).
+
+**Why this priority**: a real address book is a meaningful step toward real geolocation/delivery, but Home's discovery flow already works end-to-end on the static mock address — this doesn't block anything else in the app.
+
+**Design source**: `App Flow.dc.html`, frames "1b · Home — Address popup" and "1c · Home — Add address form" — both are actually the same `home-frame`'s inline `sc-if` overlays (`showAddressList`, `isAddAddressForm`) drawn as separate canvas frames for documentation, not separate routes.
+
+**Status**: no Acceptance Scenarios/Functional Requirements detail yet beyond what's below — will be filled in when this story is picked up. `[NEEDS CLARIFICATION: is "Selecionar no mapa" real (drop a pin) or simulated like the rest of this prototype's redirect affordances? Does saving a new address actually persist (to a store) or just simulate? Does the map's initial region/distance math ever use the selected address, or does everything keep reading the existing static `MOCK_LOCATION`?]`
+
+---
+
+### User Story 5 - Browse all cuisine categories from an overview grid (Priority: P3) — **Not Started**
+
+The user taps the "Categorias" tab (or Home's new "view all cuisines" link) and sees a 2-column grid of every cuisine (square photo card + label), one per `CUISINES` taxonomy entry; tapping one navigates to that cuisine's existing Category page (US3).
+
+**Why this priority**: US3's Category page is already reachable directly from Home (per-cuisine); this is a browsing convenience layer on top, not a new capability.
+
+**Design source**: `App Flow.dc.html`, frame "3 · Categories Overview" (`#categories-overview-frame`). **Routing change implied**: the bottom tab bar's "Categorias" item and the Sidebar's "Categorias" item both now point here instead of directly at the Category page — the existing `app/(tabs)/category.tsx` would become a secondary destination (reached from this new screen or from Home), not the tab's direct target. Not yet implemented; `app/(tabs)/category.tsx` still is the direct tab target today.
+
+**Status**: no Acceptance Scenarios/Functional Requirements detail yet — will be filled in when picked up.
+
+---
+
+### User Story 6 - Browse an occasion page (Priority: P3) — **Not Started**
+
+Parallel to US3's Category page, but scoped by Occasion instead of Cuisine: occasion tabs at top (Encontro/Grupo grande/Família/Música ao vivo), a hero banner for the active occasion with a "View on map" link, a "Best for {occasion}" grid, a "Refine pelo estilo" subtype prompt + row, and an "{occasion} Near You" grid.
+
+**Why this priority**: same reasoning as US3 — a richer, editorial way to browse by occasion, complementing Home's lighter occasion rail; Home alone already provides a full discovery MVP without it.
+
+**Design source**: `App Flow.dc.html`, frame "4b · Occasion page" (`#occasion-frame`). **Entry point confirmed**: Home's Occasion rail's "view all" link now points here (`href="#occasion-frame"`) instead of the old simulated-message sheet noted in this spec's Edge Cases for US3 — that Edge Case is now superseded, see below.
+
+**Status**: no Acceptance Scenarios/Functional Requirements detail yet — will be filled in when picked up. Structurally near-identical to `useCategoryDiscovery`/`DiscoveryCard`/`CategoryTabsRow`/`SubtypeRow` (US3), just keyed by `occasion` instead of `cuisine` — likely a strong reuse candidate once built, not a from-scratch component set.
+
+---
+
 ### Edge Cases
 
 - **Empty filtered list** (a category with no matching restaurant in the mock): falls back to the first 3 restaurants in the overall list, so a rail is never empty. *(Implemented in `useHomeDiscovery.ts`.)*
 - **Before the mock "resolves"** (first render before `useQuery` populates `data`): rails render empty momentarily — imperceptible in practice because the mock resolves synchronously, but the behavior exists and will matter once it's a real API with real latency.
 - **`restaurants[0]` missing** (empty restaurant list): `FeaturedBanner` doesn't render (guard already implemented in the Home component).
-- **Entry point to the category page (US3)**: **resolved** — Home's cuisine rail's "view all" (`RestaurantSection`'s new `onViewAll` prop) navigates to `/category` with the active cuisine preselected via a `cuisine` query param, instead of opening the old placeholder sheet. Occasion's "view all" is untouched, still a simulated sheet — there's no occasion-based category page. The category page itself has no back control (see the design-inconsistency note below); switching categories happens via its own in-page tabs or the bottom tab bar.
+- **Entry point to the category page (US3)**: **resolved** — Home's cuisine rail's "view all" (`RestaurantSection`'s new `onViewAll` prop) navigates to `/category` with the active cuisine preselected via a `cuisine` query param, instead of opening the old placeholder sheet. Occasion's "view all" is untouched, still a simulated sheet — there's no occasion-based category page. The category page itself has no back control (see the design-inconsistency note below); switching categories happens via its own in-page tabs or the bottom tab bar. **Superseded** (2026-07-29, design updated): (a) the design now splits this single link into two — "view all cuisines" (→ new US5 Categories Overview) and "view {cuisine} page" (→ Category page, same as today) — not yet implemented, `RestaurantSection`'s cuisine rail still has just the one `onViewAll` link; (b) occasion's "view all" is no longer a simulated sheet in the design — it now points to the new US6 Occasion page, not yet implemented.
 - **Category taxonomy coverage**: **resolved** — category tabs reuse the exact same 5-cuisine `CUISINES` taxonomy Home's `CuisineSelector` already uses (churrasco/mediterraneo/italiana/indiana/chinesa). No separate "Pizza" taxonomy; every cuisine gets a category page for free, with no coverage gap against Home.
 - **Category items' restaurant identity**: **resolved** — champions/trending/near-you are all derived directly from the same 30-restaurant `restaurants.ts` mock via `useRestaurantsQuery` (same pattern as the restaurant detail screen's Similar Places rail), not separate editorial mock objects. Every card is a real, navigable `Restaurant`. Accepted limitation of a 6-restaurants-per-cuisine prototype dataset: 3 grids of 4 (12 slots) drawn from only 6 items per cuisine means the same restaurant can appear in more than one grid — not a bug, just the mock data's scale.
 - **Design inconsistency found and corrected**: the design frame still shows a `‹` back arrow to Home in the category page's header, left over from before the bottom tab bar existed (when this was presumably a stack-pushed screen, not a peer tab). A back arrow on a tab root is confusing/redundant with tab-switching, so it was dropped from the implementation — same "correct real inconsistencies rather than copy them" discipline applied elsewhere in this project (e.g. the sidebar logout fix).
@@ -84,6 +120,9 @@ The user lands on a dedicated page for one cuisine category (e.g. Churrasco) and
 - **`react-native-maps` has no web renderer**: confirmed directly (not assumed) while implementing — attempting to run it on the web platform doesn't degrade gracefully, it simply has no web implementation at all. Resolved via Metro's platform-file resolution: `SearchMapView.web.tsx` (a lightweight placeholder) is picked automatically on web instead of `SearchMapView.tsx` (the real `MapView`), so the native module is never even imported into the web bundle. Native rendering itself is untested on a device this round — no dev build/AVD exists yet on the development machine (see `PROJECT.md`'s Architectural Decisions); this is accepted as a deferred follow-up, not a blocker for this round.
 - **Drag gesture scoped to the handle, not the full list**: the bottom sheet's pan gesture is only attached to its handle/header area — the list itself scrolls in its own `ScrollView` below. Dragging from anywhere inside the list (with gesture handoff between scroll-and-drag) is a reasonable future enhancement, not this round's scope.
 - **Richer per-item fields added to the data model**: the design's list cards show fields the original `Restaurant` type didn't have — `latitude`/`longitude` (genuine Google Places field, added to the wire contract and core type) and `reviewCount` (already present on the wire contract as `userRatingCount`, just not previously read by the mapper) are now on the core `Restaurant` type, since they're stable, non-contextual facts. `distance`, `tagline`, `tags`, and an `isOpenNow` status are viewer-relative/presentational and stay feature-local, derived at render/query time in the new `useSearchMapDiscovery` hook — same "derive, don't store" discipline `DiscoveryCardData` already established for `discount`/`distance`.
+- **Design updated, not yet implemented (2026-07-29)**: Home's own rail cards (cuisine/occasion/ambient/best-deliveries — the plain `RestaurantCard`-style cards, not `DiscoveryCard`) now show a small tags row (chips) in the design, matching the treatment `MapResultCard`/`DiscoveryCard` already have. `RestaurantCard`/`useHomeDiscovery` don't derive or render tags today.
+- **Home's location header popup gets real content, not yet implemented**: `LocationHeader.tsx` already opens a `BottomSheet` on tap today, but with a placeholder message ("Selecione sua localização atual."). The design now specifies what that sheet actually shows — the saved-address list — see new US4.
+- **Icons throughout the design canvas are now real inline SVGs, not emoji** — retroactively consistent with (not a cause of) this repo's own `@expo/vector-icons` migration done earlier the same day; nothing to change here, just confirms the direction was right.
 
 ## Functional Requirements
 
@@ -109,6 +148,12 @@ The user lands on a dedicated page for one cuisine category (e.g. Churrasco) and
 - **FR-020 — Implemented**: The bottom sheet MUST support two states, collapsed (handle + restaurant count visible) and expanded (~88% of screen height), toggled by dragging the handle or tapping it, animated with a spring transition. The sheet MUST also auto-expand whenever the search bar has an active (debounced) query, so filtered results are immediately visible without a manual drag.
 - **FR-021 — Implemented**: Each list item in the bottom sheet MUST display: photo, name, an open/closed status pill, `cuisineLabel · priceLevel · distance`, `★ rating (reviewCount)`, a tagline, and a tags row — tapping any item MUST navigate to that restaurant's detail screen.
 - **FR-022 — Implemented**: The search bar on the Category page and Search & Map MUST be a real (debounced) text input filtering the visible restaurants by name or cuisine label, live as the user types. **Corrected** (same day, after manual testing): Home's search bar is not itself an inline filter — tapping it MUST navigate to the Search & Map tab instead, same "fake entry point" pattern as the original decorative design (`editable={false}` + a wrapping `Pressable`, not a real `TextInput` interaction on Home itself). The restaurant detail screen's own reuse of the shared `SearchBar` component also stays non-interactive (`editable={false}`, no navigation) — filtering a single restaurant's own page has no meaning.
+- **FR-023 (US4) — Not Started**: Tapping Home's location header MUST open a bottom sheet listing saved addresses (icon, label, address, a checkmark on the current selection); tapping one MUST select it and close the sheet.
+- **FR-024 (US4) — Not Started**: The address list sheet's "+ Adicionar novo endereço" MUST open a second sheet with a full address form (label, street, number, complement, neighborhood, CEP, city, state, country), an address-type icon picker, a "Selecionar no mapa" affordance, and a Save action.
+- **FR-025 (US4) — Not Started**: Home's cuisine/occasion/ambient/best-deliveries rail cards MUST show a tags row (chips), matching `DiscoveryCard`/`MapResultCard`'s existing treatment.
+- **FR-026 (US5) — Not Started**: The "Categorias" bottom tab and Sidebar item MUST navigate to a Categories Overview screen showing a 2-column grid of every cuisine (photo + label); tapping one MUST navigate to that cuisine's existing Category page (US3).
+- **FR-027 (US5) — Not Started**: Home's cuisine rail MUST show two separate links — "view all cuisines" (→ Categories Overview) and "view {cuisine} page" (→ Category page for the active cuisine) — replacing today's single `onViewAll` link.
+- **FR-028 (US6) — Not Started**: Home's Occasion rail's "view all" MUST navigate to a new Occasion page (occasion tabs, hero banner + "View on map" link, "Best for {occasion}" grid, subtype prompt + row, "{occasion} Near You" grid) instead of opening a simulated-message sheet.
 
 ### Key Entities
 
@@ -185,3 +230,4 @@ The user lands on a dedicated page for one cuisine category (e.g. Churrasco) and
 | 2026-07-29 | Reversed this same day's earlier FR-010 resolution: `SearchBar`/`MapSearchBar` on Home, Category, and Search & Map are now real (debounced) text inputs filtering by name/cuisine, per the user's explicit request — the prior "decorative" scope decision no longer holds for these three screens (still decorative on the restaurant detail screen's incidental reuse of `SearchBar`). Added a real `places:searchText` mock endpoint distinct from `searchNearby`, mirroring Google's actual API split rather than a shortcut, since the user was explicit this mock layer should be wired the way a real backend integration eventually will be. New FR-022; `useRestaurantsQuery`/`useHomeDiscovery`/`useCategoryDiscovery`/`useSearchMapDiscovery` all gained a passthrough search param; new `useDebouncedValue` hook. |
 | 2026-07-29 | Corrected FR-022 after manual testing: Home's search bar reverts to a tap target (`editable={false}` + a wrapping `Pressable`) navigating to the Search & Map tab, rather than filtering Home in place — the user found the inline-filter-on-Home behavior wrong once trying it live. Category and Search & Map keep real inline filtering, unaffected. `useHomeDiscovery` no longer takes a `searchQuery` param (removed, unused). |
 | 2026-07-29 | FR-020 extended: `MapResultsSheet` now auto-expands (via a `useEffect` watching a new `searchQuery` prop, `withSpring` to the same expanded target the drag gesture uses) whenever Search & Map's debounced query is non-empty, so filtered results don't require a manual drag to see. |
+| 2026-07-29 | Design canvas expanded with new frames — documented only, nothing implemented this round (explicitly requested: "apenas documentar"). Three new User Stories added: **US4** (address management — Home's location header opens a real saved-address list + add-address form, frames "1b"/"1c", both actually the same `home-frame`'s `sc-if` overlays); **US5** (Categories Overview — a new all-cuisines grid screen, frame "3", now the bottom tab bar's/Sidebar's actual "Categorias" target instead of the Category page directly); **US6** (Occasion page — frame "4b", parallel to US3's Category page but keyed by occasion, now the real destination of Home's Occasion rail "view all", superseding the old simulated-sheet Edge Case). Also found and documented two smaller design changes not yet implemented: Home's cuisine rail "view all" link splits into two (all-cuisines vs. active-cuisine-page), and Home's rail cards (`RestaurantCard`) gained a tags row in the design, matching `DiscoveryCard`/`MapResultCard`. New FR-023–FR-028, all Not Started. Confirmed the design canvas's icons are now real inline SVGs everywhere too — consistent with, not caused by, this repo's own icon migration earlier the same day. |
