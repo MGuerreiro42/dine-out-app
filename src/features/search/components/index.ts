@@ -1,6 +1,7 @@
 export * from './AmbientSelector';
 export * from './BenefitsGrid';
 export * from './CategoryTabsRow';
+export * from './CuisineOverviewCard';
 export * from './CuisineSelector';
 export * from './DiscoveryCard';
 export * from './FeaturedBanner';

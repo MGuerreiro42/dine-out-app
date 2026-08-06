@@ -43,7 +43,7 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 3b. Switch the active cuisine/occasion/ambient chip → the corresponding rail updates — **Implemented**.
 3c. Tap any restaurant card (any rail) → **Flow 6** (Restaurant Detail).
 3d. Tap the cuisine rail's "view {cuisine} page" link → **Flow 4** (Category Page), that cuisine preselected — **Implemented**.
-3e. Tap the cuisine rail's "view all cuisines" link → **Flow 4b** (Categories Overview) — **Not Started** (`search.md` US5; today there's only the single link from 3d, not this second one).
+3e. Tap the cuisine rail's "view all cuisines" link → **Flow 4b** (Categories Overview) — **Implemented**.
 3f. Tap the occasion rail's "view all" link → **Flow 5** (Occasion Page) — **Not Started** (`search.md` US6; today this opens a simulated-message sheet instead).
 3g. Tap a Dine-in/Bars/Takeout quick-nav icon → simulated-message sheet, no real navigation — **Implemented**.
 3h. Tap the location header → **Flow 11** (Address management) — **Not Started** (`search.md` US4; today the sheet that opens has placeholder content).
@@ -55,7 +55,7 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 ## Flow 4 — Category Page (per cuisine)
 
 **Status**: Implemented
-**Entry points**: **Flow 3** step 3d; **Flow 4b** step 4b-ii (once built)
+**Entry points**: **Flow 3** step 3d; **Flow 4b** step 4b-ii
 
 4a. Category page loads with the active cuisine (hero banner, best-rated/trending/near-you grids) — `search.md` US3 — **Implemented**.
 4b. Switch the in-page cuisine tab → all four sections update — **Implemented**.
@@ -67,13 +67,13 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 
 ## Flow 4b — Categories Overview
 
-**Status**: Not Started (`search.md` US5, documented from a design expansion)
-**Entry points**: bottom tab "Categorias", Sidebar "Categorias" (both currently point straight at **Flow 4** instead — see below), **Flow 3** step 3e
+**Status**: Implemented
+**Entry points**: bottom tab "Categorias", Sidebar "Categorias", **Flow 3** step 3e
 
-4b-i. Categories Overview grid loads — one square photo card per cuisine — **Not Started**.
-4b-ii. Tap a cuisine card → **Flow 4** (Category Page) for that cuisine — **Not Started**.
+4b-i. Categories Overview grid loads — one square photo card per cuisine — **Implemented**.
+4b-ii. Tap a cuisine card → **Flow 4** (Category Page) for that cuisine — **Implemented**.
 
-*Routing note*: once this ships, the bottom tab bar's and Sidebar's "Categorias" items both need to repoint here instead of directly at Flow 4 — today they still go straight to the Category page.
+*Routing note*: the bottom tab bar's `app/(tabs)/category.tsx` file now renders this grid (its tab registration didn't need to change); the per-cuisine content moved to `app/category/[cuisine].tsx`, a pushed route with its own back button, no longer a tab root.
 
 ---
 
@@ -137,7 +137,7 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 
 8a. Tap ≡ → sidebar drawer opens — `auth.md` US3 — **Implemented**.
 8b. Header shows a profile summary (logged in, → **Flow 10**) or "Entrar ou criar conta" (logged out, → **Flow 2**) — **Implemented**.
-8c. Tap a nav item (Home / Buscar → **Flow 7** / Categorias → **Flow 4** / Favoritos → **Flow 10** / Meus pedidos, Minhas reservas, Notificações → **Flow 10**'s placeholders) → navigates, drawer closes — **Implemented**.
+8c. Tap a nav item (Home / Buscar → **Flow 7** / Categorias → **Flow 4b** / Favoritos → **Flow 10** / Meus pedidos, Minhas reservas, Notificações → **Flow 10**'s placeholders) → navigates, drawer closes — **Implemented**.
 8d. *(logged in only)* Tap "Sair da conta" → immediate logout, no confirmation — **Implemented**.
 8e. Tap ✕ or the backdrop → closes without navigating — **Implemented**.
 
@@ -195,7 +195,7 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 | 2 — Login / Signup | Implemented |
 | 3 — Home Discovery | Partial (3e, 3f, 3h not started) |
 | 4 — Category Page | Implemented |
-| 4b — Categories Overview | Not Started |
+| 4b — Categories Overview | Implemented |
 | 5 — Occasion Page | Not Started |
 | 6 — Restaurant Detail Engagement | Partial (6t not started) |
 | 7 — Search & Map | Implemented |

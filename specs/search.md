@@ -2,8 +2,8 @@
 
 **Feature**: `search` — folder `src/features/search/`
 **Created**: 2026-07-23 *(retroactive — spec written after the Home implementation, as a validation of `TEMPLATE.md`)*
-**Status**: In Progress — User Stories 1, 2, and 3 (Home, Search & Map, Category page) Implemented; User Stories 4, 5, and 6 (address management, Categories Overview, Occasion page) documented from a design expansion, Not Started
-**Design reference**: `App Flow.dc.html` — frame "1 · Home" (implemented; frames "1b"/"1c" are the same `home-frame`'s address-popup/add-address-form overlays, see US4, not started), frame "2 · Search & Map" (implemented), frame "3 · Categories Overview" (US5, not started), frame "4 · Category page" (implemented as US3), frame "4b · Occasion page" (US6, not started). *(Canvas frame numbers/labels have shifted more than once since this spec was first written — always re-check the live canvas rather than trusting a cached number.)*
+**Status**: In Progress — User Stories 1, 2, 3, and 5 (Home, Search & Map, Category page, Categories Overview) Implemented; User Stories 4 and 6 (address management, Occasion page) documented from a design expansion, Not Started
+**Design reference**: `App Flow.dc.html` — frame "1 · Home" (implemented; frames "1b"/"1c" are the same `home-frame`'s address-popup/add-address-form overlays, see US4, not started), frame "2 · Search & Map" (implemented), frame "3 · Categories Overview" (implemented as US5), frame "4 · Category page" (implemented as US3), frame "4b · Occasion page" (US6, not started). *(Canvas frame numbers/labels have shifted more than once since this spec was first written — always re-check the live canvas rather than trusting a cached number.)*
 
 ## Summary
 
@@ -81,13 +81,19 @@ The user taps Home's location header and sees a bottom sheet listing saved addre
 
 ---
 
-### User Story 5 - Browse all cuisine categories from an overview grid (Priority: P3) — **Not Started**
+### User Story 5 - Browse all cuisine categories from an overview grid (Priority: P3) — **Implemented**
 
 The user taps the "Categorias" tab (or Home's new "view all cuisines" link) and sees a 2-column grid of every cuisine (square photo card + label), one per `CUISINES` taxonomy entry; tapping one navigates to that cuisine's existing Category page (US3).
 
 **Why this priority**: US3's Category page is already reachable directly from Home (per-cuisine); this is a browsing convenience layer on top, not a new capability.
 
-**Design source**: `App Flow.dc.html`, frame "3 · Categories Overview" (`#categories-overview-frame`). **Routing change implied**: the bottom tab bar's "Categorias" item and the Sidebar's "Categorias" item both now point here instead of directly at the Category page — the existing `app/(tabs)/category.tsx` would become a secondary destination (reached from this new screen or from Home), not the tab's direct target. Not yet implemented; `app/(tabs)/category.tsx` still is the direct tab target today.
+**Design source**: `App Flow.dc.html`, frame "3 · Categories Overview" (`#categories-overview-frame`). **Routing change**: the bottom tab bar's "Categorias" item and the Sidebar's "Categorias" item both now point here instead of directly at the Category page. `app/(tabs)/category.tsx` (the tab's file, unchanged registration) now renders this overview grid; the former per-cuisine content moved to a new **`app/category/[cuisine].tsx`** route, no longer a tab root — `cuisine` is now a required path segment instead of an optional query param, and the screen grew a real back button (same pattern as `app/restaurant/[id].tsx`) since it's reached by pushing, not by tab switching.
+
+**Acceptance scenarios**:
+
+1. **Given** the "Categorias" tab or the Sidebar's "Categorias" item, **when** tapped, **then** a 2-column grid renders, one square photo + label tile per cuisine in the `CUISINES` taxonomy.
+2. **Given** the Categories Overview grid, **when** the user taps a tile, **then** the app navigates to `/category/{cuisineId}` — that cuisine's existing Category page (US3), with a working back control returning to the grid.
+3. **Given** Home's cuisine rail, **when** it renders, **then** it shows two links: "view all cuisines" (→ Categories Overview) and "view {cuisine} page" (→ that cuisine's Category page) — replacing the old single `onViewAll` link.
 
 **Status**: no Acceptance Scenarios/Functional Requirements detail yet — will be filled in when picked up.
 
@@ -152,8 +158,8 @@ Parallel to US3's Category page, but scoped by Occasion instead of Cuisine: occa
 - **FR-023 (US4) — Not Started**: Tapping Home's location header MUST open a bottom sheet listing saved addresses (icon, label, address, a checkmark on the current selection); tapping one MUST select it and close the sheet.
 - **FR-024 (US4) — Not Started**: The address list sheet's "+ Adicionar novo endereço" MUST open a second sheet with a full address form (label, street, number, complement, neighborhood, CEP, city, state, country), an address-type icon picker, a "Selecionar no mapa" affordance, and a Save action.
 - **FR-025 (US4) — Not Started**: Home's cuisine/occasion/ambient/best-deliveries rail cards MUST show a tags row (chips), matching `DiscoveryCard`/`MapResultCard`'s existing treatment.
-- **FR-026 (US5) — Not Started**: The "Categorias" bottom tab and Sidebar item MUST navigate to a Categories Overview screen showing a 2-column grid of every cuisine (photo + label); tapping one MUST navigate to that cuisine's existing Category page (US3).
-- **FR-027 (US5) — Not Started**: Home's cuisine rail MUST show two separate links — "view all cuisines" (→ Categories Overview) and "view {cuisine} page" (→ Category page for the active cuisine) — replacing today's single `onViewAll` link.
+- **FR-026 (US5) — Implemented**: The "Categorias" bottom tab and Sidebar item MUST navigate to a Categories Overview screen showing a 2-column grid of every cuisine (photo + label); tapping one MUST navigate to that cuisine's existing Category page (US3).
+- **FR-027 (US5) — Implemented**: Home's cuisine rail MUST show two separate links — "view all cuisines" (→ Categories Overview) and "view {cuisine} page" (→ Category page for the active cuisine) — replacing today's single `onViewAll` link.
 - **FR-028 (US6) — Not Started**: Home's Occasion rail's "view all" MUST navigate to a new Occasion page (occasion tabs, hero banner + "View on map" link, "Best for {occasion}" grid, subtype prompt + row, "{occasion} Near You" grid) instead of opening a simulated-message sheet.
 
 ### Key Entities
@@ -232,3 +238,4 @@ Parallel to US3's Category page, but scoped by Occasion instead of Cuisine: occa
 | 2026-07-29 | Corrected FR-022 after manual testing: Home's search bar reverts to a tap target (`editable={false}` + a wrapping `Pressable`) navigating to the Search & Map tab, rather than filtering Home in place — the user found the inline-filter-on-Home behavior wrong once trying it live. Category and Search & Map keep real inline filtering, unaffected. `useHomeDiscovery` no longer takes a `searchQuery` param (removed, unused). |
 | 2026-07-29 | FR-020 extended: `MapResultsSheet` now auto-expands (via a `useEffect` watching a new `searchQuery` prop, `withSpring` to the same expanded target the drag gesture uses) whenever Search & Map's debounced query is non-empty, so filtered results don't require a manual drag to see. |
 | 2026-07-29 | Design canvas expanded with new frames — documented only, nothing implemented this round (explicitly requested: "apenas documentar"). Three new User Stories added: **US4** (address management — Home's location header opens a real saved-address list + add-address form, frames "1b"/"1c", both actually the same `home-frame`'s `sc-if` overlays); **US5** (Categories Overview — a new all-cuisines grid screen, frame "3", now the bottom tab bar's/Sidebar's actual "Categorias" target instead of the Category page directly); **US6** (Occasion page — frame "4b", parallel to US3's Category page but keyed by occasion, now the real destination of Home's Occasion rail "view all", superseding the old simulated-sheet Edge Case). Also found and documented two smaller design changes not yet implemented: Home's cuisine rail "view all" link splits into two (all-cuisines vs. active-cuisine-page), and Home's rail cards (`RestaurantCard`) gained a tags row in the design, matching `DiscoveryCard`/`MapResultCard`. New FR-023–FR-028, all Not Started. Confirmed the design canvas's icons are now real inline SVGs everywhere too — consistent with, not caused by, this repo's own icon migration earlier the same day. |
+| 2026-08-06 | **US5 (Categories Overview) implemented.** `app/(tabs)/category.tsx` (the tab's file, registration unchanged) now renders a 2-column grid of every cuisine via a new `CuisineOverviewCard`; the former per-cuisine content moved to a new `app/category/[cuisine].tsx` route (no longer a tab root — `cuisine` became a required path segment instead of an optional query param, and it grew a real back button mirroring `app/restaurant/[id].tsx`'s existing pattern). `RestaurantSection` gained `viewAllLabel`/`onViewAllCategories` props so Home's cuisine rail can show both "view all cuisines" and "view {cuisine} page" links (FR-027) without changing its other 3 call sites (occasion/ambient/best-deliveries rails, unaffected). FR-026/FR-027 now Implemented. |
