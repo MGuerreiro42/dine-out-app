@@ -1,35 +1,16 @@
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
-import { BottomSheet } from '@/components/ui';
-import { SearchBar } from '@/components/layout';
-import { CategoryTabsRow, DiscoveryCard, SubtypeRow } from '@/features/search/components';
-import { useCategoryDiscovery, useDebouncedValue } from '@/features/search/hooks';
-import type { DiscoveryCardData } from '@/features/search/hooks';
+import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
+import { CuisineOverviewCard } from '@/features/search/components';
+import type { Cuisine } from '@/features/search/types';
 
 export default function CategoryScreen() {
   const router = useRouter();
-  const { cuisine } = useLocalSearchParams<{ cuisine?: string }>();
-  const [searchText, setSearchText] = useState('');
-  const debouncedSearchText = useDebouncedValue(searchText);
-  const {
-    isLoading,
-    isError,
-    refetch,
-    cuisines,
-    activeCuisineLabel,
-    heroPhoto,
-    subtypes,
-    champions,
-    trending,
-    nearYou,
-    setActiveCuisine,
-  } = useCategoryDiscovery(cuisine, debouncedSearchText);
-  const [viewMoreMessage, setViewMoreMessage] = useState<string | null>(null);
+  const { data, isLoading, isError, refetch } = useDiscoveryTaxonomiesQuery();
 
-  const goToRestaurant = (restaurant: DiscoveryCardData) => {
-    router.push(`/restaurant/${restaurant.id}`);
+  const goToCategory = (cuisine: Cuisine) => {
+    router.push(`/category/${cuisine.id}`);
   };
 
   if (isLoading) {
@@ -54,79 +35,13 @@ export default function CategoryScreen() {
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
       <View className="px-4 pt-4">
-        <SearchBar value={searchText} onChangeText={setSearchText} />
-        <View className="mt-3.5">
-          <CategoryTabsRow cuisines={cuisines} onSelect={setActiveCuisine} />
-        </View>
+        <Text className="text-xl font-bold text-ink">Categorias</Text>
       </View>
-
-      {heroPhoto ? (
-        <View className="relative mx-4 mt-3.5 aspect-video overflow-hidden rounded-2xl">
-          <Image source={{ uri: heroPhoto }} className="h-full w-full" />
-          <View className="absolute inset-0 bg-black/30" />
-          <View className="absolute bottom-4 left-4">
-            <Text className="text-2xl font-bold text-white">{activeCuisineLabel}</Text>
-          </View>
-          <Pressable
-            onPress={() => router.push('/search')}
-            className="absolute bottom-4 right-3.5 rounded-full bg-white px-4 py-2"
-          >
-            <Text className="text-xs font-bold text-ink">View on map</Text>
-          </Pressable>
-        </View>
-      ) : null}
-
-      <View className="px-4 pt-5">
-        <Text className="text-lg font-bold text-ink">
-          The best rated <Text className="text-gold">{activeCuisineLabel}s</Text>
-        </Text>
-      </View>
-      <View className="flex-row flex-wrap justify-between gap-y-3 px-4 pt-2.5">
-        {champions.map((restaurant) => (
-          <DiscoveryCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />
+      <View className="flex-row flex-wrap justify-between gap-y-4 px-4 pt-3.5">
+        {data?.cuisines.map((cuisine) => (
+          <CuisineOverviewCard key={cuisine.id} cuisine={cuisine} onPress={goToCategory} />
         ))}
       </View>
-      <View className="px-4 pb-1.5 pt-1">
-        <Pressable onPress={() => setViewMoreMessage('Veja todos os melhores avaliados desta categoria.')}>
-          <Text className="text-[13px] font-bold text-ink underline">view more</Text>
-        </Pressable>
-      </View>
-
-      <SubtypeRow subtypes={subtypes} />
-
-      <View className="border-t border-gray-100 px-4 pt-5">
-        <Text className="text-lg font-bold text-ink">
-          Trending <Text className="text-gold">Restaurants</Text>
-        </Text>
-      </View>
-      <View className="flex-row flex-wrap justify-between gap-y-3 px-4 pt-2.5">
-        {trending.map((restaurant) => (
-          <DiscoveryCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />
-        ))}
-      </View>
-      <View className="px-4 pb-1.5 pt-1">
-        <Pressable onPress={() => setViewMoreMessage('Veja todos os restaurantes em alta desta categoria.')}>
-          <Text className="text-[13px] font-bold text-ink underline">view more</Text>
-        </Pressable>
-      </View>
-
-      <View className="border-t border-gray-100 px-4 pt-5">
-        <Text className="text-lg font-bold text-ink">
-          {activeCuisineLabel}s <Text className="text-gold">Near You</Text>
-        </Text>
-      </View>
-      <View className="flex-row flex-wrap justify-between gap-y-3 px-4 py-2.5">
-        {nearYou.map((restaurant) => (
-          <DiscoveryCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />
-        ))}
-      </View>
-
-      <BottomSheet visible={viewMoreMessage !== null} onClose={() => setViewMoreMessage(null)}>
-        <Text className="text-center text-sm text-gray-600">{viewMoreMessage}</Text>
-        <Pressable onPress={() => setViewMoreMessage(null)} className="mt-1.5 rounded-xl bg-ink p-3.5">
-          <Text className="text-center text-sm font-bold text-white">Fechar</Text>
-        </Pressable>
-      </BottomSheet>
     </ScrollView>
   );
 }
