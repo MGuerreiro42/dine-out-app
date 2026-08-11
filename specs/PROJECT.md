@@ -68,7 +68,7 @@ jest.config.js, jest.setup.js
 
 | Feature | Spec | Status |
 |---|---|---|
-| `search` | `specs/search.md` | Home (US1), Search & Map (US2), and Category page (US3) all implemented (mock data) |
+| `search` | `specs/search.md` | Home (US1), Search & Map (US2), and Category page (US3) implemented (mock data); address management (US4), Categories Overview (US5), and Occasion page (US6) documented from a design expansion, not started |
 | `restaurant` | `specs/restaurant.md` | US1+US2 implemented (mock data); US3–US7 not started |
 | `favorites` | `specs/favorites.md` | Spec drafted (2 user stories), not implemented — but its global store (`stores/favorites.ts`) already exists, built ahead of schedule in `profile.md`'s round (see ADR log) |
 | `profile` | `specs/profile.md` | US1+US2 implemented (mock data); US3-US6 not started |
