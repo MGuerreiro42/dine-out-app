@@ -10,7 +10,7 @@ type DiscoveryCardProps = {
 
 export function DiscoveryCard({ restaurant, onPress }: DiscoveryCardProps) {
   return (
-    <Pressable onPress={() => onPress(restaurant)} className="w-[48%]">
+    <Pressable onPress={() => onPress(restaurant)} className="w-[48%] md:w-[31%] lg:w-[23%]">
       <View className="overflow-hidden rounded-2xl">
         <Image source={{ uri: restaurant.photo }} className="aspect-[4/3] w-full" />
         <View className="absolute left-2 top-2 flex-row items-center gap-1 rounded-full bg-black/85 px-2 py-1">

@@ -9,7 +9,7 @@ type CuisineOverviewCardProps = {
 
 export function CuisineOverviewCard({ cuisine, onPress }: CuisineOverviewCardProps) {
   return (
-    <Pressable onPress={() => onPress(cuisine)} className="w-[48%]">
+    <Pressable onPress={() => onPress(cuisine)} className="w-[48%] md:w-[31%] lg:w-[23%]">
       <View className="aspect-square overflow-hidden rounded-2xl">
         <Image source={{ uri: cuisine.photo }} className="h-full w-full" />
       </View>

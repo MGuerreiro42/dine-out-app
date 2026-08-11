@@ -36,9 +36,9 @@ export function SideMenu() {
     <>
       <Pressable
         onPress={() => setOpen(true)}
-        className="h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-ink"
+        className="h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#f3f4f6]"
       >
-        <Icon spec={{ set: 'Ionicons', name: 'menu' }} size={20} color="#fff" />
+        <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={18} color="#1f2937" />
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={close}>

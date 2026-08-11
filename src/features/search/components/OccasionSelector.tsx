@@ -18,11 +18,11 @@ export function OccasionSelector({ occasions, onSelect }: OccasionSelectorProps)
       {occasions.map((occasion) => (
         <Pressable key={occasion.id} onPress={() => onSelect(occasion.id)} className="items-center gap-1.5">
           <View
-            className={`h-[52px] w-[52px] items-center justify-center rounded-2xl ${occasion.isActive ? 'bg-ink' : 'bg-sand'}`}
+            className={`h-[52px] w-[52px] items-center justify-center rounded-full ${occasion.isActive ? 'bg-[#eef2ff]' : 'bg-[#f3f4f6]'}`}
           >
-            <Icon spec={occasion.icon} size={22} color={occasion.isActive ? '#c9a24b' : '#161311'} />
+            <Icon spec={occasion.icon} size={22} color={occasion.isActive ? '#4f46e5' : '#1f2937'} />
           </View>
-          <Text className={`text-[11px] font-bold ${occasion.isActive ? 'text-ink' : 'text-muted'}`}>
+          <Text className={`text-[11px] font-bold ${occasion.isActive ? 'text-[#111827]' : 'text-[#6b7280]'}`}>
             {occasion.label}
           </Text>
         </Pressable>

@@ -1,57 +1,48 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BottomSheet, HorizontalRail, RestaurantCard } from '@/components/ui';
-import type { Restaurant } from '@/types';
+import { BottomSheet } from '@/components/ui/BottomSheet';
+import { HorizontalRail } from '@/components/ui/HorizontalRail';
+import { HomeRestaurantCard } from '@/features/search/components/HomeRestaurantCard';
+import type { HomeCardData } from '@/features/search/hooks';
 
 type RestaurantSectionProps = {
-  title?: string;
-  restaurants: Restaurant[];
-  onSelectRestaurant: (restaurant: Restaurant) => void;
-  viewAllMessage?: string;
-  onViewAll?: () => void;
-  viewAllLabel?: string;
-  onViewAllCategories?: () => void;
+  restaurants: HomeCardData[];
+  onSelectRestaurant: (restaurant: HomeCardData) => void;
+  viewMoreMessage?: string;
+  onViewMore?: () => void;
+  viewMoreLabel?: string;
 };
 
 export function RestaurantSection({
-  title,
   restaurants,
   onSelectRestaurant,
-  viewAllMessage,
-  onViewAll,
-  viewAllLabel = 'view all',
-  onViewAllCategories,
+  viewMoreMessage,
+  onViewMore,
+  viewMoreLabel = 'View more',
 }: RestaurantSectionProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
     <View className="mt-2">
-      {title ? (
-        <View className="px-4 pb-1.5 pt-5">
-          <Text className="text-xl font-bold text-ink">{title}</Text>
-        </View>
-      ) : null}
       <HorizontalRail>
         {restaurants.map((restaurant) => (
-          <RestaurantCard key={restaurant.id} restaurant={restaurant} onPress={onSelectRestaurant} />
+          <HomeRestaurantCard key={restaurant.id} restaurant={restaurant} onPress={onSelectRestaurant} />
         ))}
       </HorizontalRail>
-      {onViewAll || viewAllMessage || onViewAllCategories ? (
-        <View className="flex-row gap-4 px-4 pb-1.5 pt-0.5">
-          {onViewAllCategories ? (
-            <Pressable onPress={onViewAllCategories}>
-              <Text className="text-[13px] font-bold text-ink underline">view all cuisines</Text>
-            </Pressable>
-          ) : null}
-          <Pressable onPress={onViewAll ?? (() => setSheetOpen(true))}>
-            <Text className="text-[13px] font-bold text-ink underline">{viewAllLabel}</Text>
+      {onViewMore || viewMoreMessage ? (
+        <View className="items-center px-4 pb-1.5 pt-2.5">
+          <Pressable
+            onPress={onViewMore ?? (() => setSheetOpen(true))}
+            className="rounded-full border border-[#e5e7eb] bg-white px-6 py-2.5"
+          >
+            <Text className="text-[13px] font-bold text-[#111827]">{viewMoreLabel}</Text>
           </Pressable>
         </View>
       ) : null}
 
       <BottomSheet visible={sheetOpen} onClose={() => setSheetOpen(false)}>
-        <Text className="text-center text-sm text-gray-600">{viewAllMessage}</Text>
+        <Text className="text-center text-sm text-gray-600">{viewMoreMessage}</Text>
         <Pressable onPress={() => setSheetOpen(false)} className="mt-1.5 rounded-xl bg-ink p-3.5">
           <Text className="text-center text-sm font-bold text-white">Fechar</Text>
         </Pressable>

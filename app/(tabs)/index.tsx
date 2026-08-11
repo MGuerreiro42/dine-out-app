@@ -1,19 +1,21 @@
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 
-import { SearchBar, SideMenu } from '@/components/layout';
+import { SideMenu } from '@/components/layout';
+import { Icon } from '@/components/ui';
 import {
   AmbientSelector,
-  BenefitsGrid,
   CuisineSelector,
   FeaturedBanner,
   LocationHeader,
   OccasionSelector,
-  QuickNavRow,
   RestaurantSection,
 } from '@/features/search/components';
 import { useHomeDiscovery } from '@/features/search/hooks';
 import type { Restaurant } from '@/types';
+
+const showOccasionsComingSoon = () =>
+  Alert.alert('Ocasiões', 'Veja todos os restaurantes para esta ocasião. Em breve.');
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -25,10 +27,10 @@ export default function HomeScreen() {
     cuisines,
     occasions,
     ambients,
-    benefits,
     cuisineList,
     occasionList,
     ambientList,
+    featuredTagline,
     setActiveCuisine,
     setActiveOccasion,
     setActiveAmbient,
@@ -61,62 +63,74 @@ export default function HomeScreen() {
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
       <View className="flex-row items-center gap-2.5 px-4 pt-4">
-        <Pressable onPress={() => router.push('/search')} className="flex-1">
-          <View pointerEvents="none">
-            <SearchBar editable={false} />
-          </View>
+        <Pressable
+          onPress={() => router.push('/search')}
+          className="flex-1 flex-row items-center gap-2 rounded-full bg-[#f3f4f6] px-4 py-3"
+        >
+          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={16} color="#9ca3af" />
+          <Text className="text-sm text-[#9ca3af]">Search restaurants...</Text>
         </Pressable>
         <SideMenu />
       </View>
 
       <LocationHeader />
 
-      <QuickNavRow />
+      {restaurants[0] ? <FeaturedBanner restaurant={restaurants[0]} tagline={featuredTagline} /> : null}
 
-      {restaurants[0] ? <FeaturedBanner restaurant={restaurants[0]} /> : null}
-
-      <View className="px-4 pb-1 pt-5">
-        <Text className="text-xl font-bold text-ink">
-          Choose your <Text className="text-gold">Cuisine</Text>
-        </Text>
+      <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
+        <View className="flex-row items-center gap-1.5">
+          <Icon spec={{ set: 'Ionicons', name: 'restaurant-outline' }} size={16} color="#111827" />
+          <Text className="text-[15px] font-bold text-[#111827]">Choose your Cuisine</Text>
+        </View>
+        <Pressable onPress={() => router.push('/category')}>
+          <Text className="text-[13px] font-semibold text-[#4f46e5]">View all cuisines</Text>
+        </Pressable>
       </View>
       <CuisineSelector cuisines={cuisines} onSelect={setActiveCuisine} />
       <RestaurantSection
         restaurants={cuisineList}
         onSelectRestaurant={goToRestaurant}
-        viewAllLabel={activeCuisine ? `view ${activeCuisine.label} page` : 'view category page'}
-        onViewAll={() => {
+        viewMoreLabel="View more"
+        onViewMore={() => {
           if (activeCuisine) router.push(`/category/${activeCuisine.id}`);
         }}
-        onViewAllCategories={() => router.push('/category')}
       />
 
-      <View className="px-4 pb-1 pt-5">
-        <Text className="text-xl font-bold text-ink">
-          What&apos;s the <Text className="text-gold">Occasion?</Text>
-        </Text>
+      <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
+        <View className="flex-row items-center gap-1.5">
+          <Icon spec={{ set: 'Ionicons', name: 'sparkles' }} size={16} color="#4f46e5" />
+          <Text className="text-[15px] font-bold text-[#111827]">What&apos;s the Occasion?</Text>
+        </View>
+        <Pressable onPress={showOccasionsComingSoon}>
+          <Text className="text-[13px] font-semibold text-[#4f46e5]">View all occasions</Text>
+        </Pressable>
       </View>
       <OccasionSelector occasions={occasions} onSelect={setActiveOccasion} />
       <RestaurantSection
         restaurants={occasionList}
         onSelectRestaurant={goToRestaurant}
-        viewAllMessage="Veja todos os restaurantes para esta ocasião."
+        viewMoreMessage="Veja todos os restaurantes para esta ocasião."
       />
 
-      <BenefitsGrid benefits={benefits} />
-
-      <View className="px-4 pb-1 pt-1.5">
+      <View className="px-4 pb-2 pt-6">
         <Text className="text-xl font-bold text-ink">
           Outstanding <Text className="text-gold">Ambients</Text>
         </Text>
       </View>
       <AmbientSelector ambients={ambients} onSelect={setActiveAmbient} />
-      <RestaurantSection restaurants={ambientList} onSelectRestaurant={goToRestaurant} />
-
       <RestaurantSection
-        title="Best Deliveries & Takeaways"
+        restaurants={ambientList}
+        onSelectRestaurant={goToRestaurant}
+        viewMoreMessage="Veja todos os restaurantes deste ambiente."
+      />
+
+      <View className="px-4 pb-2 pt-6">
+        <Text className="text-xl font-bold text-ink">Best Deliveries & Takeaways</Text>
+      </View>
+      <RestaurantSection
         restaurants={restaurants}
         onSelectRestaurant={goToRestaurant}
+        viewMoreMessage="Veja todos os restaurantes com delivery e retirada."
       />
     </ScrollView>
   );
