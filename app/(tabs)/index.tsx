@@ -33,6 +33,7 @@ export default function HomeScreen() {
     setActiveOccasion,
     setActiveAmbient,
   } = useHomeDiscovery();
+  const activeCuisine = cuisines.find((c) => c.isActive);
 
   const goToRestaurant = (restaurant: Restaurant) => {
     router.push(`/restaurant/${restaurant.id}`);
@@ -83,10 +84,11 @@ export default function HomeScreen() {
       <RestaurantSection
         restaurants={cuisineList}
         onSelectRestaurant={goToRestaurant}
+        viewAllLabel={activeCuisine ? `view ${activeCuisine.label} page` : 'view category page'}
         onViewAll={() => {
-          const activeCuisineId = cuisines.find((c) => c.isActive)?.id;
-          router.push({ pathname: '/category', params: activeCuisineId ? { cuisine: activeCuisineId } : {} });
+          if (activeCuisine) router.push(`/category/${activeCuisine.id}`);
         }}
+        onViewAllCategories={() => router.push('/category')}
       />
 
       <View className="px-4 pb-1 pt-5">

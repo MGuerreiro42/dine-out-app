@@ -10,6 +10,8 @@ type RestaurantSectionProps = {
   onSelectRestaurant: (restaurant: Restaurant) => void;
   viewAllMessage?: string;
   onViewAll?: () => void;
+  viewAllLabel?: string;
+  onViewAllCategories?: () => void;
 };
 
 export function RestaurantSection({
@@ -18,6 +20,8 @@ export function RestaurantSection({
   onSelectRestaurant,
   viewAllMessage,
   onViewAll,
+  viewAllLabel = 'view all',
+  onViewAllCategories,
 }: RestaurantSectionProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -33,10 +37,15 @@ export function RestaurantSection({
           <RestaurantCard key={restaurant.id} restaurant={restaurant} onPress={onSelectRestaurant} />
         ))}
       </HorizontalRail>
-      {onViewAll || viewAllMessage ? (
-        <View className="px-4 pb-1.5 pt-0.5">
+      {onViewAll || viewAllMessage || onViewAllCategories ? (
+        <View className="flex-row gap-4 px-4 pb-1.5 pt-0.5">
+          {onViewAllCategories ? (
+            <Pressable onPress={onViewAllCategories}>
+              <Text className="text-[13px] font-bold text-ink underline">view all cuisines</Text>
+            </Pressable>
+          ) : null}
           <Pressable onPress={onViewAll ?? (() => setSheetOpen(true))}>
-            <Text className="text-[13px] font-bold text-ink underline">view all</Text>
+            <Text className="text-[13px] font-bold text-ink underline">{viewAllLabel}</Text>
           </Pressable>
         </View>
       ) : null}
