@@ -45,7 +45,7 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 3d. Tap the cuisine rail's "view {cuisine} page" link → **Flow 4** (Category Page), that cuisine preselected — **Implemented**.
 3e. Tap the cuisine rail's "view all cuisines" link → **Flow 4b** (Categories Overview) — **Implemented**.
 3f. Tap the occasion rail's "view all" link → **Flow 5** (Occasion Page) — **Not Started** (`search.md` US6; today this opens a simulated-message sheet instead).
-3g. Tap a Dine-in/Bars/Takeout quick-nav icon → simulated-message sheet, no real navigation — **Implemented**.
+3g. Tap a Dine-in/Bars/Takeout quick-nav icon → **Flow 4c** (Venue Type Listing) — **Implemented**. *(Corrected 2026-08-11: previously a simulated-message sheet, no real navigation.)*
 3h. Tap the location header → **Flow 11** (Address management) — **Not Started** (`search.md` US4; today the sheet that opens has placeholder content).
 3i. Tap the search bar → navigates to **Flow 7** (Search & Map) — **Implemented** (the bar itself is a non-editable tap target here, not an inline filter — see `search.md`'s FR-022 correction).
 3j. Tap the ≡ menu icon → **Flow 8** (Sidebar).
@@ -74,6 +74,20 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 4b-ii. Tap a cuisine card → **Flow 4** (Category Page) for that cuisine — **Implemented**.
 
 *Routing note*: the bottom tab bar's `app/(tabs)/category.tsx` file now renders this grid (its tab registration didn't need to change); the per-cuisine content moved to `app/category/[cuisine].tsx`, a pushed route with its own back button, no longer a tab root.
+
+---
+
+## Flow 4c — Venue Type Listing (Dine-in/Bars/Takeout)
+
+**Status**: Implemented
+**Entry point**: **Flow 3** step 3g
+
+4c-i. Venue-type listing page loads with the tapped venue type (hero banner, best-rated/trending/near-you grids) — `search.md` US7 — **Implemented**. Same screen component as **Flow 4** (`TaxonomyListingScreen`), no subtype row.
+4c-ii. Switch the in-page venue-type tab → all three grids update — **Implemented**.
+4c-iii. Tap "View on map" → **Flow 7** (Search & Map) — **Implemented**.
+4c-iv. Tap any restaurant card → **Flow 6** (Restaurant Detail) — **Implemented**.
+
+*Routing note*: `app/venue-type/[type].tsx`, new — unlike Flow 4b there's no overview grid for venue types, so there's no "browse all 3" entry point beyond Home's quick-nav icons themselves.
 
 ---
 
@@ -193,9 +207,10 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 |---|---|
 | 1 — First Launch & Guest Entry | Implemented |
 | 2 — Login / Signup | Implemented |
-| 3 — Home Discovery | Partial (3e, 3f, 3h not started) |
+| 3 — Home Discovery | Partial (3f, 3h not started) |
 | 4 — Category Page | Implemented |
 | 4b — Categories Overview | Implemented |
+| 4c — Venue Type Listing | Implemented |
 | 5 — Occasion Page | Not Started |
 | 6 — Restaurant Detail Engagement | Partial (6t not started) |
 | 7 — Search & Map | Implemented |

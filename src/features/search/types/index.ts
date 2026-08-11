@@ -22,6 +22,13 @@ export const AmbientSchema = z.object({
 });
 export type Ambient = z.infer<typeof AmbientSchema>;
 
+export const VenueTypeSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  icon: IconSpecSchema,
+});
+export type VenueType = z.infer<typeof VenueTypeSchema>;
+
 export const BenefitSchema = z.object({
   text: z.string(),
 });
@@ -37,6 +44,7 @@ export const DiscoveryTaxonomiesSchema = z.object({
   cuisines: z.array(CuisineSchema),
   occasions: z.array(OccasionSchema),
   ambients: z.array(AmbientSchema),
+  venueTypes: z.array(VenueTypeSchema),
   benefits: z.array(BenefitSchema),
   categorySubtypes: z.record(z.string(), z.array(CategorySubtypeSchema)),
 });

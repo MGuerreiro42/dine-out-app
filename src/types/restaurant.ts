@@ -9,6 +9,7 @@ export const RestaurantSchema = z.object({
   cuisine: z.string(),
   occasion: z.string(),
   ambient: z.string(),
+  venueType: z.string(),
   latitude: z.number(),
   longitude: z.number(),
   reviewCount: z.number(),

@@ -48,6 +48,7 @@ export type GooglePlace = z.infer<typeof GooglePlaceSchema>;
 export const AppPlaceSchema = GooglePlaceSchema.extend({
   occasion: z.string(),
   ambient: z.string(),
+  venueType: z.string(),
 });
 export type AppPlace = z.infer<typeof AppPlaceSchema>;
 

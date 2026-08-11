@@ -3,7 +3,7 @@
 // getPlacePhotoUrl, so going through it here would close a require cycle
 // (index.ts -> client.ts -> repository.ts -> index.ts).
 import { mapPrimaryTypeToCuisine } from '@/lib/googlePlaces/mappers';
-import { AMBIENTS, BENEFITS, CATEGORY_SUBTYPES, CUISINES, OCCASIONS } from '@/mocks/discoveryTaxonomies';
+import { AMBIENTS, BENEFITS, CATEGORY_SUBTYPES, CUISINES, OCCASIONS, VENUE_TYPES } from '@/mocks/discoveryTaxonomies';
 import { PLACE_DETAILS } from '@/mocks/restaurantDetails';
 import { PLACES, photoUrlForMockName } from '@/mocks/restaurants';
 import { CURRENT_USER } from '@/mocks/currentUser';
@@ -53,6 +53,7 @@ export async function getDiscoveryTaxonomies() {
     cuisines: CUISINES,
     occasions: OCCASIONS,
     ambients: AMBIENTS,
+    venueTypes: VENUE_TYPES,
     benefits: BENEFITS,
     categorySubtypes: CATEGORY_SUBTYPES,
   };

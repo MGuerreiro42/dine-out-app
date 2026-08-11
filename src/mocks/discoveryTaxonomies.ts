@@ -1,7 +1,7 @@
 import type { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 import type { IconSpec } from '@/components/ui/Icon';
-import type { Ambient, Benefit, CategorySubtype, Cuisine, Occasion } from '@/features/search/types';
+import type { Ambient, Benefit, CategorySubtype, Cuisine, Occasion, VenueType } from '@/features/search/types';
 
 // Overloaded per set so each call site still gets a compile-time check
 // against that set's real glyph names, despite the shared helper.
@@ -40,6 +40,15 @@ export const AMBIENTS: Ambient[] = [
   { id: 'fancy', label: 'Fancy' },
   { id: 'relaxed', label: 'Relaxed' },
   { id: 'agitated', label: 'Agitated' },
+];
+
+// Same 3 icons QuickNavRow used to hardcode locally before it started reading
+// this taxonomy — single source of truth now shared with the venue-type
+// listing page's tabs (CategoryTabsRow).
+export const VENUE_TYPES: VenueType[] = [
+  { id: 'dine-in', label: 'Dine-in', icon: icon('Ionicons', 'restaurant-outline') },
+  { id: 'bar', label: 'Bars', icon: icon('MaterialCommunityIcons', 'glass-cocktail') },
+  { id: 'takeout', label: 'Takeout', icon: icon('MaterialCommunityIcons', 'food-takeout-box') },
 ];
 
 export const BENEFITS: Benefit[] = [

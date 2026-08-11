@@ -14,3 +14,4 @@ export * from './QuickNavRow';
 export * from './RestaurantSection';
 export * from './SearchMapView';
 export * from './SubtypeRow';
+export * from './TaxonomyListingScreen';
