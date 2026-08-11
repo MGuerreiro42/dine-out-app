@@ -13,6 +13,11 @@ cssInterop(Animated.View, { className: 'style' });
 
 const EXPANDED_RATIO = 0.93;
 const COLLAPSED_VISIBLE_HEIGHT = 130;
+// How much of the sheet is visible by default, before any drag/tap/search —
+// enough to see the first result card (and a peek of the next one) so the
+// list reads as real, present content the moment the screen opens, instead
+// of requiring the user to discover the drag handle first.
+const DEFAULT_VISIBLE_HEIGHT = 260;
 const SPRING_CONFIG = { damping: 28, stiffness: 260, overshootClamping: true };
 
 type MapResultsSheetProps = {
@@ -34,13 +39,20 @@ type MapResultsSheetProps = {
 export function MapResultsSheet({ count, containerHeight, searchQuery, children }: MapResultsSheetProps) {
   const sheetHeight = containerHeight * EXPANDED_RATIO;
   const maxTranslateY = Math.max(sheetHeight - COLLAPSED_VISIBLE_HEIGHT, 0);
+  const defaultTranslateY = Math.max(sheetHeight - DEFAULT_VISIBLE_HEIGHT, 0);
 
-  const translateY = useSharedValue(maxTranslateY);
+  const translateY = useSharedValue(defaultTranslateY);
   const startY = useSharedValue(0);
 
+  // Re-syncs to the default reveal whenever the measured containerHeight
+  // changes — most notably the one correction from the initial
+  // useWindowDimensions() fallback to the real (tab-bar-excluded) height
+  // right after mount. Drag/tap and the search-query effect below still
+  // fully override this afterward; this only governs the pre-interaction
+  // default.
   useEffect(() => {
-    translateY.value = maxTranslateY;
-  }, [maxTranslateY, translateY]);
+    translateY.value = defaultTranslateY;
+  }, [defaultTranslateY, translateY]);
 
   // Maximize the sheet so results are actually visible as soon as the user
   // starts searching, instead of requiring a manual drag every time.
