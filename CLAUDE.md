@@ -38,7 +38,7 @@ npx tsc --noEmit
 npx jest
 ```
 
-`npx jest` runs the suite once; `npm test` (`jest --watchAll`) is the watch-mode version for active development. Tests use `msw/native` (not `msw/node` — see the "New library/API question" note above, this project's export-conditions gotcha is documented in `specs/PROJECT.md`'s ADR log) against the same handlers the running app uses, via `jest.setup.js`.
+`npx jest` runs the suite once; `npm test` (`jest --watchAll`) is the watch-mode version for active development. Tests run against the same `src/mocks/repository.ts` functions the running app calls directly — no MSW, no network interception, no `jest.setup.js` (removed along with MSW; see `specs/PROJECT.md`'s ADR log). To simulate a failure, `jest.spyOn` a `repository.ts` export and `mockRejectedValueOnce`/`mockResolvedValueOnce` it, restoring with `jest.restoreAllMocks()` afterward — see `useRestaurantsQuery-error-test.ts` for the pattern.
 
 The dev server is usually already running at `localhost:8081` (`npx expo start --web`). Confirm a route bundles clean with:
 
