@@ -10,11 +10,11 @@ type FeaturedBannerProps = {
 export function FeaturedBanner({ restaurant, tagline }: FeaturedBannerProps) {
   return (
     <View>
-      <View className="mx-4 mt-3.5 aspect-video overflow-hidden rounded-2xl">
+      <View className="mx-4 mt-1.5 aspect-[16/7] overflow-hidden rounded-2xl">
         <Image source={{ uri: restaurant.photo }} className="h-full w-full" />
         <View className="absolute inset-0 bg-black/35" />
-        <View className="absolute left-3.5 top-3.5 rounded-full bg-[#6366f1] px-2.5 py-1">
-          <Text className="text-[10px] font-bold text-white">Featured</Text>
+        <View className="absolute left-3.5 top-3.5 rounded-full bg-[#e0e7ff] px-2.5 py-1">
+          <Text className="text-[12px] font-light text-[#4338ca]">Featured</Text>
         </View>
         <View className="absolute bottom-3.5 left-4 right-4">
           <Text className="text-lg font-bold text-white">{restaurant.name}</Text>

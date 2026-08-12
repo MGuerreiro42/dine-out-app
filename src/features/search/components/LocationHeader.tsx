@@ -9,12 +9,12 @@ export function LocationHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <View className="mt-3 px-4">
+    <View className="mt-3 px-4 pb-1.5">
       <Pressable onPress={() => setOpen(true)} className="flex-row items-center gap-1.5">
-        <Icon spec={{ set: 'Ionicons', name: 'location' }} size={13} color="#f59e0b" />
+        <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={13} color="#fbbf24" />
         <Text className="flex-shrink text-xs text-ink" numberOfLines={1}>
           <Text className="font-bold">{USER_LOCATION.area}</Text>
-          <Text className="text-muted"> · {USER_LOCATION.address}</Text>
+          <Text className="text-[11px] text-muted"> · {USER_LOCATION.address}</Text>
         </Text>
         <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={12} color="#8a8580" />
       </Pressable>
