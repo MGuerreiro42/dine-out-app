@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { SideMenu } from '@/components/layout';
 import { Icon } from '@/components/ui';
@@ -13,9 +13,6 @@ import {
 } from '@/features/search/components';
 import { useHomeDiscovery } from '@/features/search/hooks';
 import type { Restaurant } from '@/types';
-
-const showOccasionsComingSoon = () =>
-  Alert.alert('Ocasiões', 'Veja todos os restaurantes para esta ocasião. Em breve.');
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -36,6 +33,9 @@ export default function HomeScreen() {
     setActiveAmbient,
   } = useHomeDiscovery();
   const activeCuisine = cuisines.find((c) => c.isActive);
+  const activeOccasion = occasions.find((o) => o.isActive);
+  const activeAmbient = ambients.find((a) => a.isActive);
+  const deliveryList = restaurants.filter((r) => r.hasDelivery);
 
   const goToRestaurant = (restaurant: Restaurant) => {
     router.push(`/restaurant/${restaurant.id}`);
@@ -61,7 +61,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
+    <View className="flex-1 bg-white">
       <View className="flex-row items-center gap-2.5 px-4 pt-4">
         <Pressable
           onPress={() => router.push('/search')}
@@ -75,15 +75,16 @@ export default function HomeScreen() {
 
       <LocationHeader />
 
-      {restaurants[0] ? <FeaturedBanner restaurant={restaurants[0]} tagline={featuredTagline} /> : null}
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
+        {restaurants[0] ? <FeaturedBanner restaurant={restaurants[0]} tagline={featuredTagline} /> : null}
 
       <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
         <View className="flex-row items-center gap-1.5">
-          <Icon spec={{ set: 'Ionicons', name: 'restaurant-outline' }} size={16} color="#111827" />
-          <Text className="text-[15px] font-bold text-[#111827]">Choose your Cuisine</Text>
+          <Icon spec={{ set: 'Ionicons', name: 'restaurant-outline' }} size={16} color="#4f46e5" />
+          <Text className="text-[17px] font-bold text-[#111827]">Choose your Cuisine</Text>
         </View>
-        <Pressable onPress={() => router.push('/category')}>
-          <Text className="text-[13px] font-semibold text-[#4f46e5]">View all cuisines</Text>
+        <Pressable onPress={() => router.push('/type-overview/cuisine')}>
+          <Text className="text-xs font-normal text-[#4f46e5]">View all cuisines</Text>
         </Pressable>
       </View>
       <CuisineSelector cuisines={cuisines} onSelect={setActiveCuisine} />
@@ -92,46 +93,64 @@ export default function HomeScreen() {
         onSelectRestaurant={goToRestaurant}
         viewMoreLabel="View more"
         onViewMore={() => {
-          if (activeCuisine) router.push(`/category/${activeCuisine.id}`);
+          if (activeCuisine) router.push(`/type/cuisine/${activeCuisine.id}`);
         }}
       />
 
       <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
         <View className="flex-row items-center gap-1.5">
           <Icon spec={{ set: 'Ionicons', name: 'sparkles' }} size={16} color="#4f46e5" />
-          <Text className="text-[15px] font-bold text-[#111827]">What&apos;s the Occasion?</Text>
+          <Text className="text-[17px] font-bold text-[#111827]">What&apos;s the Occasion?</Text>
         </View>
-        <Pressable onPress={showOccasionsComingSoon}>
-          <Text className="text-[13px] font-semibold text-[#4f46e5]">View all occasions</Text>
+        <Pressable onPress={() => router.push('/type-overview/occasion')}>
+          <Text className="text-xs font-normal text-[#4f46e5]">View all occasions</Text>
         </Pressable>
       </View>
       <OccasionSelector occasions={occasions} onSelect={setActiveOccasion} />
       <RestaurantSection
         restaurants={occasionList}
         onSelectRestaurant={goToRestaurant}
-        viewMoreMessage="Veja todos os restaurantes para esta ocasião."
+        viewMoreLabel="View more"
+        onViewMore={() => {
+          if (activeOccasion) router.push(`/type/occasion/${activeOccasion.id}`);
+        }}
       />
 
-      <View className="px-4 pb-2 pt-6">
-        <Text className="text-xl font-bold text-ink">
-          Outstanding <Text className="text-gold">Ambients</Text>
-        </Text>
+      <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
+        <View className="flex-row items-center gap-1.5">
+          <Icon spec={{ set: 'Ionicons', name: 'star-outline' }} size={16} color="#4f46e5" />
+          <Text className="text-[17px] font-bold text-[#111827]">Outstanding Ambients</Text>
+        </View>
+        <Pressable onPress={() => router.push('/type-overview/ambient')}>
+          <Text className="text-xs font-normal text-[#4f46e5]">View all ambients</Text>
+        </Pressable>
       </View>
       <AmbientSelector ambients={ambients} onSelect={setActiveAmbient} />
       <RestaurantSection
         restaurants={ambientList}
         onSelectRestaurant={goToRestaurant}
-        viewMoreMessage="Veja todos os restaurantes deste ambiente."
+        viewMoreLabel="View more"
+        onViewMore={() => {
+          if (activeAmbient) router.push(`/type/ambient/${activeAmbient.id}`);
+        }}
       />
 
-      <View className="px-4 pb-2 pt-6">
-        <Text className="text-xl font-bold text-ink">Best Deliveries & Takeaways</Text>
+      <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
+        <View className="flex-row items-center gap-1.5">
+          <Icon spec={{ set: 'Ionicons', name: 'bag-outline' }} size={16} color="#4f46e5" />
+          <Text className="text-[17px] font-bold text-[#111827]">Best Deliveries & Takeaways</Text>
+        </View>
+        <Pressable onPress={() => router.push({ pathname: '/search', params: { delivery: '1' } })}>
+          <Text className="text-xs font-normal text-[#4f46e5]">View all</Text>
+        </Pressable>
       </View>
-      <RestaurantSection
-        restaurants={restaurants}
-        onSelectRestaurant={goToRestaurant}
-        viewMoreMessage="Veja todos os restaurantes com delivery e retirada."
-      />
-    </ScrollView>
+        <RestaurantSection
+          restaurants={deliveryList}
+          onSelectRestaurant={goToRestaurant}
+          viewMoreLabel="View more"
+          onViewMore={() => router.push({ pathname: '/search', params: { delivery: '1' } })}
+        />
+      </ScrollView>
+    </View>
   );
 }

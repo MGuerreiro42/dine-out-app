@@ -2,13 +2,38 @@ import { useState } from 'react';
 
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api/useDiscoveryTaxonomiesQuery';
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
+import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
 import type { Restaurant } from '@/types';
 
 export type HomeCardData = Restaurant & {
   cuisineLabel: string;
   tags: string[];
   isOpenNow: boolean;
+  hasDelivery: boolean;
 };
+
+// Presentation-only derivation, not stored data — same pattern already
+// established by DiscoveryCardData (search) and MapResultData (search &
+// map): a restaurant's own cuisine/occasion/ambient labels and a
+// deterministic mock "open now" flag, computed at render time. Standalone
+// (not a closure) so useTypeDetail can reuse it against the same taxonomies.
+export function deriveHomeCard(
+  restaurant: Restaurant,
+  cuisines: Cuisine[],
+  occasions: Occasion[],
+  ambients: Ambient[],
+): HomeCardData {
+  return {
+    ...restaurant,
+    cuisineLabel: cuisines.find((c) => c.id === restaurant.cuisine)?.label ?? '',
+    tags: [
+      ambients.find((a) => a.id === restaurant.ambient)?.label,
+      occasions.find((o) => o.id === restaurant.occasion)?.label,
+    ].filter((label): label is string => Boolean(label)),
+    isOpenNow: restaurant.id % 4 !== 0,
+    hasDelivery: restaurant.id % 3 !== 0,
+  };
+}
 
 export function useHomeDiscovery() {
   const restaurantsQuery = useRestaurantsQuery();
@@ -32,19 +57,7 @@ export function useHomeDiscovery() {
   const occasionList = restaurants.filter((r) => r.occasion === currentOccasion);
   const ambientList = restaurants.filter((r) => r.ambient === currentAmbient);
 
-  // Presentation-only derivation, not stored data — same pattern already
-  // established by DiscoveryCardData (search) and MapResultData (search &
-  // map): a restaurant's own cuisine/occasion/ambient labels and a
-  // deterministic mock "open now" flag, computed at render time.
-  const toHomeCard = (restaurant: Restaurant): HomeCardData => ({
-    ...restaurant,
-    cuisineLabel: cuisines.find((c) => c.id === restaurant.cuisine)?.label ?? '',
-    tags: [
-      ambients.find((a) => a.id === restaurant.ambient)?.label,
-      occasions.find((o) => o.id === restaurant.occasion)?.label,
-    ].filter((label): label is string => Boolean(label)),
-    isOpenNow: restaurant.id % 4 !== 0,
-  });
+  const toHomeCard = (restaurant: Restaurant) => deriveHomeCard(restaurant, cuisines, occasions, ambients);
 
   const featured = restaurants[0];
   const featuredCuisineLabel = featured ? (cuisines.find((c) => c.id === featured.cuisine)?.label ?? '') : '';

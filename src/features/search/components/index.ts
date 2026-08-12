@@ -1,8 +1,5 @@
 export * from './AmbientSelector';
-export * from './CategoryTabsRow';
-export * from './CuisineOverviewCard';
 export * from './CuisineSelector';
-export * from './DiscoveryCard';
 export * from './FeaturedBanner';
 export * from './HomeRestaurantCard';
 export * from './LocationHeader';
@@ -12,4 +9,5 @@ export * from './MapSearchBar';
 export * from './OccasionSelector';
 export * from './RestaurantSection';
 export * from './SearchMapView';
-export * from './SubtypeRow';
+export * from './TypeDetailScreen';
+export * from './TypeOverviewScreen';
