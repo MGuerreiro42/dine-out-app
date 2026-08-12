@@ -25,13 +25,15 @@ export function ActionGrid({ menu }: ActionGridProps) {
   const [openAction, setOpenAction] = useState<ActionKey | null>(null);
 
   return (
-    <View className="flex-row justify-around px-4 py-4">
+    <View className="flex-row gap-2.5 px-4 py-4">
       {ACTIONS.map((action) => (
-        <Pressable key={action.key} onPress={() => setOpenAction(action.key)} className="items-center gap-1.5">
-          <View className="h-12 w-12 items-center justify-center rounded-2xl bg-sand">
-            <Icon spec={action.icon} size={22} />
-          </View>
-          <Text className="text-xs font-bold text-ink">{action.label}</Text>
+        <Pressable
+          key={action.key}
+          onPress={() => setOpenAction(action.key)}
+          className="flex-1 items-center gap-1.5 rounded-2xl border border-[#e0e7ff] bg-white py-3"
+        >
+          <Icon spec={action.icon} size={20} color="#4f46e5" />
+          <Text className="text-xs font-bold text-[#4f46e5]">{action.label}</Text>
         </Pressable>
       ))}
 
