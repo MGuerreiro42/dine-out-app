@@ -23,17 +23,17 @@ export function InfoActionsRow({ phone, whatsapp, instagramHandle, openingHours 
     <View className="flex-row gap-2.5 px-4 pb-4">
       <Pressable
         onPress={() => setOpenAction('contact')}
-        className="flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl bg-ink p-3.5"
+        className="flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl bg-[#f3f4f6] p-3.5"
       >
-        <Icon spec={{ set: 'Ionicons', name: 'call-outline' }} size={16} color="#fff" />
-        <Text className="text-[13px] font-bold text-white">Contact & socials</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'call-outline' }} size={16} color="#1f2937" />
+        <Text className="text-[15px] font-bold text-[#1f2937]">Contact & socials</Text>
       </Pressable>
       <Pressable
         onPress={() => setOpenAction('hours')}
-        className="flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl bg-sand p-3.5"
+        className="flex-1 flex-row items-center justify-center gap-1.5 rounded-2xl bg-[#f3f4f6] p-3.5"
       >
-        <Icon spec={{ set: 'Ionicons', name: 'time-outline' }} size={16} />
-        <Text className="text-[13px] font-bold text-ink">Opening Hours</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'time-outline' }} size={16} color="#1f2937" />
+        <Text className="text-[15px] font-bold text-[#1f2937]">Opening Hours</Text>
       </Pressable>
 
       <BottomSheet visible={openAction !== null} onClose={() => setOpenAction(null)}>

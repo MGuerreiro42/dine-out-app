@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Alert, Image, Pressable, Text, View } from 'react-native';
 
 type InstagramSectionProps = {
   handle: string;
@@ -7,8 +6,6 @@ type InstagramSectionProps = {
 };
 
 export function InstagramSection({ handle, photos }: InstagramSectionProps) {
-  const [following, setFollowing] = useState(false);
-
   return (
     <View className="border-t border-gray-100 px-4 py-5">
       <View className="mb-3 flex-row items-center justify-between">
@@ -20,12 +17,10 @@ export function InstagramSection({ handle, photos }: InstagramSectionProps) {
           <Text className="text-sm font-bold text-ink">{handle}</Text>
         </View>
         <Pressable
-          onPress={() => setFollowing((value) => !value)}
-          className={`rounded-full px-4 py-2 ${following ? 'bg-sand' : 'bg-ink'}`}
+          onPress={() => Alert.alert('Simulação', 'Abriria o Instagram do restaurante.')}
+          className="rounded-full bg-accent px-4 py-2"
         >
-          <Text className={`text-xs font-bold ${following ? 'text-ink' : 'text-white'}`}>
-            {following ? 'Following' : 'Follow'}
-          </Text>
+          <Text className="text-xs font-light text-white">OPEN ON INSTAGRAM</Text>
         </Pressable>
       </View>
 

@@ -19,17 +19,23 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
   return (
     <View className="border-t border-gray-100 px-4 py-5">
       <Text className="mb-3 text-base font-bold text-ink">What this place offers</Text>
-      <View className="flex-row flex-wrap gap-y-2.5">
+      <View className="flex-row flex-wrap gap-2">
         {preview.map((amenity) => (
-          <View key={amenity.label} className="w-full flex-row items-center gap-2.5 md:w-1/2 md:pr-2.5">
-            <Icon spec={amenity.icon} size={18} />
-            <Text className="text-sm text-ink">{amenity.label}</Text>
+          <View
+            key={amenity.label}
+            className="flex-row items-center gap-1.5 rounded-full border border-[#e5e7eb] px-3.5 py-2"
+          >
+            <Icon spec={amenity.icon} size={15} color="#4f46e5" />
+            <Text className="text-[15px] font-light text-[#1f2937]">{amenity.label}</Text>
           </View>
         ))}
       </View>
       {amenities.length > PREVIEW_COUNT ? (
-        <Pressable onPress={() => setSheetOpen(true)} className="mt-3 self-start rounded-xl bg-sand px-4 py-2.5">
-          <Text className="text-[13px] font-bold text-ink">Show all {amenities.length} amenities</Text>
+        <Pressable
+          onPress={() => setSheetOpen(true)}
+          className="mt-3 self-start rounded-full border border-[#e5e7eb] px-4 py-2.5"
+        >
+          <Text className="text-[15px] font-light text-[#1f2937]">Show all {amenities.length} amenities</Text>
         </Pressable>
       ) : null}
 

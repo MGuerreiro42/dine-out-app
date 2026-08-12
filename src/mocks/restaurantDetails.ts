@@ -280,7 +280,19 @@ function reviewsFor(place: AppPlace) {
 // Highlights have no Google equivalent \u2014 derived from the same signals as
 // amenities/thingsToKnow (priceLevel/primaryType/occasion/amenity flags),
 // padded with generic fallbacks so every restaurant gets exactly 3.
-function highlightsFor(place: AppPlace, amenityFields: GoogleAmenityFields): string[] {
+const HIGHLIGHT_DETAILS: Record<string, { title: string; description: string }> = {
+  'Great value': { title: 'Great Value', description: 'Generous portions at a fair price.' },
+  'Big Portions': { title: 'Big Portions', description: 'Hearty servings, made to share.' },
+  'Live music': { title: 'Live Music', description: 'Enjoy live performances on select nights.' },
+  'Romantic spot': { title: 'Romantic Spot', description: 'An intimate setting, perfect for a date night.' },
+  'Family friendly': { title: 'Family Friendly', description: 'A relaxed atmosphere that welcomes kids.' },
+  'Great for groups': { title: 'Great for Groups', description: 'Spacious seating for larger parties.' },
+  'Vegetarian options': { title: 'Vegetarian Options', description: 'A thoughtful selection of plant-based dishes.' },
+  'Fast service': { title: 'Fast Service', description: 'Attentive staff, quick to the table.' },
+  Variety: { title: 'Great Variety', description: 'A diverse menu with something for everyone.' },
+};
+
+function highlightsFor(place: AppPlace, amenityFields: GoogleAmenityFields) {
   const candidates: string[] = [];
   if (place.priceLevel === 'PRICE_LEVEL_INEXPENSIVE') candidates.push('Great value');
   if (place.primaryType === 'brazilian_restaurant') candidates.push('Big Portions');
@@ -290,7 +302,9 @@ function highlightsFor(place: AppPlace, amenityFields: GoogleAmenityFields): str
   if (amenityFields.goodForGroups) candidates.push('Great for groups');
   if (amenityFields.servesVegetarianFood) candidates.push('Vegetarian options');
   candidates.push('Fast service', 'Variety');
-  return Array.from(new Set(candidates)).slice(0, 3);
+  return Array.from(new Set(candidates))
+    .slice(0, 3)
+    .map((label) => HIGHLIGHT_DETAILS[label]);
 }
 
 export const PLACE_DETAILS: Record<string, PlaceDetails> = Object.fromEntries(
