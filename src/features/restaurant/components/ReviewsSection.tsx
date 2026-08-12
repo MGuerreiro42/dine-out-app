@@ -7,6 +7,8 @@ import type { Review } from '@/features/restaurant/types';
 
 import { ReviewsSheetContent } from './ReviewsSheetContent';
 
+const PREVIEW_COUNT = 3;
+
 type ReviewsSectionProps = {
   rating: string;
   reviews: Review[];
@@ -15,9 +17,9 @@ type ReviewsSectionProps = {
 
 export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
-  const preview = reviews[0];
+  const preview = reviews.slice(0, PREVIEW_COUNT);
 
-  if (!preview) {
+  if (preview.length === 0) {
     return null;
   }
 
@@ -26,29 +28,36 @@ export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionP
       <View className="mb-3 flex-row items-center justify-between">
         <Text className="text-base font-bold text-ink">What Our Customers Think</Text>
         <View className="flex-row items-center gap-1">
-          <Ionicons name="star" size={13} color="#161311" />
-          <Text className="text-[13px] font-bold text-ink">{rating}</Text>
+          <Ionicons name="star" size={13} color="#fbbf24" />
+          <Text className="text-[15px] font-bold text-ink">{rating}</Text>
         </View>
       </View>
 
-      <View className="rounded-2xl bg-sand-light p-3.5">
-        <View className="mb-1.5 flex-row items-center gap-2">
-          <View className="h-8 w-8 items-center justify-center rounded-full bg-gold">
-            <Text className="text-[13px] font-bold text-white">{preview.name.charAt(0).toUpperCase()}</Text>
+      <View className="gap-2.5">
+        {preview.map((review) => (
+          <View key={`${review.name}-${review.time}`} className="rounded-2xl bg-sand-light p-3.5">
+            <View className="mb-1.5 flex-row items-center gap-2">
+              <View className="h-8 w-8 items-center justify-center rounded-full bg-accent">
+                <Text className="text-[15px] font-bold text-white">{review.name.charAt(0).toUpperCase()}</Text>
+              </View>
+              <View>
+                <Text className="text-[15px] font-bold text-ink">{review.name}</Text>
+                <Text className="text-[13px] text-muted">{review.time}</Text>
+              </View>
+            </View>
+            <View className="mb-1.5">
+              <StarRating rating={review.rating} size={13} color="#fbbf24" />
+            </View>
+            <Text className="text-[15px] leading-5 text-gray-600">{review.text}</Text>
           </View>
-          <View>
-            <Text className="text-[13px] font-bold text-ink">{preview.name}</Text>
-            <Text className="text-[11px] text-muted">{preview.time}</Text>
-          </View>
-        </View>
-        <View className="mb-1.5">
-          <StarRating rating={preview.rating} size={13} color="#c9a24b" />
-        </View>
-        <Text className="text-[13px] leading-5 text-gray-600">{preview.text}</Text>
+        ))}
       </View>
 
-      <Pressable onPress={() => setSheetOpen(true)} className="mt-2.5 self-start">
-        <Text className="text-[13px] font-bold text-ink underline">view all {reviewCount} reviews</Text>
+      <Pressable
+        onPress={() => setSheetOpen(true)}
+        className="mt-3 items-center rounded-full border border-[#e5e7eb] py-3"
+      >
+        <Text className="text-[15px] font-light text-[#4f46e5]">View all {reviewCount} reviews</Text>
       </Pressable>
 
       <BottomSheet visible={sheetOpen} onClose={() => setSheetOpen(false)}>

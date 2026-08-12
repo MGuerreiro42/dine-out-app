@@ -107,7 +107,7 @@ export const PlaceDetailsSchema = AppPlaceSchema.extend({
   instagramPhotos: z.array(z.string()),
   thingsToKnow: z.array(z.object({ title: z.string(), text: z.string() })),
   reviews: z.array(GoogleReviewSchema),
-  highlights: z.array(z.string()),
+  highlights: z.array(z.object({ title: z.string(), description: z.string() })),
 }).extend(GoogleAmenityFieldsSchema.shape);
 export type PlaceDetails = z.infer<typeof PlaceDetailsSchema>;
 

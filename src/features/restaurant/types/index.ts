@@ -35,6 +35,12 @@ export const ReviewSchema = z.object({
 });
 export type Review = z.infer<typeof ReviewSchema>;
 
+export const HighlightSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+});
+export type Highlight = z.infer<typeof HighlightSchema>;
+
 export const RestaurantDetailSchema = RestaurantSchema.extend({
   photos: z.array(z.string()),
   description: z.string(),
@@ -50,6 +56,6 @@ export const RestaurantDetailSchema = RestaurantSchema.extend({
   instagramPhotos: z.array(z.string()),
   reviews: z.array(ReviewSchema),
   reviewCount: z.number(),
-  highlights: z.array(z.string()),
+  highlights: z.array(HighlightSchema),
 });
 export type RestaurantDetail = z.infer<typeof RestaurantDetailSchema>;
