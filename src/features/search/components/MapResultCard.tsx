@@ -1,7 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Alert, Image, Pressable, Text, View } from 'react-native';
 
+import { Icon } from '@/components/ui';
 import type { MapResultData } from '@/features/search/hooks';
+import { useFavoritesStore } from '@/stores/favorites';
 
 type MapResultCardProps = {
   restaurant: MapResultData;
@@ -9,34 +10,58 @@ type MapResultCardProps = {
 };
 
 export function MapResultCard({ restaurant, onPress }: MapResultCardProps) {
-  const statusLabel = restaurant.isOpenNow ? 'Aberto' : 'Fechado';
-  const statusClassName = restaurant.isOpenNow ? 'bg-[#e4f0e6] text-[#2f7a44]' : 'bg-[#f5e4e4] text-[#a13f3f]';
+  const isFavorite = useFavoritesStore((s) => s.isFavorite(restaurant.id));
+  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
 
   return (
     <Pressable onPress={() => onPress(restaurant)} className="flex-row gap-3">
-      <Image source={{ uri: restaurant.photo }} className="h-24 w-[84px] rounded-xl" />
-      <View className="flex-1">
-        <View className="flex-row items-center gap-1.5">
-          <Text className="text-xs font-bold text-ink">{restaurant.name}</Text>
-          <Text className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${statusClassName}`}>{statusLabel}</Text>
+      <View className="relative overflow-hidden rounded-xl">
+        <Image source={{ uri: restaurant.photo }} className="h-[110px] w-[130px]" />
+        {restaurant.isOpenNow ? (
+          <View className="absolute left-1.5 top-1.5 rounded-full bg-[#dcfce7] px-1.5 py-0.5">
+            <Text className="text-[11px] font-light text-[#16a34a]">Open</Text>
+          </View>
+        ) : null}
+        <View className="absolute right-1.5 top-1.5 flex-row gap-1">
+          <Pressable
+            onPress={() => toggleFavorite(restaurant.id)}
+            className={`h-6 w-6 items-center justify-center rounded-full ${isFavorite ? 'bg-[#fee2e2]' : 'bg-white/90'}`}
+          >
+            <Icon
+              spec={{ set: 'Ionicons', name: 'heart-outline' }}
+              size={12}
+              color={isFavorite ? '#e11d48' : '#374151'}
+            />
+          </Pressable>
+          <Pressable
+            onPress={() => Alert.alert('Compartilhar', 'Em breve.')}
+            className="h-6 w-6 items-center justify-center rounded-full bg-white/90"
+          >
+            <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={12} color="#374151" />
+          </Pressable>
         </View>
-        <Text className="mt-0.5 text-[11px] text-muted">
-          {restaurant.cuisineLabel} · {restaurant.priceLevel} · {restaurant.distance}
+      </View>
+
+      <View className="flex-1 justify-center">
+        <Text className="text-sm font-bold text-[#111827]" numberOfLines={1}>
+          {restaurant.name}
         </Text>
-        <View className="mt-0.5 flex-row items-center gap-1">
-          <Ionicons name="star" size={10} color="#8a8580" />
-          <Text className="text-[11px] text-muted">
-            {restaurant.rating} ({restaurant.reviewCount})
+        <View className="mt-xs flex-row items-center gap-1">
+          <Icon spec={{ set: 'Ionicons', name: 'star' }} size={11} color="#fbbf24" />
+          <Text className="text-xs text-[#6b7280]">
+            {restaurant.rating} · {restaurant.priceLevel}
           </Text>
         </View>
-        <Text className="mt-1 text-xs leading-tight text-ink/80">{restaurant.tagline}</Text>
-        <View className="mt-1.5 flex-row flex-wrap gap-1">
-          {restaurant.tags.map((tag) => (
-            <View key={tag} className="rounded-full bg-sand px-2 py-1">
-              <Text className="text-[10px] font-bold text-ink">{tag}</Text>
-            </View>
-          ))}
-        </View>
+        <Text className="mt-xs text-xs text-[#6b7280]">{restaurant.cuisineLabel.toLowerCase()}</Text>
+        {restaurant.tags.length > 0 ? (
+          <View className="mt-sm flex-row flex-wrap gap-1">
+            {restaurant.tags.slice(0, 2).map((tag) => (
+              <View key={tag} className="rounded-full bg-[#e0e7ff] px-2 py-0.5">
+                <Text className="text-[12px] font-light text-[#4338ca]">{tag.toLowerCase()}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
       </View>
     </Pressable>
   );

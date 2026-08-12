@@ -8,6 +8,7 @@ export type MapResultData = Restaurant & {
   tagline: string;
   tags: string[];
   isOpenNow: boolean;
+  hasDelivery: boolean;
 };
 
 // Presentation-only derivation, not stored data — same "lookup at render
@@ -25,6 +26,7 @@ function toMapResult(
     tagline: `Ambiente ${ambientLabel.toLowerCase()} para ${occasionLabel.toLowerCase()}`,
     tags: [ambientLabel, occasionLabel],
     isOpenNow: restaurant.id % 4 !== 0,
+    hasDelivery: restaurant.id % 3 !== 0,
   };
 }
 
