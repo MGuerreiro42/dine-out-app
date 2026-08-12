@@ -16,9 +16,9 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
 
   return (
     <View className="px-7 pb-7 pt-5">
-      <View className="mb-[18px] h-1.5 w-11 rounded-full bg-gold" />
+      <View className="mb-[18px] h-1.5 w-11 rounded-full bg-accent" />
       <Text className="mb-1.5 text-2xl font-bold text-ink">{title}</Text>
-      <Text className="mb-6 text-[13px] text-muted">{subtitle}</Text>
+      <Text className="mb-6 text-[15px] text-muted">{subtitle}</Text>
 
       <View className="gap-3">
         {isSignup ? (
@@ -52,7 +52,7 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
 
       <View className="my-[22px] flex-row items-center gap-2.5">
         <View className="h-px flex-1 bg-gray-100" />
-        <Text className="text-[11px] text-muted">ou continue com</Text>
+        <Text className="text-[13px] text-muted">ou continue com</Text>
         <View className="h-px flex-1 bg-gray-100" />
       </View>
 
@@ -61,18 +61,18 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
           onPress={() => Alert.alert('Simulação', 'Login com Google')}
           className="flex-1 items-center rounded-xl border border-sand py-3"
         >
-          <Text className="text-[13px] font-bold text-ink">Google</Text>
+          <Text className="text-[15px] font-bold text-ink">Google</Text>
         </Pressable>
         <Pressable
           onPress={() => Alert.alert('Simulação', 'Login com Apple')}
           className="flex-1 items-center rounded-xl border border-sand py-3"
         >
-          <Text className="text-[13px] font-bold text-ink">Apple</Text>
+          <Text className="text-[15px] font-bold text-ink">Apple</Text>
         </Pressable>
       </View>
 
       <Pressable onPress={onToggleMode} className="pt-[22px]">
-        <Text className="text-center text-[13px] text-[#3a3530]">
+        <Text className="text-center text-[15px] text-[#3a3530]">
           {switchText} <Text className="font-bold underline">{switchAction}</Text>
         </Text>
       </Pressable>

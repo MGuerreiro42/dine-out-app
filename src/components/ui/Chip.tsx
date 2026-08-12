@@ -12,7 +12,7 @@ export function Chip({ label, active = false, onPress }: ChipProps) {
       onPress={onPress}
       className={`rounded-full px-4 py-2 ${active ? 'bg-ink' : 'bg-sand'}`}
     >
-      <Text className={`text-sm font-bold ${active ? 'text-white' : 'text-ink'}`}>{label}</Text>
+      <Text className={`text-sm font-light ${active ? 'text-white' : 'text-ink'}`}>{label}</Text>
     </Pressable>
   );
 }

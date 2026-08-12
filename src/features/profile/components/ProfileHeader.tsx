@@ -13,8 +13,8 @@ export function ProfileHeader({ isLoggedIn, userProfile }: ProfileHeaderProps) {
     <View className="bg-ink px-4 pb-6 pt-8">
       {isLoggedIn && userProfile ? (
         <View className="mt-2 items-center gap-2.5">
-          <View className="h-[72px] w-[72px] items-center justify-center rounded-full bg-gold">
-            <Text className="text-2xl font-bold text-ink">{userProfile.initial}</Text>
+          <View className="h-[72px] w-[72px] items-center justify-center rounded-full bg-accent">
+            <Text className="text-2xl font-bold text-white">{userProfile.initial}</Text>
           </View>
           <Text className="text-base font-bold text-white">{userProfile.name}</Text>
           <Text className="text-xs text-[#bdb6ae]">{userProfile.email}</Text>

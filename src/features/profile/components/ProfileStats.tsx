@@ -10,7 +10,7 @@ function Stat({ value, label }: { value: number; label: string }) {
   return (
     <View className="items-center">
       <Text className="text-lg font-bold text-ink">{value}</Text>
-      <Text className="text-[11px] text-muted">{label}</Text>
+      <Text className="text-[13px] text-muted">{label}</Text>
     </View>
   );
 }
