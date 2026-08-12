@@ -1,48 +1,36 @@
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 
-import { BottomSheet, Icon } from '@/components/ui';
+import { Icon } from '@/components/ui';
+import { useFavoritesStore } from '@/stores/favorites';
 
-import { RedirectOptionsSheetContent } from './RedirectOptionsSheetContent';
+const ICON_BUTTON_CLASS = 'h-9 w-9 items-center justify-center rounded-full bg-white/90';
 
-const ICON_BUTTON_CLASS = 'h-10 w-10 items-center justify-center rounded-full bg-black/45';
+type DetailHeaderActionsProps = {
+  restaurantId: number;
+};
 
-export function DetailHeaderActions() {
-  const router = useRouter();
-  const [locationSheetOpen, setLocationSheetOpen] = useState(false);
+// Simplified to match the reference (share + favorite only) — the previous
+// location/settings icons were redundant with the tappable address row below
+// and an undefined placeholder, respectively; see restaurant.md's changelog.
+export function DetailHeaderActions({ restaurantId }: DetailHeaderActionsProps) {
+  const isFavorite = useFavoritesStore((s) => s.isFavorite(restaurantId));
+  const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
 
   return (
-    <>
-      <View className="absolute right-3.5 top-3.5 gap-2">
-        <Pressable onPress={() => setLocationSheetOpen(true)} className={ICON_BUTTON_CLASS}>
-          <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={18} color="#fff" />
-        </Pressable>
-        <Pressable
-          onPress={() => Alert.alert('Simulação', 'Configurações do restaurante (em breve)')}
-          className={ICON_BUTTON_CLASS}
-        >
-          <Icon spec={{ set: 'Ionicons', name: 'settings-outline' }} size={18} color="#fff" />
-        </Pressable>
-        <Pressable onPress={() => router.push('/profile')} className={ICON_BUTTON_CLASS}>
-          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={18} color="#fff" />
-        </Pressable>
-      </View>
-
-      {/* The like/favorite button (US7, FR-016) slots in above this once stores/favorites.ts exists */}
+    <View className="absolute right-3.5 top-3.5 gap-2">
       <Pressable
         onPress={() => Alert.alert('Simulação', 'Compartilhar este restaurante')}
-        className={`absolute bottom-14 right-3.5 ${ICON_BUTTON_CLASS}`}
+        className={ICON_BUTTON_CLASS}
       >
-        <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={18} color="#fff" />
+        <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={16} color="#374151" />
       </Pressable>
-
-      <BottomSheet visible={locationSheetOpen} onClose={() => setLocationSheetOpen(false)}>
-        <RedirectOptionsSheetContent
-          title="Localização"
-          options={[{ icon: { set: 'Ionicons', name: 'map-outline' }, label: 'Abrir no Google Maps' }]}
+      <Pressable onPress={() => toggleFavorite(restaurantId)} className={ICON_BUTTON_CLASS}>
+        <Icon
+          spec={{ set: 'Ionicons', name: 'heart-outline' }}
+          size={16}
+          color={isFavorite ? '#e11d48' : '#374151'}
         />
-      </BottomSheet>
-    </>
+      </Pressable>
+    </View>
   );
 }

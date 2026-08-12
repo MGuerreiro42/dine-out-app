@@ -1,9 +1,8 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
-import { BottomSheet, Icon, PhotoCarousel, RatingBadge } from '@/components/ui';
-import { SearchBar } from '@/components/layout';
+import { BottomSheet, Icon, PhotoCarousel } from '@/components/ui';
 import {
   ActionGrid,
   AmenitiesSection,
@@ -14,7 +13,6 @@ import {
   RedirectOptionsSheetContent,
   ReviewsSection,
   SimilarPlacesSection,
-  ThingsToKnowSection,
 } from '@/features/restaurant/components';
 import { useRestaurantDetailQuery } from '@/features/restaurant/api';
 import { useRestaurantsQuery } from '@/features/search/api';
@@ -67,75 +65,95 @@ export default function RestaurantDetailScreen() {
     .slice(0, 3);
 
   return (
-    <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
-      <View>
-        <PhotoCarousel photos={restaurant.photos} />
+    <View className="flex-1 bg-white">
+      <View className="flex-row items-center gap-2.5 px-4 pt-4">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          className="absolute left-3.5 top-3.5 h-10 w-10 items-center justify-center rounded-full bg-black/45"
+          className="h-10 w-10 items-center justify-center rounded-full bg-[#f3f4f6]"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={20} color="#fff" />
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} color="#1f2937" />
         </Pressable>
-        <View className="absolute left-16 right-12 top-3.5">
-          <SearchBar editable={false} />
+        <View className="flex-1 flex-row items-center gap-2 rounded-full bg-[#f3f4f6] px-4 py-3">
+          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={16} color="#9ca3af" />
+          <TextInput
+            editable={false}
+            placeholder="Search restaurants..."
+            placeholderTextColor="#9ca3af"
+            className="flex-1 text-sm text-[#111827]"
+          />
         </View>
-        <DetailHeaderActions />
+        <Pressable
+          onPress={() => router.push('/profile')}
+          className="h-10 w-10 items-center justify-center rounded-full bg-[#f3f4f6]"
+        >
+          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={18} color="#1f2937" />
+        </Pressable>
       </View>
 
-      <View className="px-4 pt-4">
-        <Text className="text-2xl font-bold text-ink">{restaurant.name}</Text>
-        <Text className="mt-2 text-sm leading-6 text-gray-600">{descriptionText}</Text>
-        {isDescriptionLong ? (
-          <Pressable
-            onPress={() => setDescriptionExpanded((expanded) => !expanded)}
-            className="flex-row items-center gap-1 py-1"
-          >
-            <Text className="text-[13px] font-bold text-ink">{descriptionExpanded ? 'ver menos' : 'ver mais'}</Text>
-            <Icon spec={{ set: 'Ionicons', name: descriptionExpanded ? 'chevron-up' : 'chevron-down' }} size={14} />
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
+        <View className="mt-3.5">
+          <PhotoCarousel photos={restaurant.photos} />
+          <DetailHeaderActions restaurantId={restaurant.id} />
+        </View>
+
+        <View className="px-4 pt-4">
+          <Text className="text-2xl font-bold text-ink">{restaurant.name}</Text>
+          <Text className="mt-2 text-sm leading-6 text-gray-600">{descriptionText}</Text>
+          {isDescriptionLong ? (
+            <Pressable
+              onPress={() => setDescriptionExpanded((expanded) => !expanded)}
+              className="flex-row items-center gap-1 py-1"
+            >
+              <Text className="text-[15px] font-bold text-ink">{descriptionExpanded ? 'ver menos' : 'ver mais'}</Text>
+              <Icon spec={{ set: 'Ionicons', name: descriptionExpanded ? 'chevron-up' : 'chevron-down' }} size={14} />
+            </Pressable>
+          ) : null}
+
+          <View className="mt-2.5 flex-row flex-wrap gap-2">
+            {restaurant.tags.map((tag) => (
+              <View key={tag} className="rounded-full bg-[#e0e7ff] px-3 py-1.5">
+                <Text className="text-xs font-light text-[#4338ca]">{tag}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View className="mt-3.5 flex-row flex-wrap items-center gap-x-1.5 gap-y-1 border-b border-gray-100 px-4 pb-4">
+          <Icon spec={{ set: 'Ionicons', name: 'star' }} size={14} color="#fbbf24" />
+          <Text className="text-[15px] font-bold text-ink">
+            {restaurant.rating} ({restaurant.reviewCount})
+          </Text>
+          <Text className="text-[15px] text-muted">·</Text>
+          <Text className="text-[15px] font-bold text-ink">{restaurant.priceLevel}</Text>
+          <Text className="text-[15px] text-muted">·</Text>
+          <Pressable onPress={() => setAddressSheetOpen(true)} className="flex-row items-center gap-1">
+            <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={14} color="#fbbf24" />
+            <Text className="text-[15px] text-ink">{restaurant.addressShort}</Text>
           </Pressable>
-        ) : null}
-
-        <View className="mt-2.5 flex-row flex-wrap gap-2">
-          {restaurant.tags.map((tag) => (
-            <View key={tag} className="rounded-full bg-sand px-3 py-1.5">
-              <Text className="text-xs font-bold text-ink">{tag}</Text>
-            </View>
-          ))}
         </View>
-      </View>
 
-      <View className="mt-3.5 flex-row items-center justify-between border-b border-gray-100 px-4 pb-4">
-        <Pressable onPress={() => setAddressSheetOpen(true)} className="flex-row items-center gap-1">
-          <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={14} />
-          <Text className="text-[13px] text-ink">{restaurant.addressShort}</Text>
-        </Pressable>
-        <Text className="text-[13px] font-bold text-ink">{restaurant.priceLevel}</Text>
-        <RatingBadge rating={restaurant.rating} priceLevel={restaurant.priceLevel} />
-      </View>
+        <ActionGrid menu={restaurant.menu} />
 
-      <ActionGrid menu={restaurant.menu} />
+        <InfoActionsRow
+          phone={restaurant.phone}
+          whatsapp={restaurant.whatsapp}
+          instagramHandle={restaurant.instagramHandle}
+          openingHours={restaurant.openingHours}
+        />
 
-      <InfoActionsRow
-        phone={restaurant.phone}
-        whatsapp={restaurant.whatsapp}
-        instagramHandle={restaurant.instagramHandle}
-        openingHours={restaurant.openingHours}
-      />
+        <AmenitiesSection amenities={restaurant.amenities} />
 
-      <AmenitiesSection amenities={restaurant.amenities} />
+        <ReviewsSection rating={restaurant.rating} reviews={restaurant.reviews} reviewCount={restaurant.reviewCount} />
 
-      <ReviewsSection rating={restaurant.rating} reviews={restaurant.reviews} reviewCount={restaurant.reviewCount} />
+        <HighlightsRow highlights={restaurant.highlights} />
 
-      <HighlightsRow highlights={restaurant.highlights} />
+        <InstagramSection handle={restaurant.instagramHandle} photos={restaurant.instagramPhotos} />
 
-      <ThingsToKnowSection thingsToKnow={restaurant.thingsToKnow} />
-
-      <InstagramSection handle={restaurant.instagramHandle} photos={restaurant.instagramPhotos} />
-
-      <SimilarPlacesSection
-        similarPlaces={similarPlaces}
-        onSelect={(similar) => router.replace(`/restaurant/${similar.id}`)}
-      />
+        <SimilarPlacesSection
+          similarPlaces={similarPlaces}
+          onSelect={(similar) => router.replace(`/restaurant/${similar.id}`)}
+        />
+      </ScrollView>
 
       <BottomSheet visible={addressSheetOpen} onClose={() => setAddressSheetOpen(false)}>
         <RedirectOptionsSheetContent
@@ -143,6 +161,6 @@ export default function RestaurantDetailScreen() {
           options={[{ icon: { set: 'Ionicons', name: 'map-outline' }, label: 'Abrir no Google Maps' }]}
         />
       </BottomSheet>
-    </ScrollView>
+    </View>
   );
 }

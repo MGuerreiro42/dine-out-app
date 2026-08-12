@@ -17,7 +17,6 @@ export function PhotoCarousel({ photos }: PhotoCarouselProps) {
   return (
     <View className="aspect-[4/3] w-full overflow-hidden bg-gray-200">
       <Image source={{ uri: photos[index] }} className="h-full w-full" />
-      <View className="absolute inset-0 bg-black/10" />
 
       {hasMultiple ? (
         <>
@@ -33,10 +32,18 @@ export function PhotoCarousel({ photos }: PhotoCarouselProps) {
           >
             <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={18} color="#fff" />
           </Pressable>
-          <View className="absolute bottom-3 right-3.5 rounded-full bg-black/55 px-2.5 py-1">
-            <Text className="text-xs text-white">
-              {index + 1}/{photos.length}
-            </Text>
+          <View className="absolute bottom-3.5 right-3.5 flex-row items-center gap-1 rounded-full bg-black/55 px-3 py-1.5">
+            <Icon spec={{ set: 'Ionicons', name: 'images-outline' }} size={13} color="#fff" />
+            <Text className="text-xs font-semibold text-white">More photos</Text>
+          </View>
+          <View className="absolute bottom-3.5 left-3.5 flex-row items-center gap-1">
+            {photos.map((_photo, photoIndex) => (
+              <View
+                // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length row of dots mirroring the photos array's own stable order.
+                key={photoIndex}
+                className={`h-1.5 rounded-full ${photoIndex === index ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
+              />
+            ))}
           </View>
         </>
       ) : null}
