@@ -9,13 +9,15 @@ export function LocationHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <View className="mt-3 px-4">
+    <View className="mt-3 px-4 pb-1.5">
       <Pressable onPress={() => setOpen(true)} className="flex-row items-center gap-1.5">
-        <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={13} color="#161311" />
-        <Text className="text-sm font-bold text-ink">{USER_LOCATION.area}</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={13} color="#fbbf24" />
+        <Text className="flex-shrink text-xs text-ink" numberOfLines={1}>
+          <Text className="font-bold">{USER_LOCATION.area}</Text>
+          <Text className="text-[11px] text-muted"> · {USER_LOCATION.address}</Text>
+        </Text>
         <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={12} color="#8a8580" />
       </Pressable>
-      <Text className="mt-0.5 text-xs text-muted">{USER_LOCATION.address}</Text>
 
       <BottomSheet visible={open} onClose={() => setOpen(false)}>
         <Text className="text-center text-sm text-gray-600">Selecione sua localização atual.</Text>

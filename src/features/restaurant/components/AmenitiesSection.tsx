@@ -19,9 +19,9 @@ export function AmenitiesSection({ amenities }: AmenitiesSectionProps) {
   return (
     <View className="border-t border-gray-100 px-4 py-5">
       <Text className="mb-3 text-base font-bold text-ink">What this place offers</Text>
-      <View className="gap-2.5">
+      <View className="flex-row flex-wrap gap-y-2.5">
         {preview.map((amenity) => (
-          <View key={amenity.label} className="flex-row items-center gap-2.5">
+          <View key={amenity.label} className="w-full flex-row items-center gap-2.5 md:w-1/2 md:pr-2.5">
             <Icon spec={amenity.icon} size={18} />
             <Text className="text-sm text-ink">{amenity.label}</Text>
           </View>

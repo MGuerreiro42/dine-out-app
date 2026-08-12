@@ -36,9 +36,9 @@ export function SideMenu() {
     <>
       <Pressable
         onPress={() => setOpen(true)}
-        className="h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-ink"
+        className="h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#f3f4f6]"
       >
-        <Icon spec={{ set: 'Ionicons', name: 'menu' }} size={20} color="#fff" />
+        <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={18} color="#1f2937" />
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={close}>
@@ -61,12 +61,12 @@ export function SideMenu() {
 
             {isLoggedIn ? (
               <Pressable onPress={() => goTo('/profile')} className="mb-6 flex-row items-center gap-3">
-                <View className="h-12 w-12 items-center justify-center rounded-full bg-gold">
-                  <Text className="text-base font-bold text-ink">{CURRENT_USER.initial}</Text>
+                <View className="h-12 w-12 items-center justify-center rounded-full bg-[#eef2ff]">
+                  <Text className="text-base font-bold text-[#4f46e5]">{CURRENT_USER.initial}</Text>
                 </View>
                 <View>
                   <Text className="text-sm font-bold text-ink">{CURRENT_USER.name}</Text>
-                  <Text className="text-[11px] text-muted">Ver perfil</Text>
+                  <Text className="text-[13px] text-muted">Ver perfil</Text>
                 </View>
               </Pressable>
             ) : (
@@ -74,7 +74,7 @@ export function SideMenu() {
                 onPress={() => goTo('/login')}
                 className="mb-6 items-center rounded-xl bg-ink py-3.5"
               >
-                <Text className="text-[13px] font-bold text-white">Entrar ou criar conta</Text>
+                <Text className="text-[15px] font-bold text-white">Entrar ou criar conta</Text>
               </Pressable>
             )}
 
