@@ -39,7 +39,11 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="category"
-        options={{ title: 'Categorias', tabBarIcon: ({ color }) => <TabIcon name="category" color={color} /> }}
+        options={{
+          title: 'Categorias',
+          href: null,
+          tabBarIcon: ({ color }) => <TabIcon name="category" color={color} />,
+        }}
       />
       <Tabs.Screen
         name="profile"
