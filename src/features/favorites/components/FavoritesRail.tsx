@@ -24,14 +24,20 @@ export function FavoritesRail() {
       <Text className="mb-3 px-4 text-base font-bold text-ink">Favoritos</Text>
 
       {favoriteRestaurants.length === 0 ? (
-        <View className="items-center gap-2 px-8 py-2">
-          <Icon spec={{ set: 'Ionicons', name: 'heart-outline' }} size={32} color="#9ca3af" />
-          <Text className="text-center text-sm font-bold text-ink">Você ainda não tem favoritos,</Text>
-          <Text className="text-center text-xs text-muted">
-            Toque no coração de um restaurante para salvá-lo aqui.
-          </Text>
-          <Pressable onPress={() => router.push('/')} className="mt-1.5">
-            <Text className="text-sm font-bold text-[#4f46e5]">Explorar restaurantes</Text>
+        <View className="px-4">
+          <View className="items-center gap-2 px-4 py-2">
+            <Icon spec={{ set: 'Ionicons', name: 'heart-outline' }} size={32} color="#8a8580" />
+            <Text className="text-center text-sm font-bold text-ink">Você ainda não tem favoritos,</Text>
+            <Text className="text-center text-xs text-muted">
+              Toque no coração de um restaurante para salvá-lo aqui.
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => router.push('/')}
+            className="flex-row items-center justify-between border-t border-sand py-3.5"
+          >
+            <Text className="text-sm font-bold text-ink">Explorar restaurantes</Text>
+            <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={16} color="#d1d5db" />
           </Pressable>
         </View>
       ) : (
