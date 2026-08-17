@@ -3,6 +3,7 @@ import { create } from 'zustand';
 
 export const FALLBACK_LOCATION = { latitude: -23.561, longitude: -46.656 };
 const FALLBACK_LABEL = 'Localização indisponível';
+const GENERIC_RESOLVED_LABEL = 'Localização atual';
 const LOCATION_TIMEOUT_MS = 5000;
 
 type LocationStatus = 'resolved' | 'fallback';
@@ -50,18 +51,27 @@ export const useLocationStore = create<LocationState>((set) => ({
       }
 
       const position = await withTimeout(Location.getCurrentPositionAsync({}), LOCATION_TIMEOUT_MS);
-      const [address] = await withTimeout(
-        Location.reverseGeocodeAsync({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        }),
-        LOCATION_TIMEOUT_MS,
-      );
+
+      let label = GENERIC_RESOLVED_LABEL;
+      try {
+        const [address] = await withTimeout(
+          Location.reverseGeocodeAsync({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          }),
+          LOCATION_TIMEOUT_MS,
+        );
+        if (address) {
+          label = formatLabel(address);
+        }
+      } catch {
+        label = GENERIC_RESOLVED_LABEL;
+      }
 
       set({
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-        label: address ? formatLabel(address) : FALLBACK_LABEL,
+        label,
         status: 'resolved',
       });
     } catch {

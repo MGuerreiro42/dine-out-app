@@ -56,16 +56,21 @@ test('falls back when getCurrentPositionAsync times out', async () => {
   expect(useLocationStore.getState().status).toBe('fallback');
 }, 10000);
 
-test('falls back when reverseGeocodeAsync throws', async () => {
+test('keeps the resolved coordinate with a generic label when reverseGeocodeAsync throws (e.g. unsupported on web)', async () => {
   mockedLocation.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' } as never);
   mockedLocation.getCurrentPositionAsync.mockResolvedValue({
     coords: { latitude: -22.9, longitude: -43.2 },
   } as never);
-  mockedLocation.reverseGeocodeAsync.mockRejectedValue(new Error('geocode failed'));
+  mockedLocation.reverseGeocodeAsync.mockRejectedValue(new Error('reverseGeocodeAsync is not supported on web'));
 
   await useLocationStore.getState().resolveLocation();
 
-  expect(useLocationStore.getState().status).toBe('fallback');
+  expect(useLocationStore.getState()).toMatchObject({
+    latitude: -22.9,
+    longitude: -43.2,
+    label: 'Localização atual',
+    status: 'resolved',
+  });
 });
 
 test('re-resolving after a denial correctly returns to fallback, not stale resolved state', async () => {
