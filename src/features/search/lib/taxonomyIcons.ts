@@ -1,9 +1,5 @@
 import type { IconSpec } from '@/components/ui';
 
-// Presentation-only lookups — Cuisine/Ambient's own mock data don't carry an
-// icon (Cuisine has `photo`, Ambient has neither). Shared here since both
-// CuisineSelector/AmbientSelector and the generic type-detail/overview
-// screens need the same glyphs.
 export const CUISINE_ICONS: Record<string, IconSpec> = {
   churrasco: { set: 'Ionicons', name: 'flame-outline' },
   mediterraneo: { set: 'Ionicons', name: 'nutrition-outline' },

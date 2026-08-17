@@ -9,8 +9,6 @@ import { deriveHomeCard } from './useHomeDiscovery';
 
 export type TaxonomyDimension = 'cuisine' | 'occasion' | 'ambient';
 
-// Which two taxonomies show up as "refine" rows on a given dimension's
-// detail page — e.g. the cuisine page refines by occasion + ambient.
 const REFINE_DIMENSIONS: Record<TaxonomyDimension, [TaxonomyDimension, TaxonomyDimension]> = {
   cuisine: ['occasion', 'ambient'],
   occasion: ['cuisine', 'ambient'],
@@ -23,14 +21,6 @@ function topRated(list: Restaurant[]) {
   return [...list].sort((a, b) => Number(b.rating) - Number(a.rating));
 }
 
-/**
- * Backs the generic type-detail page (Champions/Trending/two refine-by-
- * taxonomy grids/last section) for any of the 3 taxonomies. 30 mock
- * restaurants across 5 cuisines × 4 occasions × 4 ambients means a combined
- * (primary + refine) filter can easily be empty — each refine grid falls
- * back to the primary-only list when the combination is too sparse, same
- * discipline `useHomeDiscovery`'s own rails already use.
- */
 export function useTypeDetail(dimension: TaxonomyDimension, id: string | undefined, searchQuery?: string) {
   const restaurantsQuery = useRestaurantsQuery(searchQuery);
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();

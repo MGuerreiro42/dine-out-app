@@ -10,10 +10,6 @@ const TAB_ICONS: Record<string, IconSpec> = {
   profile: { set: 'Ionicons', name: 'person-outline' },
 };
 
-// tabBarIcon's `color` is typed as RN's ColorValue (which allows opaque
-// platform color refs, not just strings) — this app only ever passes the
-// plain hex strings set via tabBarActiveTintColor/tabBarInactiveTintColor
-// above, so narrowing here is safe.
 function TabIcon({ name, color }: { name: keyof typeof TAB_ICONS; color: ColorValue }) {
   return <Icon spec={TAB_ICONS[name]} size={20} color={color as string} />;
 }
