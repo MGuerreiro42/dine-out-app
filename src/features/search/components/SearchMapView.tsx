@@ -1,5 +1,5 @@
 import { Camera, Map, Marker } from '@maplibre/maplibre-react-native';
-import type { StyleSpecification } from '@maplibre/maplibre-gl-style-spec';
+import type { StyleSpecification } from '@maplibre/maplibre-react-native';
 import { View } from 'react-native';
 
 import { MOCK_LOCATION } from '@/features/search/api/useRestaurantsQuery';
