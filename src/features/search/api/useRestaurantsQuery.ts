@@ -7,11 +7,6 @@ import { RestaurantSchema } from '@/types';
 
 const RestaurantsResponseSchema = z.array(RestaurantSchema);
 
-// Matches LocationHeader's own hardcoded mock location — real geolocation
-// is a separate, not-yet-built concern (see search.md's Assumptions).
-// Exported for reuse as the Search & Map screen's initial map region.
-export const MOCK_LOCATION = { latitude: -23.561, longitude: -46.656 };
-
 export function useRestaurantsQuery(query?: string) {
   const trimmedQuery = query?.trim();
 
