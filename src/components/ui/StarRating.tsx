@@ -8,9 +8,6 @@ type StarRatingProps = {
   count?: number;
 };
 
-// Shared by RatingBadge, DiscoveryCard, MapResultCard, and the restaurant
-// feature's review sections — all previously duplicated a "★" text prefix or
-// a `'★'.repeat(n)` string, neither of which works once stars are real icons.
 export function StarRating({ rating, size = 12, color = '#f5a623', count = 5 }: StarRatingProps) {
   const filled = Math.round(rating);
 

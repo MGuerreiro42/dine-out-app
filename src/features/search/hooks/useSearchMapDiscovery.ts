@@ -11,8 +11,6 @@ export type MapResultData = Restaurant & {
   hasDelivery: boolean;
 };
 
-// Presentation-only derivation, not stored data — same "lookup at render
-// time, not authored per item" pattern as useCategoryDiscovery's DiscoveryCardData.
 function toMapResult(
   restaurant: Restaurant,
   cuisineLabel: string,

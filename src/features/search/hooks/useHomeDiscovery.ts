@@ -12,11 +12,6 @@ export type HomeCardData = Restaurant & {
   hasDelivery: boolean;
 };
 
-// Presentation-only derivation, not stored data — same pattern already
-// established by DiscoveryCardData (search) and MapResultData (search &
-// map): a restaurant's own cuisine/occasion/ambient labels and a
-// deterministic mock "open now" flag, computed at render time. Standalone
-// (not a closure) so useTypeDetail can reuse it against the same taxonomies.
 export function deriveHomeCard(
   restaurant: Restaurant,
   cuisines: Cuisine[],

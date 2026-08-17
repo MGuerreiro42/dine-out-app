@@ -62,9 +62,6 @@ export default function SearchScreen() {
   const debouncedSearchText = useDebouncedValue(searchText);
   const { isLoading, isError, refetch, results } = useSearchMapDiscovery(debouncedSearchText);
   const { data: taxonomies } = useDiscoveryTaxonomiesQuery();
-  // Seeded once from the incoming route params (e.g. TypeDetailScreen's "View
-  // all" links); chips can then be dismissed independently without the URL
-  // fighting back on every render.
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     cuisine: params.cuisine,
     occasion: params.occasion,
@@ -79,8 +76,6 @@ export default function SearchScreen() {
   const filtersTriggerRef = useRef<View>(null);
   const { width: windowWidth } = useWindowDimensions();
 
-  // Measures the trigger's real on-screen position instead of guessing fixed
-  // pixel offsets — keeps the dropdown anchored correctly on any device.
   const openSortMenu = () => {
     sortTriggerRef.current?.measureInWindow((x, y, width, height) => {
       setSortAnchor({ top: y + height + 4, right: windowWidth - (x + width) });
@@ -205,8 +200,6 @@ export default function SearchScreen() {
           <MapResultCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />
         ))}
       </ScrollView>
-
-      {/* Map view paused — filtering-only for now, see MapResultsSheet/SearchMapView. */}
 
       <Modal visible={openMenu === 'sort'} transparent animationType="fade" onRequestClose={() => setOpenMenu(null)}>
         <Pressable className="flex-1" onPress={() => setOpenMenu(null)}>

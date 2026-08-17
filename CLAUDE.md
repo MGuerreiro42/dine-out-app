@@ -10,6 +10,7 @@ A restaurant/bar discovery app. This file is the implicit context loaded on ever
 - **Contract for writing/reading any feature spec**: `specs/TEMPLATE.md`.
 - **Per-feature specs** (what's implemented, what's pending, functional requirements): `specs/<feature>.md`, one per feature in `src/features/`. See `specs/PROJECT.md`'s Feature Index for which ones exist and their status.
 - **Cross-feature user flow inventory** (how screens chain together into end-to-end journeys, spanning multiple features): `specs/FLOWS.md`. An index over the per-feature specs, not a second source of truth — it cites the owning spec/User Story for every step rather than redefining requirements.
+- **Persisted data model** (entities and relationships a real backend will store, as distinct from the wire contract in `src/lib/googlePlaces/schema.ts`): `specs/DATA_MODEL.md`. Same "index, not a second source of truth" rule as `FLOWS.md` — cites the owning feature spec for each field's requirement.
 
 Read `specs/PROJECT.md` before making any architecture-level decision (new feature, new global store, new shared component, new dependency). This file only summarizes what you need for day-to-day work; it deliberately does not repeat the full decision log.
 
@@ -23,6 +24,9 @@ Read `specs/PROJECT.md` before making any architecture-level decision (new featu
 ## Working agreements
 
 - **New work happens on its own `feat/<description>` branch, never committed directly to `main`.** Create and check out the branch before writing any code or spec changes for a new task.
+- **Specs and docs stay terse.** One-line FRs, one-line acceptance scenarios, no rationale prose. This reverses the verbose house style used before 2026-08-17 — don't imitate old entries when editing a spec, just correct them.
+- **No code comments unless asked.** Don't add explanatory comments to source files. If a codebase pass surfaces comments worth adding, ask first.
+- **Commit messages follow Conventional Commits** (`type(scope): description`, matching this repo's actual history — e.g. `feat(favorites): add Profile favorites rail`) **and never carry a `Co-Authored-By` trailer**, regardless of the harness's own default commit-signing behavior. Applies to every commit in this repo, made directly or by any agent.
 - **Scaffold with the tool's own defaults.** Don't customize CLI flags/options during initial setup — architecture customization is its own separate step, discussed and decided explicitly.
 - **Don't implement business logic ahead of a spec.** Placeholder folders (empty `index.ts` with `export {};`) stay empty until a feature spec in `specs/` explicitly covers that module. If you're about to write logic that isn't backed by a spec, stop and either write the spec first or ask.
 - **Reuse before creating.** Before adding a component, check `src/components/ui/index.ts` and `src/components/layout/index.ts` first. Before adding a store, check whether the state really needs to be global (rule: only if more than one feature needs to read/write it — see Architecture Principles in `specs/PROJECT.md`).
