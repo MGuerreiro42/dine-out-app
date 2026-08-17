@@ -45,6 +45,7 @@ export const useLocationStore = create<LocationState>((set) => ({
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
+        set({ ...FALLBACK_LOCATION, label: FALLBACK_LABEL, status: 'fallback' });
         return;
       }
 
