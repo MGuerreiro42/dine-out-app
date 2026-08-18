@@ -1,7 +1,21 @@
 {
   "name": "dine-out-app",
+  "description": "Cross-platform restaurant discovery app (Expo, React Native, TypeScript) built with a spec-driven workflow and a fully designed NestJS backend.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MGuerreiro42/dine-out-app.git"
+  },
+  "homepage": "https://github.com/MGuerreiro42/dine-out-app#readme",
+  "bugs": {
+    "url": "https://github.com/MGuerreiro42/dine-out-app/issues"
+  },
+  "license": "MIT",
+  "author": "Miguel Guerreiro",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@expo/ui": "~57.0.7",
     "@expo/vector-icons": "^15.1.1",
@@ -51,6 +65,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "test": "jest --watchAll"
   },
   "private": true,
