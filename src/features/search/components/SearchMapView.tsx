@@ -1,6 +1,7 @@
-import MapView, { Marker } from 'react-native-maps';
+import { Camera, Map as MapLibreMap, Marker } from '@maplibre/maplibre-react-native';
+import type { StyleSpecification } from '@maplibre/maplibre-react-native';
+import { View } from 'react-native';
 
-import { MapPlaceholder } from '@/features/search/components/MapPlaceholder';
 import { useLocationStore } from '@/stores/location';
 import type { Restaurant } from '@/types';
 
@@ -9,35 +10,46 @@ type SearchMapViewProps = {
   onSelectRestaurant: (restaurant: Restaurant) => void;
 };
 
-const hasGoogleMapsApiKey = Boolean(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY);
+const OSM_RASTER_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    osm: {
+      type: 'raster',
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '© OpenStreetMap contributors',
+    },
+  },
+  layers: [
+    {
+      id: 'osm',
+      type: 'raster',
+      source: 'osm',
+    },
+  ],
+};
 
 export function SearchMapView({ restaurants, onSelectRestaurant }: SearchMapViewProps) {
   const latitude = useLocationStore((s) => s.latitude);
   const longitude = useLocationStore((s) => s.longitude);
 
-  if (!hasGoogleMapsApiKey) {
-    return <MapPlaceholder message="The interactive map will be available soon." />;
-  }
-
   return (
-    <MapView
-      style={{ flex: 1 }}
-      initialRegion={{
-        latitude,
-        longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      }}
-    >
+    <MapLibreMap style={{ flex: 1 }} mapStyle={OSM_RASTER_STYLE}>
+      <Camera
+        initialViewState={{
+          center: [longitude, latitude],
+          zoom: 13,
+        }}
+      />
       {restaurants.map((restaurant) => (
         <Marker
           key={restaurant.id}
-          coordinate={{ latitude: restaurant.latitude, longitude: restaurant.longitude }}
-          title={restaurant.name}
-          description={`${restaurant.rating} · ${restaurant.priceLevel}`}
+          lngLat={[restaurant.longitude, restaurant.latitude]}
           onPress={() => onSelectRestaurant(restaurant)}
-        />
+        >
+          <View className="h-6 w-6 rounded-full border-2 border-white bg-[#208AEF]" />
+        </Marker>
       ))}
-    </MapView>
+    </MapLibreMap>
   );
 }
