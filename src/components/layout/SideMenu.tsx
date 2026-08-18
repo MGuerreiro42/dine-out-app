@@ -8,13 +8,13 @@ import { useAuthStore } from '@/stores/auth';
 
 const NAV_ITEMS: { label: string; icon: IconSpec; route: string }[] = [
   { label: 'Home', icon: { set: 'Ionicons', name: 'home-outline' }, route: '/' },
-  { label: 'Buscar', icon: { set: 'Ionicons', name: 'search-outline' }, route: '/search' },
-  { label: 'Categorias', icon: { set: 'Ionicons', name: 'grid-outline' }, route: '/category' },
-  { label: 'Favoritos', icon: { set: 'Ionicons', name: 'heart-outline' }, route: '/profile' },
-  { label: 'Meus pedidos', icon: { set: 'Ionicons', name: 'receipt-outline' }, route: '/profile/orders' },
-  { label: 'Minhas reservas', icon: { set: 'Ionicons', name: 'calendar-outline' }, route: '/profile/reservations' },
+  { label: 'Search', icon: { set: 'Ionicons', name: 'search-outline' }, route: '/search' },
+  { label: 'Categories', icon: { set: 'Ionicons', name: 'grid-outline' }, route: '/category' },
+  { label: 'Favorites', icon: { set: 'Ionicons', name: 'heart-outline' }, route: '/profile' },
+  { label: 'My orders', icon: { set: 'Ionicons', name: 'receipt-outline' }, route: '/profile/orders' },
+  { label: 'My reservations', icon: { set: 'Ionicons', name: 'calendar-outline' }, route: '/profile/reservations' },
   {
-    label: 'Notificações',
+    label: 'Notifications',
     icon: { set: 'Ionicons', name: 'notifications-outline' },
     route: '/profile/notifications',
   },
@@ -66,7 +66,7 @@ export function SideMenu() {
                 </View>
                 <View>
                   <Text className="text-sm font-bold text-ink">{CURRENT_USER.name}</Text>
-                  <Text className="text-[13px] text-muted">Ver perfil</Text>
+                  <Text className="text-[13px] text-muted">View profile</Text>
                 </View>
               </Pressable>
             ) : (
@@ -74,7 +74,7 @@ export function SideMenu() {
                 onPress={() => goTo('/login')}
                 className="mb-6 items-center rounded-xl bg-ink py-3.5"
               >
-                <Text className="text-[15px] font-bold text-white">Entrar ou criar conta</Text>
+                <Text className="text-[15px] font-bold text-white">Log in or sign up</Text>
               </Pressable>
             )}
 
@@ -93,7 +93,7 @@ export function SideMenu() {
 
             {isLoggedIn ? (
               <Pressable onPress={logout} className="mt-auto py-3.5">
-                <Text className="text-sm font-bold text-[#b23b3b]">Sair da conta</Text>
+                <Text className="text-sm font-bold text-[#b23b3b]">Log out</Text>
               </Pressable>
             ) : null}
           </Pressable>

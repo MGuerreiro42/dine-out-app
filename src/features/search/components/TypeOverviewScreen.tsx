@@ -49,9 +49,9 @@ export function TypeOverviewScreen({ dimension }: TypeOverviewScreenProps) {
   if (isError) {
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
-        <Text className="text-center text-sm text-muted">Não foi possível carregar as categorias.</Text>
+        <Text className="text-center text-sm text-muted">Couldn't load categories.</Text>
         <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
-          <Text className="text-sm font-bold text-white">Tentar de novo</Text>
+          <Text className="text-sm font-bold text-white">Try again</Text>
         </Pressable>
       </View>
     );

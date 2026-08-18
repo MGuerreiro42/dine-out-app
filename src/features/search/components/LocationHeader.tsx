@@ -24,11 +24,11 @@ export function LocationHeader() {
         <Text className="text-center text-sm text-gray-600">{label}</Text>
         {status === 'fallback' && (
           <Pressable onPress={resolveLocation} className="mt-3 rounded-xl bg-ink p-3.5">
-            <Text className="text-center text-sm font-bold text-white">Tentar novamente</Text>
+            <Text className="text-center text-sm font-bold text-white">Try again</Text>
           </Pressable>
         )}
         <Pressable onPress={() => setOpen(false)} className="mt-1.5 rounded-xl bg-ink p-3.5">
-          <Text className="text-center text-sm font-bold text-white">Fechar</Text>
+          <Text className="text-center text-sm font-bold text-white">Close</Text>
         </Pressable>
       </BottomSheet>
     </View>

@@ -40,7 +40,7 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 
 1. **Given** one or more restaurants are favorited, **when** the Profile screen renders, **then** the favorites rail shows a card per favorited restaurant.
 2. **Given** the favorites rail, **when** the user taps a card, **then** the app navigates to that restaurant's detail screen.
-3. **Given** zero restaurants are favorited, **when** the Profile screen renders, **then** the favorites rail area shows an explicit empty state: a muted outline heart icon (`Ionicons` `heart-outline`), "Você ainda não tem favoritos," a subtitle "Toque no coração de um restaurante para salvá-lo aqui," and an "Explorar restaurantes" link to Home.
+3. **Given** zero restaurants are favorited, **when** the Profile screen renders, **then** the favorites rail area shows an explicit empty state: a muted outline heart icon (`Ionicons` `heart-outline`), "You don't have any favorites yet," a subtitle "Tap the heart icon on a restaurant to save it here," and an "Explore restaurants" link to Home.
 
 ---
 

@@ -13,7 +13,7 @@ const mockedLocation = Location as jest.Mocked<typeof Location>;
 afterEach(() => {
   useLocationStore.setState({
     ...FALLBACK_LOCATION,
-    label: 'Localização indisponível',
+    label: 'Location unavailable',
     status: 'fallback',
   });
   jest.clearAllMocks();
@@ -68,7 +68,7 @@ test('keeps the resolved coordinate with a generic label when reverseGeocodeAsyn
   expect(useLocationStore.getState()).toMatchObject({
     latitude: -22.9,
     longitude: -43.2,
-    label: 'Localização atual',
+    label: 'Current location',
     status: 'resolved',
   });
 });

@@ -18,9 +18,9 @@ function Stat({ value, label }: { value: number; label: string }) {
 export function ProfileStats({ favCount, orderCount, reservationCount }: ProfileStatsProps) {
   return (
     <View className="flex-row justify-around border-b border-gray-100 px-4 py-4">
-      <Stat value={favCount} label="Favoritos" />
-      <Stat value={orderCount} label="Pedidos" />
-      <Stat value={reservationCount} label="Reservas" />
+      <Stat value={favCount} label="Favorites" />
+      <Stat value={orderCount} label="Orders" />
+      <Stat value={reservationCount} label="Reservations" />
     </View>
   );
 }

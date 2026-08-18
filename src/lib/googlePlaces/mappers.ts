@@ -2,11 +2,11 @@ import type { AppPlace, GooglePriceLevel } from '@/lib/googlePlaces/schema';
 import type { Restaurant } from '@/types';
 
 const CUISINE_BY_PRIMARY_TYPE: Record<string, string> = {
-  brazilian_restaurant: 'churrasco',
-  mediterranean_restaurant: 'mediterraneo',
-  italian_restaurant: 'italiana',
-  indian_restaurant: 'indiana',
-  chinese_restaurant: 'chinesa',
+  brazilian_restaurant: 'brazilian',
+  mediterranean_restaurant: 'mediterranean',
+  italian_restaurant: 'italian',
+  indian_restaurant: 'indian',
+  chinese_restaurant: 'chinese',
 };
 
 const PRICE_LEVEL_TO_DISPLAY: Record<GooglePriceLevel, string> = {

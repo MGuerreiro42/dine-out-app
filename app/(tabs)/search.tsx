@@ -48,7 +48,7 @@ const FEATURE_OPTIONS: { key: FeatureKey; label: string; matches: (restaurant: M
   { key: 'vegetarian', label: 'Vegetariano', matches: (restaurant) => restaurant.servesVegetarianFood },
   { key: 'groups', label: 'Bom para grupos', matches: (restaurant) => restaurant.goodForGroups },
   { key: 'kids', label: 'Kids friendly', matches: (restaurant) => restaurant.goodForChildren },
-  { key: 'outdoor', label: 'Área externa', matches: (restaurant) => restaurant.outdoorSeating },
+  { key: 'outdoor', label: 'Outdoor seating', matches: (restaurant) => restaurant.outdoorSeating },
 ];
 
 const FILTER_MENU_TITLES: Record<Exclude<FilterMenuView, 'root'>, string> = {
@@ -130,9 +130,9 @@ export default function SearchScreen() {
   if (isError) {
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
-        <Text className="text-center text-sm text-muted">Não foi possível carregar a busca.</Text>
+        <Text className="text-center text-sm text-muted">Couldn't load search.</Text>
         <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
-          <Text className="text-sm font-bold text-white">Tentar de novo</Text>
+          <Text className="text-sm font-bold text-white">Try again</Text>
         </Pressable>
       </View>
     );

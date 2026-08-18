@@ -16,7 +16,7 @@ export function SearchMapView({ restaurants, onSelectRestaurant }: SearchMapView
   const longitude = useLocationStore((s) => s.longitude);
 
   if (!hasGoogleMapsApiKey) {
-    return <MapPlaceholder message="O mapa interativo estará disponível em breve." />;
+    return <MapPlaceholder message="The interactive map will be available soon." />;
   }
 
   return (

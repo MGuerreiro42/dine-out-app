@@ -21,12 +21,12 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const title = isSignup ? 'Criar conta' : 'Entrar';
+  const title = isSignup ? 'Create account' : 'Log in';
   const subtitle = isSignup
-    ? 'Crie sua conta para reservar, favoritar e acompanhar pedidos.'
-    : 'Entre para acessar suas reservas, pedidos e favoritos.';
-  const switchText = isSignup ? 'Já tem conta?' : 'Ainda não tem conta?';
-  const switchAction = isSignup ? 'Entrar' : 'Criar conta';
+    ? 'Create your account to book, favorite and track orders.'
+    : 'Log in to access your reservations, orders and favorites.';
+  const switchText = isSignup ? 'Already have an account?' : "Don't have an account yet?";
+  const switchAction = isSignup ? 'Log in' : 'Create account';
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -47,19 +47,19 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
     const nextErrors: FormErrors = {};
 
     if (isSignup && name.trim().length === 0) {
-      nextErrors.name = 'Informe seu nome completo.';
+      nextErrors.name = 'Enter your full name.';
     }
 
     if (email.length === 0) {
-      nextErrors.email = 'Informe seu e-mail.';
+      nextErrors.email = 'Enter your email.';
     } else if (!EMAIL_REGEX.test(email)) {
-      nextErrors.email = 'E-mail inválido.';
+      nextErrors.email = 'Invalid email.';
     }
 
     if (password.length === 0) {
-      nextErrors.password = 'Informe sua senha.';
+      nextErrors.password = 'Enter your password.';
     } else if (password.length < 6) {
-      nextErrors.password = 'A senha deve ter pelo menos 6 caracteres.';
+      nextErrors.password = 'Password must be at least 6 characters.';
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -80,7 +80,7 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
         {isSignup ? (
           <View>
             <TextInput
-              placeholder="Nome completo"
+              placeholder="Full name"
               value={name}
               onChangeText={handleNameChange}
               className={`rounded-xl border px-4 py-3.5 text-sm ${errors.name ? 'border-[#b23b3b]' : 'border-sand'}`}
@@ -90,7 +90,7 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
         ) : null}
         <View>
           <TextInput
-            placeholder="E-mail"
+            placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -101,7 +101,7 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
         </View>
         <View>
           <TextInput
-            placeholder="Senha"
+            placeholder="Password"
             secureTextEntry
             value={password}
             onChangeText={handlePasswordChange}
@@ -112,8 +112,8 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
       </View>
 
       {isSignup ? null : (
-        <Pressable onPress={() => Alert.alert('Simulação', 'Recuperar senha')} className="pt-2.5">
-          <Text className="text-xs font-bold text-ink underline">Esqueceu a senha?</Text>
+        <Pressable onPress={() => Alert.alert('Demo', 'Reset password')} className="pt-2.5">
+          <Text className="text-xs font-bold text-ink underline">Forgot your password?</Text>
         </Pressable>
       )}
 
@@ -123,19 +123,19 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
 
       <View className="my-[22px] flex-row items-center gap-2.5">
         <View className="h-px flex-1 bg-gray-100" />
-        <Text className="text-[13px] text-muted">ou continue com</Text>
+        <Text className="text-[13px] text-muted">or continue with</Text>
         <View className="h-px flex-1 bg-gray-100" />
       </View>
 
       <View className="flex-row gap-2.5">
         <Pressable
-          onPress={() => Alert.alert('Simulação', 'Login com Google')}
+          onPress={() => Alert.alert('Demo', 'Log in with Google')}
           className="flex-1 items-center rounded-xl border border-sand py-3"
         >
           <Text className="text-[15px] font-bold text-ink">Google</Text>
         </Pressable>
         <Pressable
-          onPress={() => Alert.alert('Simulação', 'Login com Apple')}
+          onPress={() => Alert.alert('Demo', 'Log in with Apple')}
           className="flex-1 items-center rounded-xl border border-sand py-3"
         >
           <Text className="text-[15px] font-bold text-ink">Apple</Text>

@@ -40,7 +40,7 @@ export function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
             />
           </Pressable>
           <Pressable
-            onPress={() => Alert.alert('Compartilhar', 'Em breve.')}
+            onPress={() => Alert.alert('Share', 'Coming soon.')}
             className="h-6 w-6 items-center justify-center rounded-full bg-white/90"
           >
             <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={12} color="#374151" />

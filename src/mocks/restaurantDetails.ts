@@ -3,126 +3,126 @@ import { PLACES, photoRef, photoUrlForMockName } from '@/mocks/restaurants';
 
 type MenuItem = { name: string; price: string };
 
-const CHURRASCO_MENU: MenuItem[] = [
-  { name: 'Picanha na brasa', price: 'R$ 89' },
-  { name: 'Fraldinha', price: 'R$ 79' },
-  { name: 'Costela no bafo', price: 'R$ 95' },
-  { name: 'Buffet de saladas', price: 'incluso' },
-  { name: 'Farofa & vinagrete', price: 'incluso' },
-  { name: 'Sobremesa: abacaxi grelhado', price: 'R$ 18' },
+const BRAZILIAN_MENU: MenuItem[] = [
+  { name: 'Grilled picanha', price: 'R$ 89' },
+  { name: 'Flank steak', price: 'R$ 79' },
+  { name: 'Slow-roasted short rib', price: 'R$ 95' },
+  { name: 'Salad buffet', price: 'included' },
+  { name: 'Farofa & vinaigrette', price: 'included' },
+  { name: 'Dessert: grilled pineapple', price: 'R$ 18' },
 ];
 
-const MEDITERRANEO_MENU: MenuItem[] = [
-  { name: 'Mezze compartilhável', price: 'R$ 62' },
-  { name: 'Cordeiro grelhado', price: 'R$ 98' },
-  { name: 'Homus da casa', price: 'R$ 32' },
-  { name: 'Pão sírio artesanal', price: 'incluso' },
+const MEDITERRANEAN_MENU: MenuItem[] = [
+  { name: 'Sharing mezze', price: 'R$ 62' },
+  { name: 'Grilled lamb', price: 'R$ 98' },
+  { name: 'House hummus', price: 'R$ 32' },
+  { name: 'Artisan Syrian bread', price: 'included' },
 ];
 
-const ITALIANA_MENU: MenuItem[] = [
-  { name: 'Tagliatelle ao ragu', price: 'R$ 68' },
-  { name: 'Risoto de funghi', price: 'R$ 74' },
+const ITALIAN_MENU: MenuItem[] = [
+  { name: 'Tagliatelle al ragù', price: 'R$ 68' },
+  { name: 'Mushroom risotto', price: 'R$ 74' },
   { name: 'Pizza margherita', price: 'R$ 56' },
 ];
 
-const INDIANA_MENU: MenuItem[] = [
-  { name: 'Frango tikka masala', price: 'R$ 68' },
-  { name: 'Curry de cordeiro', price: 'R$ 82' },
-  { name: 'Naan de alho', price: 'incluso' },
-  { name: 'Samosas de legumes', price: 'R$ 28' },
-  { name: 'Arroz basmati', price: 'incluso' },
+const INDIAN_MENU: MenuItem[] = [
+  { name: 'Chicken tikka masala', price: 'R$ 68' },
+  { name: 'Lamb curry', price: 'R$ 82' },
+  { name: 'Garlic naan', price: 'included' },
+  { name: 'Vegetable samosas', price: 'R$ 28' },
+  { name: 'Basmati rice', price: 'included' },
 ];
 
-const CHINESA_MENU: MenuItem[] = [
-  { name: 'Pato laqueado', price: 'R$ 96' },
-  { name: 'Yakisoba de legumes', price: 'R$ 52' },
-  { name: 'Dim sum variado', price: 'R$ 46' },
-  { name: 'Frango xadrez', price: 'R$ 58' },
-  { name: 'Sopa wonton', price: 'R$ 32' },
+const CHINESE_MENU: MenuItem[] = [
+  { name: 'Peking duck', price: 'R$ 96' },
+  { name: 'Vegetable yakisoba', price: 'R$ 52' },
+  { name: 'Assorted dim sum', price: 'R$ 46' },
+  { name: 'Kung pao chicken', price: 'R$ 58' },
+  { name: 'Wonton soup', price: 'R$ 32' },
 ];
 
 const MENU_BY_PRIMARY_TYPE: Record<string, MenuItem[]> = {
-  brazilian_restaurant: CHURRASCO_MENU,
-  mediterranean_restaurant: MEDITERRANEO_MENU,
-  italian_restaurant: ITALIANA_MENU,
-  indian_restaurant: INDIANA_MENU,
-  chinese_restaurant: CHINESA_MENU,
+  brazilian_restaurant: BRAZILIAN_MENU,
+  mediterranean_restaurant: MEDITERRANEAN_MENU,
+  italian_restaurant: ITALIAN_MENU,
+  indian_restaurant: INDIAN_MENU,
+  chinese_restaurant: CHINESE_MENU,
 };
 
 const EXTRAS_BY_ID: Record<string, { description: string; tags: string[] }> = {
-  '1': { description: 'Um rodízio clássico de churrascaria com carnes selecionadas e cortes nobres, grelhados na brasa no estilo tradicional gaúcho. Ambiente descontraído com música ao vivo às sextas e sábados, ideal para famílias e grupos grandes.', tags: ['Churrasco', 'Rodízio', 'Música ao vivo'] },
-  '2': { description: 'Espaço amplo para grupos, buffet completo de acompanhamentos e carnes nobres direto da brasa.', tags: ['Grupos grandes', 'Buffet completo', 'Estacionamento'] },
-  '3': { description: 'Espetinhos, chope gelado e música ao vivo todo fim de semana — clima de boteco raiz.', tags: ['Música ao vivo', 'Chope gelado', 'Pet friendly'] },
-  '4': { description: 'Costela de 12 horas na brasa e acompanhamentos caseiros, num salão intimista pra namorar sem pressa.', tags: ['Costela 12h', 'Ambiente intimista', 'Vinhos selecionados'] },
-  '5': { description: 'Buffet rústico de churrasco com foco em família — playground pra crianças e mesas comunitárias.', tags: ['Playground infantil', 'Buffet à vontade', 'Estacionamento'] },
-  '6': { description: 'Espetinhos rápidos e porções generosas pra galera que quer comer bem sem gastar muito.', tags: ['Preço justo', 'Porções grandes', 'Delivery rápido'] },
-  '7': { description: 'Mezze compartilháveis e terraço iluminado à luz de velas. Cardápio inspirado na costa mediterrânea, com pratos leves e vinhos naturais selecionados a dedo.', tags: ['Terraço', 'Vegetariano-friendly', 'Romântico'] },
-  '8': { description: 'Pratos frios turcos e vinhos naturais, ambiente intimista pra uma noite tranquila a dois.', tags: ['Vinhos naturais', 'Intimista', 'Sem glúten'] },
-  '9': { description: 'Azeites premiados e pratos gregos simples, feitos pra ficar a tarde toda com a família reunida.', tags: ['Azeite premiado', 'Pratos para dividir', 'Kids menu'] },
-  '10': { description: 'Frutos do mar grelhados e vista pro pôr do sol — clima de taverna litorânea em pleno centro.', tags: ['Frutos do mar', 'Terraço com vista', 'Grupos grandes'] },
-  '11': { description: 'Mezze libanês tradicional servido em travessas generosas, ótimo pra reunir a família inteira numa mesa só.', tags: ['Mezze libanês', 'Travessas para compartilhar', 'Kids menu'] },
-  '12': { description: 'Bouzouki ao vivo às quintas e sextas, taças de vinho grego e petiscos até tarde.', tags: ['Música ao vivo', 'Vinhos gregos', 'Aberto até tarde'] },
-  '13': { description: 'Massas artesanais e forno a lenha, clima de trattoria — feito pra ficar a tarde toda.', tags: ['Massas artesanais', 'Forno a lenha', 'Pet friendly'] },
-  '14': { description: 'Massas frescas feitas na hora e carta de vinhos italianos extensa, num salão elegante pra ocasiões especiais.', tags: ['Massa fresca', 'Carta de vinhos', 'Romântico'] },
-  '15': { description: 'Pizza napolitana de forno a lenha e mesas compridas — o point de família de domingo.', tags: ['Pizza napolitana', 'Forno a lenha', 'Kids menu'] },
-  '16': { description: 'Harmonizações de massas autorais com vinhos importados, num salão pequeno e charmoso.', tags: ['Harmonização de vinhos', 'Menu degustação', 'Romântico'] },
-  '17': { description: 'Massas rápidas e generosas, preço justo pra quem quer sair em grupo sem complicação.', tags: ['Preço justo', 'Porções generosas', 'Grupos grandes'] },
-  '18': { description: 'Cozinha toscana tradicional, ambiente aconchegante e cardápio que muda com a estação.', tags: ['Cozinha toscana', 'Cardápio sazonal', 'Kids menu'] },
-  '19': { description: 'Curries aromáticos e naan feito na hora, num salão intimista com luz baixa.', tags: ['Curry autoral', 'Naan artesanal', 'Romântico'] },
-  '20': { description: 'Cardápio indiano completo com opções vegetarianas de sobra — ótimo pra levar a família toda.', tags: ['Opções vegetarianas', 'Kids menu', 'Buffet aos domingos'] },
-  '21': { description: 'Menu degustação indiano com harmonização de especiarias, pensado pra grupos que querem experimentar de tudo.', tags: ['Menu degustação', 'Grupos grandes', 'Ambiente elegante'] },
-  '22': { description: 'Receitas de família passadas de geração em geração, servidas num salão calmo e acolhedor.', tags: ['Receitas de família', 'Ambiente acolhedor', 'Vegetariano-friendly'] },
-  '23': { description: 'Forno tandoor a vista, música indiana ao vivo nos fins de semana e drinks especiais.', tags: ['Forno tandoor', 'Música ao vivo', 'Drinks autorais'] },
-  '24': { description: 'Cozinha indiana contemporânea com pratos autorais e carta de coquetéis, num salão sofisticado pra um encontro especial.', tags: ['Cozinha autoral', 'Carta de coquetéis', 'Romântico'] },
-  '25': { description: 'Wok rápido e porções fartas — clássico point de galera depois do trabalho.', tags: ['Porções generosas', 'Preço justo', 'Delivery rápido'] },
-  '26': { description: 'Salão discreto com mesas reservadas, clima perfeito pra uma noite tranquila a dois.', tags: ['Ambiente intimista', 'Chá de cortesia', 'Romântico'] },
-  '27': { description: 'Buffet ao quilo com clássicos chineses — ótimo pra almoço em família sem compromisso.', tags: ['Buffet ao quilo', 'Kids menu', 'Almoço rápido'] },
-  '28': { description: 'Culinária cantonesa tradicional, mesas redondas grandes feitas pra reunir a família inteira.', tags: ['Mesas grandes', 'Culinária cantonesa', 'Kids menu'] },
-  '29': { description: 'Pato laqueado é a estrela da casa, servido num salão elegante decorado com lanternas tradicionais.', tags: ['Pato laqueado', 'Ambiente elegante', 'Grupos grandes'] },
-  '30': { description: 'Karaokê nos fundos e petiscos até tarde — point animado de fim de semana.', tags: ['Karaokê', 'Aberto até tarde', 'Petiscos variados'] },
+  '1': { description: 'A classic all-you-can-eat churrascaria with hand-picked cuts, grilled over charcoal in the traditional gaúcho style. Laid-back atmosphere with live music on Fridays and Saturdays, great for families and large groups.', tags: ['Brazilian BBQ', 'All-you-can-eat', 'Live music'] },
+  '2': { description: 'Spacious rooms for groups, a full sides buffet and prime cuts straight off the grill.', tags: ['Large groups', 'Full buffet', 'Parking'] },
+  '3': { description: 'Skewers, ice-cold draft beer and live music every weekend — classic neighborhood bar vibe.', tags: ['Live music', 'Draft beer', 'Pet friendly'] },
+  '4': { description: '12-hour slow-roasted short rib and homestyle sides, in an intimate room made for lingering over a date.', tags: ['12h short rib', 'Intimate setting', 'Curated wines'] },
+  '5': { description: 'Rustic barbecue buffet built for families — a kids’ playground and communal tables.', tags: ['Kids’ playground', 'All-you-can-eat buffet', 'Parking'] },
+  '6': { description: 'Quick skewers and generous portions for a crowd that wants to eat well without spending much.', tags: ['Fair prices', 'Big portions', 'Fast delivery'] },
+  '7': { description: 'Sharing mezze and a candlelit terrace. A menu inspired by the Mediterranean coast, with light dishes and hand-picked natural wines.', tags: ['Terrace', 'Vegetarian-friendly', 'Romantic'] },
+  '8': { description: 'Turkish cold plates and natural wines, an intimate setting for a quiet night for two.', tags: ['Natural wines', 'Intimate', 'Gluten-free'] },
+  '9': { description: 'Award-winning olive oils and simple Greek dishes, made for lingering all afternoon with the whole family.', tags: ['Award-winning olive oil', 'Sharing plates', 'Kids menu'] },
+  '10': { description: 'Grilled seafood and sunset views — a coastal tavern feel right in the middle of the city.', tags: ['Seafood', 'Terrace with a view', 'Large groups'] },
+  '11': { description: 'Traditional Lebanese mezze served on generous platters, great for bringing the whole family to one table.', tags: ['Lebanese mezze', 'Sharing platters', 'Kids menu'] },
+  '12': { description: 'Live bouzouki on Thursdays and Fridays, glasses of Greek wine and snacks late into the night.', tags: ['Live music', 'Greek wines', 'Open late'] },
+  '13': { description: 'Handmade pasta and a wood-fired oven, trattoria vibe — made for lingering all afternoon.', tags: ['Handmade pasta', 'Wood-fired oven', 'Pet friendly'] },
+  '14': { description: 'Fresh pasta made to order and an extensive Italian wine list, in an elegant room for special occasions.', tags: ['Fresh pasta', 'Wine list', 'Romantic'] },
+  '15': { description: 'Wood-fired Neapolitan pizza and long tables — the Sunday family spot.', tags: ['Neapolitan pizza', 'Wood-fired oven', 'Kids menu'] },
+  '16': { description: 'Signature pasta pairings with imported wines, in a small, charming room.', tags: ['Wine pairings', 'Tasting menu', 'Romantic'] },
+  '17': { description: 'Quick, generous pasta at a fair price for a no-fuss night out with the group.', tags: ['Fair prices', 'Generous portions', 'Large groups'] },
+  '18': { description: 'Traditional Tuscan cooking, a cozy atmosphere and a menu that changes with the season.', tags: ['Tuscan cuisine', 'Seasonal menu', 'Kids menu'] },
+  '19': { description: 'Aromatic curries and naan made to order, in an intimate, low-lit room.', tags: ['Signature curry', 'Handmade naan', 'Romantic'] },
+  '20': { description: 'A full Indian menu with plenty of vegetarian options — great for bringing the whole family.', tags: ['Vegetarian options', 'Kids menu', 'Sunday buffet'] },
+  '21': { description: 'An Indian tasting menu with spice pairings, built for groups who want to try a bit of everything.', tags: ['Tasting menu', 'Large groups', 'Elegant setting'] },
+  '22': { description: 'Family recipes passed down through generations, served in a calm, welcoming room.', tags: ['Family recipes', 'Welcoming atmosphere', 'Vegetarian-friendly'] },
+  '23': { description: 'An open tandoor oven, live Indian music on weekends and specialty drinks.', tags: ['Tandoor oven', 'Live music', 'Signature drinks'] },
+  '24': { description: 'Contemporary Indian cooking with signature dishes and a cocktail list, in a sophisticated room for a special date.', tags: ['Signature cooking', 'Cocktail list', 'Romantic'] },
+  '25': { description: 'Fast wok cooking and hearty portions — the classic after-work spot.', tags: ['Generous portions', 'Fair prices', 'Fast delivery'] },
+  '26': { description: 'A discreet room with reserved tables, perfect for a quiet night for two.', tags: ['Intimate setting', 'Complimentary tea', 'Romantic'] },
+  '27': { description: 'Pay-by-weight buffet with Chinese classics — great for a casual family lunch.', tags: ['Pay-by-weight buffet', 'Kids menu', 'Quick lunch'] },
+  '28': { description: 'Traditional Cantonese cooking, with big round tables made for bringing the whole family together.', tags: ['Large tables', 'Cantonese cuisine', 'Kids menu'] },
+  '29': { description: 'Peking duck is the house specialty, served in an elegant room decorated with traditional lanterns.', tags: ['Peking duck', 'Elegant setting', 'Large groups'] },
+  '30': { description: 'Karaoke in the back and snacks until late — a lively weekend spot.', tags: ['Karaoke', 'Open late', 'Assorted snacks'] },
 };
 
 const OPENING_HOURS_PATTERNS: Record<string, string[]> = {
   STANDARD: [
-    'Segunda-feira: 11:30 – 15:00, 18:30 – 23:00',
-    'Terça-feira: 11:30 – 15:00, 18:30 – 23:00',
-    'Quarta-feira: 11:30 – 15:00, 18:30 – 23:00',
-    'Quinta-feira: 11:30 – 15:00, 18:30 – 23:00',
-    'Sexta-feira: 11:30 – 15:00, 18:30 – 23:30',
-    'Sábado: 12:00 – 23:30',
-    'Domingo: 12:00 – 22:00',
+    'Monday: 11:30 AM – 3:00 PM, 6:30 – 11:00 PM',
+    'Tuesday: 11:30 AM – 3:00 PM, 6:30 – 11:00 PM',
+    'Wednesday: 11:30 AM – 3:00 PM, 6:30 – 11:00 PM',
+    'Thursday: 11:30 AM – 3:00 PM, 6:30 – 11:00 PM',
+    'Friday: 11:30 AM – 3:00 PM, 6:30 – 11:30 PM',
+    'Saturday: 12:00 – 11:30 PM',
+    'Sunday: 12:00 – 10:00 PM',
   ],
   DINNER_ONLY_CLOSED_MONDAY: [
-    'Segunda-feira: Fechado',
-    'Terça-feira: 18:00 – 00:00',
-    'Quarta-feira: 18:00 – 00:00',
-    'Quinta-feira: 18:00 – 00:00',
-    'Sexta-feira: 18:00 – 01:00',
-    'Sábado: 18:00 – 01:00',
-    'Domingo: 18:00 – 23:00',
+    'Monday: Closed',
+    'Tuesday: 6:00 PM – 12:00 AM',
+    'Wednesday: 6:00 PM – 12:00 AM',
+    'Thursday: 6:00 PM – 12:00 AM',
+    'Friday: 6:00 PM – 1:00 AM',
+    'Saturday: 6:00 PM – 1:00 AM',
+    'Sunday: 6:00 – 11:00 PM',
   ],
   ALL_DAY: [
-    'Segunda-feira: 11:00 – 23:00',
-    'Terça-feira: 11:00 – 23:00',
-    'Quarta-feira: 11:00 – 23:00',
-    'Quinta-feira: 11:00 – 23:00',
-    'Sexta-feira: 11:00 – 00:00',
-    'Sábado: 11:00 – 00:00',
-    'Domingo: 11:00 – 22:00',
+    'Monday: 11:00 AM – 11:00 PM',
+    'Tuesday: 11:00 AM – 11:00 PM',
+    'Wednesday: 11:00 AM – 11:00 PM',
+    'Thursday: 11:00 AM – 11:00 PM',
+    'Friday: 11:00 AM – 12:00 AM',
+    'Saturday: 11:00 AM – 12:00 AM',
+    'Sunday: 11:00 AM – 10:00 PM',
   ],
   LATE_NIGHT_WEEKEND: [
-    'Segunda-feira: Fechado',
-    'Terça-feira: 18:00 – 23:00',
-    'Quarta-feira: 18:00 – 23:00',
-    'Quinta-feira: 18:00 – 23:00',
-    'Sexta-feira: 18:00 – 01:00',
-    'Sábado: 18:00 – 01:00',
-    'Domingo: 12:00 – 17:00',
+    'Monday: Closed',
+    'Tuesday: 6:00 – 11:00 PM',
+    'Wednesday: 6:00 – 11:00 PM',
+    'Thursday: 6:00 – 11:00 PM',
+    'Friday: 6:00 PM – 1:00 AM',
+    'Saturday: 6:00 PM – 1:00 AM',
+    'Sunday: 12:00 – 5:00 PM',
   ],
 };
 
 function weekdayDescriptionsFor(place: AppPlace): string[] {
-  if (place.occasion === 'musica') return OPENING_HOURS_PATTERNS.LATE_NIGHT_WEEKEND;
+  if (place.occasion === 'music') return OPENING_HOURS_PATTERNS.LATE_NIGHT_WEEKEND;
   if (place.ambient === 'fancy') return OPENING_HOURS_PATTERNS.DINNER_ONLY_CLOSED_MONDAY;
   if (place.ambient === 'agitated') return OPENING_HOURS_PATTERNS.ALL_DAY;
   return OPENING_HOURS_PATTERNS.STANDARD;
@@ -135,9 +135,9 @@ function amenityFieldsFor(place: AppPlace): GoogleAmenityFields {
     dineIn: true,
     reservable: place.priceLevel !== 'PRICE_LEVEL_INEXPENSIVE',
     outdoorSeating: place.ambient === 'cozy' || place.ambient === 'relaxed',
-    liveMusic: place.occasion === 'musica',
-    goodForGroups: place.occasion === 'grupo',
-    goodForChildren: place.occasion === 'familia',
+    liveMusic: place.occasion === 'music',
+    goodForGroups: place.occasion === 'group',
+    goodForChildren: place.occasion === 'family',
     allowsDogs: place.ambient === 'relaxed' || place.ambient === 'cozy',
     wheelchairAccessibleEntrance: true,
     servesVegetarianFood: place.primaryType === 'mediterranean_restaurant' || place.primaryType === 'indian_restaurant',
@@ -148,22 +148,22 @@ function amenityFieldsFor(place: AppPlace): GoogleAmenityFields {
 type ThingToKnowItem = { title: string; text: string };
 
 const CANCELLATION: ThingToKnowItem = {
-  title: 'Política de cancelamento',
-  text: 'Cancelamentos com até 2h de antecedência não geram cobrança.',
+  title: 'Cancellation policy',
+  text: 'Cancellations up to 2h in advance incur no charge.',
 };
-const DRESS_CODE_SMART: ThingToKnowItem = { title: 'Traje', text: 'Traje esporte-fino recomendado à noite.' };
-const DRESS_CODE_CASUAL: ThingToKnowItem = { title: 'Traje', text: 'Traje esportivo, sem restrições.' };
+const DRESS_CODE_SMART: ThingToKnowItem = { title: 'Dress code', text: 'Smart casual recommended in the evening.' };
+const DRESS_CODE_CASUAL: ThingToKnowItem = { title: 'Dress code', text: 'Casual, no restrictions.' };
 const PARKING: ThingToKnowItem = {
-  title: 'Estacionamento',
-  text: 'Manobrista disponível nos finais de semana.',
+  title: 'Parking',
+  text: 'Valet available on weekends.',
 };
 const KIDS: ThingToKnowItem = {
-  title: 'Crianças',
-  text: 'Cadeirões disponíveis mediante solicitação.',
+  title: 'Kids',
+  text: 'High chairs available on request.',
 };
 const SAFETY: ThingToKnowItem = {
-  title: 'Segurança e propriedade',
-  text: 'Ambiente climatizado, câmeras de segurança no salão.',
+  title: 'Safety and property',
+  text: 'Air-conditioned room, security cameras on site.',
 };
 
 function thingsToKnowFor(place: AppPlace, amenityFields: GoogleAmenityFields): ThingToKnowItem[] {
@@ -212,29 +212,29 @@ type ReviewContent = { rating: number; text: string };
 
 const REVIEWS_BY_PRIMARY_TYPE: Record<string, ReviewContent[]> = {
   brazilian_restaurant: [
-    { rating: 5, text: 'Melhor rod\u00edzio da cidade! Carnes no ponto certo e atendimento impec\u00e1vel. A picanha estava excelente.' },
-    { rating: 5, text: 'Ambiente \u00f3timo, carnes de primeira e o gar\u00e7om sempre atento pra repor. Voltarei com certeza.' },
-    { rating: 4, text: 'Comida excelente, s\u00f3 achei o pre\u00e7o um pouco salgado pro que oferece.' },
+    { rating: 5, text: 'Best all-you-can-eat in the city! Meat cooked just right and impeccable service. The picanha was excellent.' },
+    { rating: 5, text: 'Great atmosphere, top-quality meat and the waiter was always attentive with refills. Definitely coming back.' },
+    { rating: 4, text: 'Excellent food, just found the price a bit steep for what it offers.' },
   ],
   mediterranean_restaurant: [
-    { rating: 5, text: 'Mezze maravilhoso e vinhos muito bem escolhidos. Lugar perfeito pra uma noite tranquila.' },
-    { rating: 5, text: 'Card\u00e1pio saboroso e bem equilibrado, d\u00e1 pra sentir a qualidade dos ingredientes.' },
-    { rating: 4, text: 'Muito bom, mas o atendimento demorou um pouco mais do que eu esperava.' },
+    { rating: 5, text: 'Wonderful mezze and very well-chosen wines. Perfect place for a quiet night.' },
+    { rating: 5, text: 'Flavorful, well-balanced menu \u2014 you can tell the ingredients are quality.' },
+    { rating: 4, text: 'Very good, but service took a bit longer than I expected.' },
   ],
   italian_restaurant: [
-    { rating: 5, text: 'Massa fresca impec\u00e1vel, d\u00e1 pra sentir que \u00e9 feita na hora. Melhor italiana da regi\u00e3o.' },
-    { rating: 5, text: 'Pizza excelente e ambiente aconchegante, perfeito pra um jantar em fam\u00edlia.' },
-    { rating: 4, text: 'Comida muito boa, s\u00f3 achei o sal\u00e3o um pouco apertado nos hor\u00e1rios de pico.' },
+    { rating: 5, text: 'Impeccable fresh pasta, you can tell it\u2019s made to order. Best Italian in the area.' },
+    { rating: 5, text: 'Excellent pizza and a cozy atmosphere, perfect for a family dinner.' },
+    { rating: 4, text: 'Very good food, just found the dining room a bit cramped at peak hours.' },
   ],
   indian_restaurant: [
-    { rating: 5, text: 'Curry maravilhoso, temperos na medida certa. Naan quentinho e fresco.' },
-    { rating: 5, text: 'Melhor comida indiana que j\u00e1 comi em S\u00e3o Paulo. Atendimento super atencioso.' },
-    { rating: 4, text: 'Muito saboroso, s\u00f3 achei os pratos um pouco picantes pro meu gosto.' },
+    { rating: 5, text: 'Wonderful curry, spices just right. Naan warm and fresh.' },
+    { rating: 5, text: 'Best Indian food I\u2019ve had in S\u00e3o Paulo. Super attentive service.' },
+    { rating: 4, text: 'Very tasty, just found the dishes a bit too spicy for my taste.' },
   ],
   chinese_restaurant: [
-    { rating: 5, text: 'Pato laqueado espetacular, crocante por fora e suculento por dentro.' },
-    { rating: 5, text: 'Comida chinesa aut\u00eantica, sabores bem definidos e por\u00e7\u00f5es generosas.' },
-    { rating: 4, text: 'Muito bom, mas o tempo de espera foi maior do que o esperado num dia de movimento.' },
+    { rating: 5, text: 'Spectacular Peking duck, crispy outside and juicy inside.' },
+    { rating: 5, text: 'Authentic Chinese food, well-defined flavors and generous portions.' },
+    { rating: 4, text: 'Very good, but the wait was longer than expected on a busy day.' },
   ],
 };
 
@@ -251,7 +251,7 @@ const REVIEWER_NAMES = [
   'Diego Martins',
 ];
 
-const RELATIVE_TIMES = ['2 dias atr\u00e1s', '1 semana atr\u00e1s', '3 semanas atr\u00e1s', '1 m\u00eas atr\u00e1s', '2 meses atr\u00e1s'];
+const RELATIVE_TIMES = ['2 days ago', '1 week ago', '3 weeks ago', '1 month ago', '2 months ago'];
 
 function reviewsFor(place: AppPlace) {
   const idNum = Number(place.id);
@@ -260,7 +260,7 @@ function reviewsFor(place: AppPlace) {
   return contents.map((content, i) => ({
     relativePublishTimeDescription: RELATIVE_TIMES[(idNum + i) % RELATIVE_TIMES.length],
     rating: content.rating,
-    text: { text: content.text, languageCode: 'pt-BR' },
+    text: { text: content.text, languageCode: 'en' },
     authorAttribution: { displayName: REVIEWER_NAMES[(idNum + i) % REVIEWER_NAMES.length] },
   }));
 }
@@ -282,7 +282,7 @@ function highlightsFor(place: AppPlace, amenityFields: GoogleAmenityFields) {
   if (place.priceLevel === 'PRICE_LEVEL_INEXPENSIVE') candidates.push('Great value');
   if (place.primaryType === 'brazilian_restaurant') candidates.push('Big Portions');
   if (amenityFields.liveMusic) candidates.push('Live music');
-  if (place.occasion === 'encontro') candidates.push('Romantic spot');
+  if (place.occasion === 'date') candidates.push('Romantic spot');
   if (amenityFields.goodForChildren) candidates.push('Family friendly');
   if (amenityFields.goodForGroups) candidates.push('Great for groups');
   if (amenityFields.servesVegetarianFood) candidates.push('Vegetarian options');
@@ -303,7 +303,7 @@ export const PLACE_DETAILS: Record<string, PlaceDetails> = Object.fromEntries(
       ...place,
       ...amenityFields,
       photos: [photoRef(primaryPoolIndex), photoRef(secondaryPoolIndex)],
-      editorialSummary: { text: extras.description, languageCode: 'pt-BR' },
+      editorialSummary: { text: extras.description, languageCode: 'en' },
       tags: extras.tags,
       menu: MENU_BY_PRIMARY_TYPE[place.primaryType],
       internationalPhoneNumber: phoneFor(place.id),
