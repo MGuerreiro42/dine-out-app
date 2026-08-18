@@ -7,8 +7,6 @@ import { RestaurantSchema } from '@/types';
 
 const RestaurantsResponseSchema = z.array(RestaurantSchema);
 
-export const MOCK_LOCATION = { latitude: -23.561, longitude: -46.656 };
-
 export function useRestaurantsQuery(query?: string) {
   const trimmedQuery = query?.trim();
 
