@@ -1,6 +1,7 @@
 import { type Href, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { FavoritesRail } from '@/features/favorites/components';
 import { AccountOptionsList, LoggedOutPrompt, ProfileHeader, ProfileStats } from '@/features/profile/components';
 import { useCurrentUserQuery } from '@/features/profile/api';
 import type { AccountOption } from '@/features/profile/types';
@@ -66,6 +67,7 @@ export default function ProfileScreen() {
       {isLoggedIn ? (
         <>
           <ProfileStats favCount={favCount} orderCount={0} reservationCount={0} />
+          <FavoritesRail />
           <AccountOptionsList options={ACCOUNT_OPTIONS} onPress={handleAccountOptionPress} />
         </>
       ) : (

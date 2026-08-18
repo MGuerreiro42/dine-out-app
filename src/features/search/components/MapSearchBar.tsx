@@ -8,12 +8,6 @@ type MapSearchBarProps = {
   onChangeText: (text: string) => void;
 };
 
-// Floating search pill docked over the map — absolute positioned with a
-// safe-area offset since this screen goes edge-to-edge (the shared layout
-// SearchBar assumes a normal inline flex row, so it isn't reused directly
-// here). The design's leftover back arrow next to this bar was dropped,
-// same correction already applied to the Category page's back arrow — this
-// screen is a tab root, not a stack-pushed screen.
 export function MapSearchBar({ value, onChangeText }: MapSearchBarProps) {
   const insets = useSafeAreaInsets();
 

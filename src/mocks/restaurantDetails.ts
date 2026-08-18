@@ -82,11 +82,6 @@ const EXTRAS_BY_ID: Record<string, { description: string; tags: string[] }> = {
   '30': { description: 'Karaoke in the back and snacks until late — a lively weekend spot.', tags: ['Karaoke', 'Open late', 'Assorted snacks'] },
 };
 
-// Practical-info fields (opening hours, amenity flags, contact) are derived
-// from each place's existing occasion/ambient/priceLevel/primaryType rather
-// than hand-authored per restaurant — same efficiency precedent as reusing
-// menus per cuisine above.
-
 const OPENING_HOURS_PATTERNS: Record<string, string[]> = {
   STANDARD: [
     'Monday: 11:30 AM – 3:00 PM, 6:30 – 11:00 PM',
@@ -205,9 +200,6 @@ function instagramHandleFor(name: string): string {
   return `@${slug}`;
 }
 
-// Instagram photos are plain URLs (see schema.ts's note on why \u2014 no Google
-// contract to mirror here), cycling the same 6-photo pool everything else
-// in the mocks reuses, offset by id so restaurants don't all show the same set.
 function instagramPhotosFor(place: AppPlace): string[] {
   const idNum = Number(place.id);
   return Array.from({ length: 6 }, (_, i) => {
@@ -215,10 +207,6 @@ function instagramPhotosFor(place: AppPlace): string[] {
     return photoUrlForMockName(`r${poolIndex}`) as string;
   });
 }
-
-// Reviews are composed from a small per-cuisine content pool (rating+text)
-// combined with shared reviewer-name/relative-time pools cycled by id, not
-// hand-authored per restaurant \u2014 same efficiency precedent as menus/hours.
 
 type ReviewContent = { rating: number; text: string };
 
@@ -277,9 +265,6 @@ function reviewsFor(place: AppPlace) {
   }));
 }
 
-// Highlights have no Google equivalent \u2014 derived from the same signals as
-// amenities/thingsToKnow (priceLevel/primaryType/occasion/amenity flags),
-// padded with generic fallbacks so every restaurant gets exactly 3.
 const HIGHLIGHT_DETAILS: Record<string, { title: string; description: string }> = {
   'Great value': { title: 'Great Value', description: 'Generous portions at a fair price.' },
   'Big Portions': { title: 'Big Portions', description: 'Hearty servings, made to share.' },

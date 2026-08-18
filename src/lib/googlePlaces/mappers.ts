@@ -30,7 +30,6 @@ export function mapPriceLevel(priceLevel: GooglePriceLevel): string {
   return PRICE_LEVEL_TO_DISPLAY[priceLevel];
 }
 
-/** Maps the wire-contract shape to our internal, unchanged `Restaurant` type. */
 export function mapPlaceToRestaurant(place: AppPlace, photoUrl: string): Restaurant {
   return {
     id: Number(place.id),

@@ -13,6 +13,16 @@ HOW TO USE THIS TEMPLATE
   nor the AI agent should guess.
 - This file is the feature's CONTRACT. Code that diverges from the spec without updating the spec is a process
   bug, not just a code bug.
+
+TONE AND STRUCTURE
+- Academic, direct, impersonal. No narrative voice, no storytelling. State the current requirement or fact;
+  do not explain how it came to be true in the body of the spec.
+- Every section except Changelog describes CURRENT state only — what the feature does or must do now, and
+  what is designed but not yet built. Never write "corrected on [date]," "was previously X," or reference a
+  commit hash outside the Changelog.
+- History, corrections, and "why it changed" belong in the Changelog and nowhere else. If a User Story or FR
+  changes, rewrite it to state the new fact directly; record the change itself as one Changelog line.
+- Avoid "X, not Y" as a rhetorical device. State the rule once, plainly.
 -->
 
 ## Summary

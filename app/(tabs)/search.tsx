@@ -2,7 +2,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Modal,
   Pressable,
   ScrollView,
@@ -19,9 +18,13 @@ import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hook
 import type { MapResultData } from '@/features/search/hooks';
 
 type TaxonomyDimension = 'cuisine' | 'occasion' | 'ambient';
-type ActiveFilters = Partial<Record<TaxonomyDimension, string>>;
+type ActiveFilters = Partial<Record<TaxonomyDimension, string>> & { priceLevel?: string };
 
 type SortKey = 'top_rated' | 'trending' | 'price_asc' | 'price_desc';
+
+type FilterMenuView = 'root' | 'cuisine' | 'occasion' | 'ambient' | 'price' | 'features';
+
+type FeatureKey = 'vegetarian' | 'groups' | 'kids' | 'outdoor';
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'top_rated', label: 'Top Rated' },
@@ -30,14 +33,31 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'price_desc', label: 'Price: High to Low' },
 ];
 
-const FILTER_CATEGORIES: { icon: IconSpec; label: string }[] = [
-  { icon: { set: 'Ionicons', name: 'restaurant-outline' }, label: 'Cuisine' },
-  { icon: { set: 'Ionicons', name: 'wine-outline' }, label: 'Ambient' },
-  { icon: { set: 'Ionicons', name: 'sparkles-outline' }, label: 'Occasion' },
-  { icon: { set: 'Ionicons', name: 'star-outline' }, label: 'Features' },
-  { icon: { set: 'Ionicons', name: 'cash-outline' }, label: 'Price' },
-  { icon: { set: 'MaterialCommunityIcons', name: 'moped-outline' }, label: 'Delivery' },
+const FILTER_CATEGORIES: { icon: IconSpec; label: string; dimension: FilterMenuView | 'delivery' }[] = [
+  { icon: { set: 'Ionicons', name: 'restaurant-outline' }, label: 'Cuisine', dimension: 'cuisine' },
+  { icon: { set: 'Ionicons', name: 'wine-outline' }, label: 'Ambient', dimension: 'ambient' },
+  { icon: { set: 'Ionicons', name: 'sparkles-outline' }, label: 'Occasion', dimension: 'occasion' },
+  { icon: { set: 'Ionicons', name: 'star-outline' }, label: 'Features', dimension: 'features' },
+  { icon: { set: 'Ionicons', name: 'cash-outline' }, label: 'Price', dimension: 'price' },
+  { icon: { set: 'MaterialCommunityIcons', name: 'moped-outline' }, label: 'Delivery', dimension: 'delivery' },
 ];
+
+const PRICE_OPTIONS = ['$', '$$', '$$$', '$$$$'];
+
+const FEATURE_OPTIONS: { key: FeatureKey; label: string; matches: (restaurant: MapResultData) => boolean }[] = [
+  { key: 'vegetarian', label: 'Vegetariano', matches: (restaurant) => restaurant.servesVegetarianFood },
+  { key: 'groups', label: 'Bom para grupos', matches: (restaurant) => restaurant.goodForGroups },
+  { key: 'kids', label: 'Kids friendly', matches: (restaurant) => restaurant.goodForChildren },
+  { key: 'outdoor', label: 'Outdoor seating', matches: (restaurant) => restaurant.outdoorSeating },
+];
+
+const FILTER_MENU_TITLES: Record<Exclude<FilterMenuView, 'root'>, string> = {
+  cuisine: 'Cuisine',
+  occasion: 'Occasion',
+  ambient: 'Ambient',
+  price: 'Price',
+  features: 'Features',
+};
 
 const sortResults = (results: MapResultData[], sortBy: SortKey) =>
   [...results].sort((a, b) => {
@@ -62,25 +82,22 @@ export default function SearchScreen() {
   const debouncedSearchText = useDebouncedValue(searchText);
   const { isLoading, isError, refetch, results } = useSearchMapDiscovery(debouncedSearchText);
   const { data: taxonomies } = useDiscoveryTaxonomiesQuery();
-  // Seeded once from the incoming route params (e.g. TypeDetailScreen's "View
-  // all" links); chips can then be dismissed independently without the URL
-  // fighting back on every render.
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     cuisine: params.cuisine,
     occasion: params.occasion,
     ambient: params.ambient,
   });
   const [deliveryOnly, setDeliveryOnly] = useState(params.delivery === '1');
+  const [activeFeatures, setActiveFeatures] = useState<FeatureKey[]>([]);
   const [sortBy, setSortBy] = useState<SortKey>('top_rated');
   const [openMenu, setOpenMenu] = useState<'sort' | 'filters' | null>(null);
+  const [filterMenuView, setFilterMenuView] = useState<FilterMenuView>('root');
   const [sortAnchor, setSortAnchor] = useState({ top: 0, right: 0 });
   const [filtersAnchor, setFiltersAnchor] = useState({ top: 0, left: 0 });
   const sortTriggerRef = useRef<View>(null);
   const filtersTriggerRef = useRef<View>(null);
   const { width: windowWidth } = useWindowDimensions();
 
-  // Measures the trigger's real on-screen position instead of guessing fixed
-  // pixel offsets — keeps the dropdown anchored correctly on any device.
   const openSortMenu = () => {
     sortTriggerRef.current?.measureInWindow((x, y, width, height) => {
       setSortAnchor({ top: y + height + 4, right: windowWidth - (x + width) });
@@ -92,6 +109,10 @@ export default function SearchScreen() {
       setFiltersAnchor({ top: y + height + 4, left: x });
       setOpenMenu('filters');
     });
+  };
+  const closeFiltersMenu = () => {
+    setOpenMenu(null);
+    setFilterMenuView('root');
   };
 
   const goToRestaurant = (restaurant: MapResultData) => {
@@ -124,7 +145,9 @@ export default function SearchScreen() {
       (!activeFilters.cuisine || restaurant.cuisine === activeFilters.cuisine) &&
       (!activeFilters.occasion || restaurant.occasion === activeFilters.occasion) &&
       (!activeFilters.ambient || restaurant.ambient === activeFilters.ambient) &&
-      (!deliveryOnly || restaurant.hasDelivery),
+      (!activeFilters.priceLevel || restaurant.priceLevel === activeFilters.priceLevel) &&
+      (!deliveryOnly || restaurant.hasDelivery) &&
+      activeFeatures.every((key) => FEATURE_OPTIONS.find((option) => option.key === key)?.matches(restaurant)),
   );
 
   const taxonomyChips = (
@@ -140,9 +163,27 @@ export default function SearchScreen() {
       ? [{ key: dimension, label, onClear: () => setActiveFilters((current) => ({ ...current, [dimension]: undefined })) }]
       : [];
   });
-  const filterChips = deliveryOnly
-    ? [...taxonomyChips, { key: 'delivery', label: 'Delivery', onClear: () => setDeliveryOnly(false) }]
-    : taxonomyChips;
+  const priceChips = activeFilters.priceLevel
+    ? [
+        {
+          key: 'priceLevel',
+          label: activeFilters.priceLevel,
+          onClear: () => setActiveFilters((current) => ({ ...current, priceLevel: undefined })),
+        },
+      ]
+    : [];
+  const deliveryChips = deliveryOnly
+    ? [{ key: 'delivery', label: 'Delivery', onClear: () => setDeliveryOnly(false) }]
+    : [];
+  const featureChips = activeFeatures.map((key) => {
+    const option = FEATURE_OPTIONS.find((candidate) => candidate.key === key);
+    return {
+      key: `feature-${key}`,
+      label: option?.label ?? key,
+      onClear: () => setActiveFeatures((current) => current.filter((candidate) => candidate !== key)),
+    };
+  });
+  const filterChips = [...taxonomyChips, ...priceChips, ...deliveryChips, ...featureChips];
 
   return (
     <View className="flex-1 bg-white">
@@ -206,8 +247,6 @@ export default function SearchScreen() {
         ))}
       </ScrollView>
 
-      {/* Map view paused — filtering-only for now, see MapResultsSheet/SearchMapView. */}
-
       <Modal visible={openMenu === 'sort'} transparent animationType="fade" onRequestClose={() => setOpenMenu(null)}>
         <Pressable className="flex-1" onPress={() => setOpenMenu(null)}>
           <View
@@ -234,30 +273,138 @@ export default function SearchScreen() {
         </Pressable>
       </Modal>
 
-      <Modal
-        visible={openMenu === 'filters'}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setOpenMenu(null)}
-      >
-        <Pressable className="flex-1" onPress={() => setOpenMenu(null)}>
+      <Modal visible={openMenu === 'filters'} transparent animationType="fade" onRequestClose={closeFiltersMenu}>
+        <Pressable className="flex-1" onPress={closeFiltersMenu}>
           <View
-            className="absolute w-44 rounded-2xl bg-white py-2 shadow-lg"
+            className="absolute w-56 rounded-2xl bg-white py-2 shadow-lg"
             style={{ top: filtersAnchor.top, left: filtersAnchor.left }}
           >
-            {FILTER_CATEGORIES.map((category) => (
-              <Pressable
-                key={category.label}
-                onPress={() => {
-                  setOpenMenu(null);
-                  Alert.alert(category.label, 'Coming soon.');
-                }}
-                className="flex-row items-center gap-2.5 px-4 py-2.5"
-              >
-                <Icon spec={category.icon} size={16} color="#1f2937" />
-                <Text className="text-sm text-[#1f2937]">{category.label}</Text>
-              </Pressable>
-            ))}
+            {filterMenuView === 'root' ? (
+              FILTER_CATEGORIES.map((category) =>
+                category.dimension === 'delivery' ? (
+                  <Pressable
+                    key={category.label}
+                    onPress={() => setDeliveryOnly((current) => !current)}
+                    className="flex-row items-center justify-between gap-2.5 px-4 py-2.5"
+                  >
+                    <View className="flex-row items-center gap-2.5">
+                      <Icon spec={category.icon} size={16} color="#1f2937" />
+                      <Text className="text-sm text-[#1f2937]">{category.label}</Text>
+                    </View>
+                    <Icon
+                      spec={{ set: 'Ionicons', name: deliveryOnly ? 'checkbox' : 'square-outline' }}
+                      size={18}
+                      color={deliveryOnly ? '#4f46e5' : '#9ca3af'}
+                    />
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    key={category.label}
+                    onPress={() => setFilterMenuView(category.dimension as FilterMenuView)}
+                    className="flex-row items-center gap-2.5 px-4 py-2.5"
+                  >
+                    <Icon spec={category.icon} size={16} color="#1f2937" />
+                    <Text className="text-sm text-[#1f2937]">{category.label}</Text>
+                  </Pressable>
+                ),
+              )
+            ) : (
+              <>
+                <View className="flex-row items-center gap-2 border-b border-[#f3f4f6] px-4 pb-2.5">
+                  <Pressable
+                    onPress={() => setFilterMenuView('root')}
+                    className="h-6 w-6 items-center justify-center"
+                  >
+                    <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={16} color="#1f2937" />
+                  </Pressable>
+                  <Text className="text-sm font-bold text-[#1f2937]">{FILTER_MENU_TITLES[filterMenuView]}</Text>
+                </View>
+
+                {(filterMenuView === 'cuisine' || filterMenuView === 'occasion' || filterMenuView === 'ambient') &&
+                  (
+                    { cuisine: taxonomies?.cuisines, occasion: taxonomies?.occasions, ambient: taxonomies?.ambients }[
+                      filterMenuView
+                    ] ?? []
+                  ).map((option) => {
+                    const isActive = activeFilters[filterMenuView] === option.id;
+                    return (
+                      <Pressable
+                        key={option.id}
+                        onPress={() => {
+                          setActiveFilters((current) => ({ ...current, [filterMenuView]: option.id }));
+                          setFilterMenuView('root');
+                        }}
+                        className="flex-row items-center justify-between px-4 py-2.5"
+                      >
+                        <Text className={`text-sm ${isActive ? 'font-bold text-[#4f46e5]' : 'text-[#1f2937]'}`}>
+                          {option.label}
+                        </Text>
+                        {isActive ? (
+                          <Icon spec={{ set: 'Ionicons', name: 'checkmark' }} size={16} color="#4f46e5" />
+                        ) : null}
+                      </Pressable>
+                    );
+                  })}
+
+                {filterMenuView === 'price' &&
+                  PRICE_OPTIONS.map((price) => {
+                    const isActive = activeFilters.priceLevel === price;
+                    return (
+                      <Pressable
+                        key={price}
+                        onPress={() => {
+                          setActiveFilters((current) => ({ ...current, priceLevel: price }));
+                          setFilterMenuView('root');
+                        }}
+                        className="flex-row items-center justify-between px-4 py-2.5"
+                      >
+                        <Text className={`text-sm ${isActive ? 'font-bold text-[#4f46e5]' : 'text-[#1f2937]'}`}>
+                          {price}
+                        </Text>
+                        {isActive ? (
+                          <Icon spec={{ set: 'Ionicons', name: 'checkmark' }} size={16} color="#4f46e5" />
+                        ) : null}
+                      </Pressable>
+                    );
+                  })}
+
+                {filterMenuView === 'features' && (
+                  <>
+                    {FEATURE_OPTIONS.map((option) => {
+                      const isActive = activeFeatures.includes(option.key);
+                      return (
+                        <Pressable
+                          key={option.key}
+                          onPress={() =>
+                            setActiveFeatures((current) =>
+                              current.includes(option.key)
+                                ? current.filter((key) => key !== option.key)
+                                : [...current, option.key],
+                            )
+                          }
+                          className="flex-row items-center justify-between px-4 py-2.5"
+                        >
+                          <Text className={`text-sm ${isActive ? 'font-bold text-[#4f46e5]' : 'text-[#1f2937]'}`}>
+                            {option.label}
+                          </Text>
+                          <Icon
+                            spec={{ set: 'Ionicons', name: isActive ? 'checkbox' : 'square-outline' }}
+                            size={18}
+                            color={isActive ? '#4f46e5' : '#9ca3af'}
+                          />
+                        </Pressable>
+                      );
+                    })}
+                    <Pressable
+                      onPress={() => setFilterMenuView('root')}
+                      className="mt-1 border-t border-[#f3f4f6] px-4 py-2.5"
+                    >
+                      <Text className="text-center text-sm font-bold text-[#4f46e5]">Done</Text>
+                    </Pressable>
+                  </>
+                )}
+              </>
+            )}
           </View>
         </Pressable>
       </Modal>

@@ -8,8 +8,6 @@ import { getPlaceDetails } from '@/mocks/repository';
 import { RestaurantDetailSchema } from '@/features/restaurant/types';
 import type { Amenity, OpeningHours, Review, RestaurantDetail } from '@/features/restaurant/types';
 
-// Overloaded per set so each rule below still gets a compile-time check
-// against that set's real glyph names.
 function icon(set: 'Ionicons', name: keyof typeof Ionicons.glyphMap): IconSpec;
 function icon(set: 'MaterialCommunityIcons', name: keyof typeof MaterialCommunityIcons.glyphMap): IconSpec;
 function icon(set: 'MaterialIcons', name: keyof typeof MaterialIcons.glyphMap): IconSpec;
@@ -17,11 +15,6 @@ function icon(set: IconSpec['set'], name: string): IconSpec {
   return { set, name } as IconSpec;
 }
 
-/**
- * Presentation-only lookup: turns Google's real (flat) boolean amenity
- * fields into the icon+label pairs the Amenities section actually renders.
- * Not part of the wire contract — Google doesn't send icons.
- */
 const AMENITY_RULES: { flag: keyof GoogleAmenityFields; icon: IconSpec; label: string }[] = [
   { flag: 'delivery', icon: icon('MaterialCommunityIcons', 'moped-outline'), label: 'Delivery' },
   { flag: 'takeout', icon: icon('MaterialCommunityIcons', 'food-takeout-box'), label: 'Takeout' },

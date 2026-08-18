@@ -9,9 +9,6 @@ type DetailHeaderActionsProps = {
   restaurantId: number;
 };
 
-// Simplified to match the reference (share + favorite only) — the previous
-// location/settings icons were redundant with the tappable address row below
-// and an undefined placeholder, respectively; see restaurant.md's changelog.
 export function DetailHeaderActions({ restaurantId }: DetailHeaderActionsProps) {
   const isFavorite = useFavoritesStore((s) => s.isFavorite(restaurantId));
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
