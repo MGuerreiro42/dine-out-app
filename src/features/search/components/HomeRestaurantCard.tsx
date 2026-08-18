@@ -9,11 +9,6 @@ type HomeRestaurantCardProps = {
   onPress: (restaurant: HomeCardData) => void;
 };
 
-/**
- * Search feature's card — visually distinct from the shared `RestaurantCard`
- * (still used by the restaurant detail screen's Similar Places rail). Used by
- * Home's rails and the generic TypeDetailScreen/TypeOverviewScreen grids.
- */
 export function HomeRestaurantCard({ restaurant, onPress }: HomeRestaurantCardProps) {
   const isFavorite = useFavoritesStore((s) => s.isFavorite(restaurant.id));
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
