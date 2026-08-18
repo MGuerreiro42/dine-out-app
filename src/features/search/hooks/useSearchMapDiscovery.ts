@@ -9,6 +9,10 @@ export type MapResultData = Restaurant & {
   tags: string[];
   isOpenNow: boolean;
   hasDelivery: boolean;
+  outdoorSeating: boolean;
+  goodForGroups: boolean;
+  goodForChildren: boolean;
+  servesVegetarianFood: boolean;
 };
 
 function toMapResult(
@@ -25,6 +29,10 @@ function toMapResult(
     tags: [ambientLabel, occasionLabel],
     isOpenNow: restaurant.id % 4 !== 0,
     hasDelivery: restaurant.id % 3 !== 0,
+    outdoorSeating: restaurant.ambient === 'cozy' || restaurant.ambient === 'relaxed',
+    goodForGroups: restaurant.occasion === 'grupo',
+    goodForChildren: restaurant.occasion === 'familia',
+    servesVegetarianFood: restaurant.cuisine === 'mediterraneo' || restaurant.cuisine === 'indiana',
   };
 }
 
