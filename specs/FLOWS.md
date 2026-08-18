@@ -14,7 +14,7 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 **Entry point**: app cold start
 
 1a. App opens → Home tab (`/`) — `search.md` US1 — **Implemented**. No login required or checked anywhere (`auth.md` US2, confirmed true-by-construction — the app never gates on `isLoggedIn`).
-1b. *(optional branch)* Tap "Entrar ou criar conta" (Sidebar header or Profile) → **Flow 2** (Login/Signup).
+1b. *(optional branch)* Tap "Log in or sign up" (Sidebar header or Profile) → **Flow 2** (Login/Signup).
 1c. *(optional branch)* Tap Home's location header → **Flow 11** (Address management) — not started, currently opens a placeholder-message sheet.
 1d. Home is fully usable regardless of 1b/1c — user proceeds into **Flow 3** (Home Discovery).
 
@@ -68,7 +68,7 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 ## Flow 4b — Categories Overview
 
 **Status**: Implemented
-**Entry points**: bottom tab "Categorias", Sidebar "Categorias", **Flow 3** step 3e
+**Entry points**: bottom tab "Categories", Sidebar "Categories", **Flow 3** step 3e
 
 4b-i. Categories Overview grid loads — one square photo card per cuisine — **Implemented**.
 4b-ii. Tap a cuisine card → **Flow 4** (Category Page) for that cuisine — **Implemented**.
@@ -121,7 +121,7 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 ## Flow 7 — Search & Map
 
 **Status**: Implemented
-**Entry points**: bottom tab "Buscar", **Flow 3** step 3i, **Flow 4** step 4c, **Flow 5** step 5c
+**Entry points**: bottom tab "Search", **Flow 3** step 3i, **Flow 4** step 4c, **Flow 5** step 5c
 
 7a. Screen loads — full-screen map + pins, floating search bar, collapsed results sheet — `search.md` US2 — **Implemented**.
 7b. Type in the search bar → live (debounced) filter by name/cuisine on both the pins and the sheet's list — **Implemented**.
@@ -136,9 +136,9 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 **Entry point**: ≡ icon (currently only on Home — `auth.md` notes this is the sidebar's single usage site)
 
 8a. Tap ≡ → sidebar drawer opens — `auth.md` US3 — **Implemented**.
-8b. Header shows a profile summary (logged in, → **Flow 10**) or "Entrar ou criar conta" (logged out, → **Flow 2**) — **Implemented**.
-8c. Tap a nav item (Home / Buscar → **Flow 7** / Categorias → **Flow 4b** / Favoritos → **Flow 10** / Meus pedidos, Minhas reservas, Notificações → **Flow 10**'s placeholders) → navigates, drawer closes — **Implemented**.
-8d. *(logged in only)* Tap "Sair da conta" → immediate logout, no confirmation — **Implemented**.
+8b. Header shows a profile summary (logged in, → **Flow 10**) or "Log in or sign up" (logged out, → **Flow 2**) — **Implemented**.
+8c. Tap a nav item (Home / Search → **Flow 7** / Categories → **Flow 4b** / Favorites → **Flow 10** / My orders, My reservations, Notifications → **Flow 10**'s placeholders) → navigates, drawer closes — **Implemented**.
+8d. *(logged in only)* Tap "Log out" → immediate logout, no confirmation — **Implemented**.
 8e. Tap ✕ or the backdrop → closes without navigating — **Implemented**.
 
 ---
@@ -160,17 +160,17 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 ## Flow 10 — Profile & Account
 
 **Status**: Partial — US1–US2 implemented, US3–US6 not started
-**Entry points**: bottom tab "Perfil", **Flow 8** step 8b/8c, **Flow 6** step 6r, **Flow 2** step 2c
+**Entry points**: bottom tab "Profile", **Flow 8** step 8b/8c, **Flow 6** step 6r, **Flow 2** step 2c
 
 10a. Profile loads — identity + 3 stats (logged in) or "Visitante" + CTA (logged out) — `profile.md` US1 — **Implemented**.
-10b. *(logged out)* Tap "Entrar ou criar conta" → **Flow 2** — **Implemented**.
-10c. *(logged out)* Tap "Explorar restaurantes" / "Buscar no mapa" / "Preferências de notificação" → Home / **Flow 7** / 10h's placeholder — **Implemented**.
+10b. *(logged out)* Tap "Log in or sign up" → **Flow 2** — **Implemented**.
+10c. *(logged out)* Tap "Explore restaurants" / "Search on the map" / "Notification preferences" → Home / **Flow 7** / 10h's placeholder — **Implemented**.
 10d. *(logged in)* Favorites rail renders here → **Flow 9** — **Not Started** (`favorites.md` US2).
-10e. Tap "Meus pedidos" → placeholder screen today ("Em breve"); real order list is `profile.md` US3 — **Not Started**.
-10f. Tap "Minhas reservas" → placeholder today; real list is US4 — **Not Started**.
-10g. Tap "Formas de pagamento" → placeholder today; real list + "Adicionar cartão" is US5 — **Not Started**.
-10h. Tap "Notificações" → placeholder today; real toggles are US6 — **Not Started**.
-10i. Tap "Sair da conta" → immediate logout, screen re-renders as 10a's logged-out state — **Implemented**.
+10e. Tap "My orders" → placeholder screen today ("Coming soon"); real order list is `profile.md` US3 — **Not Started**.
+10f. Tap "My reservations" → placeholder today; real list is US4 — **Not Started**.
+10g. Tap "Payment methods" → placeholder today; real list + "Add card" is US5 — **Not Started**.
+10h. Tap "Notifications" → placeholder today; real toggles are US6 — **Not Started**.
+10i. Tap "Log out" → immediate logout, screen re-renders as 10a's logged-out state — **Implemented**.
 
 ---
 
@@ -181,9 +181,9 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 
 11a. Tap the location header → address list sheet (saved addresses, checkmark on the current one) — **Not Started**.
 11b. Tap a saved address → selects it, closes the sheet — **Not Started**.
-11c. Tap "+ Adicionar novo endereço" → add-address form sheet — **Not Started**.
-11d. Tap "Selecionar no mapa" → `[NEEDS CLARIFICATION: real pin-drop or simulated, like this prototype's other redirect affordances?]` — **Not Started**.
-11e. Fill the form, tap "Salvar endereço" → `[NEEDS CLARIFICATION: does this persist to a store, or simulate like the rest of the prototype?]` — **Not Started**.
+11c. Tap "+ Add new address" → add-address form sheet — **Not Started**.
+11d. Tap "Pick on map" → `[NEEDS CLARIFICATION: real pin-drop or simulated, like this prototype's other redirect affordances?]` — **Not Started**.
+11e. Fill the form, tap "Save address" → `[NEEDS CLARIFICATION: does this persist to a store, or simulate like the rest of the prototype?]` — **Not Started**.
 
 ---
 

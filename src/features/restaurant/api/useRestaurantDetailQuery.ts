@@ -24,17 +24,17 @@ function icon(set: IconSpec['set'], name: string): IconSpec {
  */
 const AMENITY_RULES: { flag: keyof GoogleAmenityFields; icon: IconSpec; label: string }[] = [
   { flag: 'delivery', icon: icon('MaterialCommunityIcons', 'moped-outline'), label: 'Delivery' },
-  { flag: 'takeout', icon: icon('MaterialCommunityIcons', 'food-takeout-box'), label: 'Retirada no local' },
-  { flag: 'dineIn', icon: icon('Ionicons', 'restaurant-outline'), label: 'Consumo no local' },
-  { flag: 'reservable', icon: icon('Ionicons', 'calendar-outline'), label: 'Aceita reservas' },
-  { flag: 'outdoorSeating', icon: icon('Ionicons', 'sunny-outline'), label: 'Área externa' },
-  { flag: 'liveMusic', icon: icon('Ionicons', 'musical-notes-outline'), label: 'Música ao vivo' },
-  { flag: 'goodForGroups', icon: icon('Ionicons', 'people-outline'), label: 'Bom para grupos' },
+  { flag: 'takeout', icon: icon('MaterialCommunityIcons', 'food-takeout-box'), label: 'Takeout' },
+  { flag: 'dineIn', icon: icon('Ionicons', 'restaurant-outline'), label: 'Dine-in' },
+  { flag: 'reservable', icon: icon('Ionicons', 'calendar-outline'), label: 'Accepts reservations' },
+  { flag: 'outdoorSeating', icon: icon('Ionicons', 'sunny-outline'), label: 'Outdoor seating' },
+  { flag: 'liveMusic', icon: icon('Ionicons', 'musical-notes-outline'), label: 'Live music' },
+  { flag: 'goodForGroups', icon: icon('Ionicons', 'people-outline'), label: 'Good for groups' },
   { flag: 'goodForChildren', icon: icon('MaterialIcons', 'child-care'), label: 'Kids friendly' },
-  { flag: 'allowsDogs', icon: icon('MaterialCommunityIcons', 'paw'), label: 'Aceita pets' },
-  { flag: 'wheelchairAccessibleEntrance', icon: icon('Ionicons', 'accessibility-outline'), label: 'Acessível' },
-  { flag: 'servesVegetarianFood', icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Opções vegetarianas' },
-  { flag: 'restroom', icon: icon('MaterialIcons', 'wc'), label: 'Banheiro' },
+  { flag: 'allowsDogs', icon: icon('MaterialCommunityIcons', 'paw'), label: 'Dog friendly' },
+  { flag: 'wheelchairAccessibleEntrance', icon: icon('Ionicons', 'accessibility-outline'), label: 'Accessible' },
+  { flag: 'servesVegetarianFood', icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Vegetarian options' },
+  { flag: 'restroom', icon: icon('MaterialIcons', 'wc'), label: 'Restroom' },
 ];
 
 function mapAmenities(place: PlaceDetails): Amenity[] {

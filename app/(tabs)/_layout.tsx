@@ -35,19 +35,19 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="search"
-        options={{ title: 'Buscar', tabBarIcon: ({ color }) => <TabIcon name="search" color={color} /> }}
+        options={{ title: 'Search', tabBarIcon: ({ color }) => <TabIcon name="search" color={color} /> }}
       />
       <Tabs.Screen
         name="category"
         options={{
-          title: 'Categorias',
+          title: 'Categories',
           href: null,
           tabBarIcon: ({ color }) => <TabIcon name="category" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
-        options={{ title: 'Perfil', tabBarIcon: ({ color }) => <TabIcon name="profile" color={color} /> }}
+        options={{ title: 'Profile', tabBarIcon: ({ color }) => <TabIcon name="profile" color={color} /> }}
       />
     </Tabs>
   );

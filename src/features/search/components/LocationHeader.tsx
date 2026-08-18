@@ -20,9 +20,9 @@ export function LocationHeader() {
       </Pressable>
 
       <BottomSheet visible={open} onClose={() => setOpen(false)}>
-        <Text className="text-center text-sm text-gray-600">Selecione sua localização atual.</Text>
+        <Text className="text-center text-sm text-gray-600">Select your current location.</Text>
         <Pressable onPress={() => setOpen(false)} className="mt-1.5 rounded-xl bg-ink p-3.5">
-          <Text className="text-center text-sm font-bold text-white">Fechar</Text>
+          <Text className="text-center text-sm font-bold text-white">Close</Text>
         </Pressable>
       </BottomSheet>
     </View>

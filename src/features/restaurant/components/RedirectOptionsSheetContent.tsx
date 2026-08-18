@@ -19,7 +19,7 @@ export function RedirectOptionsSheetContent({ title, options }: RedirectOptionsS
       {options.map((option) => (
         <Pressable
           key={option.label}
-          onPress={() => Alert.alert('Simulação', `Redirecionaria para ${option.label}`)}
+          onPress={() => Alert.alert('Demo', `Would redirect to ${option.label}`)}
           className="mb-2.5 flex-row items-center gap-2.5 rounded-xl bg-sand-light p-4"
         >
           <Icon spec={option.icon} size={18} />

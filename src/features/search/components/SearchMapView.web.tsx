@@ -10,5 +10,5 @@ type SearchMapViewProps = {
 // live MapView on web (Metro picks this file over SearchMapView.tsx for the
 // web platform), so restaurants isn't used here.
 export function SearchMapView(_props: SearchMapViewProps) {
-  return <MapPlaceholder message="O mapa interativo está disponível apenas no app nativo (iOS/Android)." />;
+  return <MapPlaceholder message="The interactive map is only available in the native app (iOS/Android)." />;
 }

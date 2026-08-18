@@ -17,7 +17,7 @@ export function InstagramSection({ handle, photos }: InstagramSectionProps) {
           <Text className="text-sm font-bold text-ink">{handle}</Text>
         </View>
         <Pressable
-          onPress={() => Alert.alert('Simulação', 'Abriria o Instagram do restaurante.')}
+          onPress={() => Alert.alert('Demo', "Would open the restaurant's Instagram.")}
           className="rounded-full bg-accent px-4 py-2"
         >
           <Text className="text-xs font-light text-white">OPEN ON INSTAGRAM</Text>

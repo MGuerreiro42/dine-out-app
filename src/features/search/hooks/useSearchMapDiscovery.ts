@@ -23,7 +23,7 @@ function toMapResult(
     ...restaurant,
     cuisineLabel,
     distance: `${(1 + (restaurant.id % 5) * 0.3).toFixed(1)} km`,
-    tagline: `Ambiente ${ambientLabel.toLowerCase()} para ${occasionLabel.toLowerCase()}`,
+    tagline: `${ambientLabel} atmosphere for ${occasionLabel.toLowerCase()}`,
     tags: [ambientLabel, occasionLabel],
     isOpenNow: restaurant.id % 4 !== 0,
     hasDelivery: restaurant.id % 3 !== 0,

@@ -22,7 +22,7 @@ const hasGoogleMapsApiKey = Boolean(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY)
 
 export function SearchMapView({ restaurants, onSelectRestaurant }: SearchMapViewProps) {
   if (!hasGoogleMapsApiKey) {
-    return <MapPlaceholder message="O mapa interativo estará disponível em breve." />;
+    return <MapPlaceholder message="The interactive map will be available soon." />;
   }
 
   return (

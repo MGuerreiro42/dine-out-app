@@ -24,9 +24,9 @@ export function ProfileHeader({ isLoggedIn, userProfile }: ProfileHeaderProps) {
           <View className="h-[72px] w-[72px] items-center justify-center rounded-full bg-[#2a2622]">
             <Icon spec={{ set: 'Ionicons', name: 'person-circle-outline' }} size={40} color="#8a8580" />
           </View>
-          <Text className="text-base font-bold text-white">Visitante</Text>
+          <Text className="text-base font-bold text-white">Guest</Text>
           <Text className="max-w-[260px] text-center text-xs text-[#bdb6ae]">
-            Entre para acessar favoritos, pedidos e reservas
+            Log in to access favorites, orders and reservations
           </Text>
         </View>
       )}

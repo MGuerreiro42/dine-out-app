@@ -128,7 +128,7 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 
 ### Edge Cases
 
-- **Restaurant id doesn't exist in mock data**: **Resolved during US1 implementation** — renders a plain "Restaurante não encontrado" message instead of crashing. Not a designed empty state (no illustration, no back-to-Home action) — revisit if this becomes reachable in practice rather than a theoretical guard.
+- **Restaurant id doesn't exist in mock data**: **Resolved during US1 implementation** — renders a plain "Restaurant not found" message instead of crashing. Not a designed empty state (no illustration, no back-to-Home action) — revisit if this becomes reachable in practice rather than a theoretical guard.
 - **No previous screen to go back to** (fresh page load or deep link directly into `/restaurant/[id]`): **Resolved** — the back control checks `router.canGoBack()` first and navigates to Home instead of an unhandled `GO_BACK` action. Real, not theoretical: caught via an actual dev-console warning after a browser hard-refresh on a detail screen.
 - **Description shorter than the truncation threshold**: "see more" control should not render at all (nothing to expand).
 - **Zero reviews**: **Resolved pragmatically during US4 implementation**: `ReviewsSection` renders nothing at all if `reviews.length === 0` (no preview, no rating header, no "view all" control) — same "hide if nothing to show" treatment already established for `AmenitiesSection`'s "show all N amenities" button. Every mock restaurant has reviews today, so this is a defensive guard, not a designed empty state; revisit if a real backend can ever return zero reviews for a place users can reach.
@@ -166,7 +166,7 @@ A user can mark a restaurant as a favorite (or remove it) directly from the deta
 - **RestaurantDetail**: the full record for a single restaurant — extends the base `Restaurant` shape (id, name, photo, rating, priceLevel) used elsewhere in the app with everything the detail screen needs: `photos` (gallery, plural), `description`, `tags`, `addressShort`, `reviewCount`, `amenities`, `highlights`, `thingsToKnow`, `instagram` (handle), `reviews`, `openingHours`. **US3 added** `phone`, `whatsapp`, `instagramHandle` (scalar contact fields, resolving FR-017's data gap — `instagramHandle` is just the string here, the full grid+follow UI is still US5).
 - **MenuItem**: a single line in the Menu sheet — name, price (display string, e.g. `"R$ 89"` — not a structured currency amount at this stage).
 - **Review**: a single review — reviewer name, relative time, star rating, text. The avatar's "initial" isn't a stored field — components derive it from `name.charAt(0)`, avoiding a value that could drift out of sync with the name.
-- **Amenity**: an icon + label pair (e.g. "📶 Wifi grátis").
+- **Amenity**: an icon + label pair (e.g. "📶 Free Wifi").
 - **ThingToKnow**: a title + text pair (e.g. "Cancellation policy" / the policy text).
 - **OpeningHours**: a day + hours-range pair, one per day of the week.
 

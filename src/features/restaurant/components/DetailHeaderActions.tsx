@@ -19,7 +19,7 @@ export function DetailHeaderActions({ restaurantId }: DetailHeaderActionsProps) 
   return (
     <View className="absolute right-3.5 top-3.5 gap-2">
       <Pressable
-        onPress={() => Alert.alert('Simulação', 'Compartilhar este restaurante')}
+        onPress={() => Alert.alert('Demo', 'Share this restaurant')}
         className={ICON_BUTTON_CLASS}
       >
         <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={16} color="#374151" />
