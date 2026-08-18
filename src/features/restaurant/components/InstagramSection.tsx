@@ -10,9 +10,6 @@ export function InstagramSection({ handle, photos }: InstagramSectionProps) {
     <View className="border-t border-gray-100 px-4 py-5">
       <View className="mb-3 flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          {/* Solid brand-ish color instead of the design's gradient circle —
-              no gradient utility without adding expo-linear-gradient, and this
-              is purely decorative */}
           <View className="h-8 w-8 rounded-full bg-[#c1348a]" />
           <Text className="text-sm font-bold text-ink">{handle}</Text>
         </View>

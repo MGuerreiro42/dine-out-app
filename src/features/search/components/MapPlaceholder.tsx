@@ -28,10 +28,6 @@ const BLOCKS: { top: Percent; left: Percent; width: Percent; height: Percent }[]
   { top: '80%', left: '46%', width: '20%', height: '8%' },
 ];
 
-// A flat, schematic map look — the same "streets + building blocks" idea the
-// design canvas itself fakes with SVG rects/lines for its own static
-// prototype — recreated with plain Views instead, no image asset or new
-// dependency (react-native-svg isn't installed).
 function MapBackdrop() {
   return (
     <View className="absolute inset-0 overflow-hidden bg-[#e9e4da]">
@@ -52,9 +48,6 @@ type MapPlaceholderProps = {
   message: string;
 };
 
-/** Shared by both "no real map here" cases: web (react-native-maps has no
- * web renderer at all) and, for now, native Android too (crashes hard on
- * mount without a Google Maps API key — see SearchMapView.tsx). */
 export function MapPlaceholder({ message }: MapPlaceholderProps) {
   return (
     <View className="flex-1 items-center justify-center px-8">
