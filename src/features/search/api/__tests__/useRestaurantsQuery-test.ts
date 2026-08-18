@@ -34,10 +34,10 @@ test('filters by name via the Text Search (New) mock endpoint', async () => {
 });
 
 test('filters by cuisine label via the Text Search (New) mock endpoint', async () => {
-  const { result } = await renderHook(() => useRestaurantsQuery('churrasco'), { wrapper: createWrapper() });
+  const { result } = await renderHook(() => useRestaurantsQuery('brazilian'), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
   expect(result.current.data?.length).toBeGreaterThan(0);
-  expect(result.current.data?.every((r) => r.cuisine === 'churrasco')).toBe(true);
+  expect(result.current.data?.every((r) => r.cuisine === 'brazilian')).toBe(true);
 });

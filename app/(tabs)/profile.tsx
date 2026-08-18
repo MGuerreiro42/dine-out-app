@@ -9,11 +9,11 @@ import { useAuthStore } from '@/stores/auth';
 import { useFavoritesStore } from '@/stores/favorites';
 
 const ACCOUNT_OPTIONS: AccountOption[] = [
-  { id: 'orders', label: 'Meus pedidos' },
-  { id: 'reservations', label: 'Minhas reservas' },
-  { id: 'payment', label: 'Formas de pagamento' },
-  { id: 'notifications', label: 'Notificações' },
-  { id: 'logout', label: 'Sair da conta', danger: true },
+  { id: 'orders', label: 'My orders' },
+  { id: 'reservations', label: 'My reservations' },
+  { id: 'payment', label: 'Payment methods' },
+  { id: 'notifications', label: 'Notifications' },
+  { id: 'logout', label: 'Log out', danger: true },
 ];
 
 const ACCOUNT_OPTION_ROUTES: Record<string, string> = {
@@ -52,9 +52,9 @@ export default function ProfileScreen() {
   if (isError) {
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
-        <Text className="text-center text-sm text-muted">Não foi possível carregar o perfil.</Text>
+        <Text className="text-center text-sm text-muted">Couldn't load profile.</Text>
         <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
-          <Text className="text-sm font-bold text-white">Tentar de novo</Text>
+          <Text className="text-sm font-bold text-white">Try again</Text>
         </Pressable>
       </View>
     );

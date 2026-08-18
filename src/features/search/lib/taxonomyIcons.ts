@@ -1,11 +1,11 @@
 import type { IconSpec } from '@/components/ui';
 
 export const CUISINE_ICONS: Record<string, IconSpec> = {
-  churrasco: { set: 'Ionicons', name: 'flame-outline' },
-  mediterraneo: { set: 'Ionicons', name: 'nutrition-outline' },
-  italiana: { set: 'Ionicons', name: 'pizza-outline' },
-  indiana: { set: 'MaterialCommunityIcons', name: 'chili-hot-outline' },
-  chinesa: { set: 'MaterialCommunityIcons', name: 'noodles' },
+  brazilian: { set: 'Ionicons', name: 'flame-outline' },
+  mediterranean: { set: 'Ionicons', name: 'nutrition-outline' },
+  italian: { set: 'Ionicons', name: 'pizza-outline' },
+  indian: { set: 'MaterialCommunityIcons', name: 'chili-hot-outline' },
+  chinese: { set: 'MaterialCommunityIcons', name: 'noodles' },
 };
 export const DEFAULT_CUISINE_ICON: IconSpec = { set: 'Ionicons', name: 'restaurant-outline' };
 

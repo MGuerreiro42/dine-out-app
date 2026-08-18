@@ -19,18 +19,18 @@ const PHOTOS = {
 };
 
 export const CUISINES: Cuisine[] = [
-  { id: 'churrasco', label: 'Churrasco', photo: PHOTOS.r1 },
-  { id: 'mediterraneo', label: 'Mediterrâneo', photo: PHOTOS.r2 },
-  { id: 'italiana', label: 'Italiana', photo: PHOTOS.r3 },
-  { id: 'indiana', label: 'Indiana', photo: PHOTOS.r4 },
-  { id: 'chinesa', label: 'Chinesa', photo: PHOTOS.r5 },
+  { id: 'brazilian', label: 'Brazilian BBQ', photo: PHOTOS.r1 },
+  { id: 'mediterranean', label: 'Mediterranean', photo: PHOTOS.r2 },
+  { id: 'italian', label: 'Italian', photo: PHOTOS.r3 },
+  { id: 'indian', label: 'Indian', photo: PHOTOS.r4 },
+  { id: 'chinese', label: 'Chinese', photo: PHOTOS.r5 },
 ];
 
 export const OCCASIONS: Occasion[] = [
-  { id: 'encontro', label: 'Encontro', icon: icon('Ionicons', 'heart-outline') },
-  { id: 'grupo', label: 'Grupo grande', icon: icon('Ionicons', 'people-outline') },
-  { id: 'familia', label: 'Família', icon: icon('MaterialCommunityIcons', 'human-male-female-child') },
-  { id: 'musica', label: 'Música ao vivo', icon: icon('Ionicons', 'musical-notes-outline') },
+  { id: 'date', label: 'Date', icon: icon('Ionicons', 'heart-outline') },
+  { id: 'group', label: 'Large group', icon: icon('Ionicons', 'people-outline') },
+  { id: 'family', label: 'Family', icon: icon('MaterialCommunityIcons', 'human-male-female-child') },
+  { id: 'music', label: 'Live music', icon: icon('Ionicons', 'musical-notes-outline') },
 ];
 
 export const AMBIENTS: Ambient[] = [
@@ -41,36 +41,36 @@ export const AMBIENTS: Ambient[] = [
 ];
 
 export const BENEFITS: Benefit[] = [
-  { text: 'Melhor avaliados da região' },
-  { text: 'Reserva instantânea' },
-  { text: 'Estacionamento garantido' },
-  { text: 'Pagamento seguro' },
+  { text: 'Top rated in the area' },
+  { text: 'Instant booking' },
+  { text: 'Guaranteed parking' },
+  { text: 'Secure payment' },
 ];
 
 export const CATEGORY_SUBTYPES: Record<string, CategorySubtype[]> = {
-  churrasco: [
-    { icon: icon('MaterialCommunityIcons', 'grill'), label: 'Rodízio' },
-    { icon: icon('MaterialCommunityIcons', 'fire'), label: 'Espetos' },
+  brazilian: [
+    { icon: icon('MaterialCommunityIcons', 'grill'), label: 'All-you-can-eat' },
+    { icon: icon('MaterialCommunityIcons', 'fire'), label: 'Skewers' },
     { icon: icon('MaterialCommunityIcons', 'food-steak'), label: 'Prime cuts' },
   ],
-  mediterraneo: [
+  mediterranean: [
     { icon: icon('MaterialCommunityIcons', 'bowl-mix'), label: 'Mezze' },
-    { icon: icon('MaterialCommunityIcons', 'grill'), label: 'Grelhados' },
-    { icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Vegetariano' },
+    { icon: icon('MaterialCommunityIcons', 'grill'), label: 'Grilled' },
+    { icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Vegetarian' },
   ],
-  italiana: [
-    { icon: icon('MaterialCommunityIcons', 'pasta'), label: 'Massas' },
-    { icon: icon('MaterialCommunityIcons', 'pizza'), label: 'Pizzas' },
-    { icon: icon('MaterialCommunityIcons', 'rice'), label: 'Risotos' },
+  italian: [
+    { icon: icon('MaterialCommunityIcons', 'pasta'), label: 'Pasta' },
+    { icon: icon('MaterialCommunityIcons', 'pizza'), label: 'Pizza' },
+    { icon: icon('MaterialCommunityIcons', 'rice'), label: 'Risotto' },
   ],
-  indiana: [
+  indian: [
     { icon: icon('MaterialCommunityIcons', 'pot-mix'), label: 'Curry' },
     { icon: icon('MaterialCommunityIcons', 'fire'), label: 'Tandoori' },
-    { icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Vegetariano' },
+    { icon: icon('MaterialCommunityIcons', 'leaf'), label: 'Vegetarian' },
   ],
-  chinesa: [
+  chinese: [
     { icon: icon('MaterialCommunityIcons', 'bowl-mix'), label: 'Dim Sum' },
     { icon: icon('MaterialCommunityIcons', 'pan'), label: 'Wok' },
-    { icon: icon('MaterialCommunityIcons', 'duck'), label: 'Pato' },
+    { icon: icon('MaterialCommunityIcons', 'duck'), label: 'Duck' },
   ],
 };

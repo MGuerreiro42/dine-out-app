@@ -23,7 +23,7 @@ export function PlaceholderScreen({ title, fallbackRoute }: PlaceholderScreenPro
         <Text className="text-lg font-bold text-ink">{title}</Text>
       </View>
       <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-center text-sm text-muted">Em breve.</Text>
+        <Text className="text-center text-sm text-muted">Coming soon.</Text>
       </View>
     </View>
   );

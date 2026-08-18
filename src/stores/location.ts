@@ -2,8 +2,8 @@ import * as Location from 'expo-location';
 import { create } from 'zustand';
 
 export const FALLBACK_LOCATION = { latitude: -23.561, longitude: -46.656 };
-const FALLBACK_LABEL = 'Localização indisponível';
-const GENERIC_RESOLVED_LABEL = 'Localização atual';
+const FALLBACK_LABEL = 'Location unavailable';
+const GENERIC_RESOLVED_LABEL = 'Current location';
 const LOCATION_TIMEOUT_MS = 5000;
 
 type LocationStatus = 'resolved' | 'fallback';

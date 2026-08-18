@@ -38,9 +38,9 @@ export default function RestaurantDetailScreen() {
   if (isError) {
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
-        <Text className="text-center text-sm text-muted">Não foi possível carregar o restaurante.</Text>
+        <Text className="text-center text-sm text-muted">Couldn't load restaurant.</Text>
         <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
-          <Text className="text-sm font-bold text-white">Tentar de novo</Text>
+          <Text className="text-sm font-bold text-white">Try again</Text>
         </Pressable>
       </View>
     );
@@ -49,7 +49,7 @@ export default function RestaurantDetailScreen() {
   if (!restaurant) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-sm text-muted">Restaurante não encontrado.</Text>
+        <Text className="text-sm text-muted">Restaurant not found.</Text>
       </View>
     );
   }
@@ -104,7 +104,7 @@ export default function RestaurantDetailScreen() {
               onPress={() => setDescriptionExpanded((expanded) => !expanded)}
               className="flex-row items-center gap-1 py-1"
             >
-              <Text className="text-[15px] font-bold text-ink">{descriptionExpanded ? 'ver menos' : 'ver mais'}</Text>
+              <Text className="text-[15px] font-bold text-ink">{descriptionExpanded ? 'show less' : 'show more'}</Text>
               <Icon spec={{ set: 'Ionicons', name: descriptionExpanded ? 'chevron-up' : 'chevron-down' }} size={14} />
             </Pressable>
           ) : null}
@@ -157,8 +157,8 @@ export default function RestaurantDetailScreen() {
 
       <BottomSheet visible={addressSheetOpen} onClose={() => setAddressSheetOpen(false)}>
         <RedirectOptionsSheetContent
-          title="Endereço"
-          options={[{ icon: { set: 'Ionicons', name: 'map-outline' }, label: 'Abrir no Google Maps' }]}
+          title="Address"
+          options={[{ icon: { set: 'Ionicons', name: 'map-outline' }, label: 'Open in Google Maps' }]}
         />
       </BottomSheet>
     </View>

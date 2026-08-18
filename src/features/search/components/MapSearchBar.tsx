@@ -18,7 +18,7 @@ export function MapSearchBar({ value, onChangeText }: MapSearchBarProps) {
         <TextInput
           value={value}
           onChangeText={onChangeText}
-          placeholder="Buscar restaurantes..."
+          placeholder="Search restaurants..."
           placeholderTextColor="#8a8580"
           className="flex-1 text-sm text-ink"
         />
