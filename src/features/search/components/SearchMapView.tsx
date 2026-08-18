@@ -1,4 +1,4 @@
-import { Camera, Map, Marker } from '@maplibre/maplibre-react-native';
+import { Camera, Map as MapLibreMap, Marker } from '@maplibre/maplibre-react-native';
 import type { StyleSpecification } from '@maplibre/maplibre-react-native';
 import { View } from 'react-native';
 
@@ -31,7 +31,7 @@ const OSM_RASTER_STYLE: StyleSpecification = {
 
 export function SearchMapView({ restaurants, onSelectRestaurant }: SearchMapViewProps) {
   return (
-    <Map style={{ flex: 1 }} mapStyle={OSM_RASTER_STYLE}>
+    <MapLibreMap style={{ flex: 1 }} mapStyle={OSM_RASTER_STYLE}>
       <Camera
         initialViewState={{
           center: [MOCK_LOCATION.longitude, MOCK_LOCATION.latitude],
@@ -47,6 +47,6 @@ export function SearchMapView({ restaurants, onSelectRestaurant }: SearchMapView
           <View className="h-6 w-6 rounded-full border-2 border-white bg-[#208AEF]" />
         </Marker>
       ))}
-    </Map>
+    </MapLibreMap>
   );
 }
