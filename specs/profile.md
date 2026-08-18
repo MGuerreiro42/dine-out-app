@@ -5,15 +5,9 @@
 **Status**: In Progress — US1 and US2 Implemented; US3-6 not started
 **Design reference**: `App Flow.dc.html`, frames "6 · Profile" (implemented), "8 · My Orders", "9 · My Reservations", "10 · Payment Methods", "11 · Notifications" (pending — real routes exist today as `PlaceholderScreen`)
 
-<!--
-Naming note: PROJECT.md's "Known gap" left this open between `profile` and `account`. Chosen `profile`
-to match the existing route (`app/(tabs)/profile.tsx`) and this project's route-name = feature-name
-pattern. Low-cost to rename later if wrong.
--->
-
 ## Summary
 
-Everything on the Profile tab that isn't the favorites rail (that's `favorites.md`'s US2 — this spec composes the same route but doesn't redefine that part). Covers identity (avatar, name, email, activity stats — with a logged-out "Visitante" alternative) and the account menu, which navigates to four real routes (Orders, Reservations, Payment Methods, Notifications; currently placeholders, real content is US3-6). "Sair da conta" performs a real logout via `stores/auth.ts` (built as part of this spec, ahead of `auth.md` itself).
+Everything on the Profile tab that isn't the favorites rail (`favorites.md`'s User Story 2 — this spec composes the same route but doesn't redefine that part). Covers identity (avatar, name, email, activity stats, with a logged-out "Visitante" alternative) and the account menu, which navigates to four routes (Orders, Reservations, Payment Methods, Notifications; currently placeholders, real content is US3-6). "Sair da conta" performs a real logout via `stores/auth.ts`.
 
 ## User Stories
 
@@ -106,8 +100,7 @@ A user taps "Notificações" and sees notification categories, each with a real,
 
 ### Edge Cases
 
-- **Favorites count**: real from day one — `stores/favorites.ts` was built as part of this round, ahead of `favorites.md` itself.
-- **Orders/reservations counts**: hardcoded `0` — US3-4's mock lists don't exist yet. Revisit once they land.
+- **Orders/reservations counts**: hardcoded `0` — US3-4's mock lists don't exist yet.
 - **The 4 account-menu destinations are `PlaceholderScreen` routes today** — real routes exist (FR-006 is genuinely true) but content is still US3-6.
 - **Long user name/email**: no truncation specified by the design — default to platform wrap/truncate unless it visibly breaks layout.
 - **Empty orders/reservations lists**: not reachable today (mock always has 2-3 entries). `[NEEDS CLARIFICATION: should My Orders/My Reservations show an explicit empty state if the mock were empty?]`
@@ -153,9 +146,9 @@ A user taps "Notificações" and sees notification categories, each with a real,
 - **Feature folder — Implemented**: `src/features/profile/{api,components,types}`, no `stores/`/`hooks/` — navigation/press behavior lives in the route file.
 - **Components**: `ProfileHeader` (branches on `isLoggedIn`), `ProfileStats`, `AccountOptionsList` (`options` + `onPress(id)`), `LoggedOutPrompt`. `app/(tabs)/profile.tsx` owns all navigation.
 - **Shared `src/components/ui/PlaceholderScreen.tsx`**: back-header + "Em breve." — 5 call sites this round (4 account-menu destinations + `app/login.tsx`), replaced screen-by-screen as US3-6/`auth.md` land.
-- **Global state — both built this round, ahead of their owning specs**:
-  - `src/stores/favorites.ts` — `{favoriteIds, toggleFavorite(id), isFavorite(id)}`, no persistence, matches `favorites.md`'s spec exactly.
-  - `src/stores/auth.ts` — `{isLoggedIn, login(), logout()}`, matches `auth.md`'s spec exactly. Default `isLoggedIn: true` (matches the design's demo mock).
+- **Global state**:
+  - `src/stores/favorites.ts` — `{favoriteIds, toggleFavorite(id), isFavorite(id)}`, no persistence, contract owned by `favorites.md`.
+  - `src/stores/auth.ts` — `{isLoggedIn, login(), logout()}`, contract owned by `auth.md`. Default `isLoggedIn: true`.
 - **Types**: `UserProfile` in shared `src/types/userProfile.ts` (stat counts derived, not entity fields). `AccountOption` stays in `src/features/profile/types/`.
 - **Mocks**: `src/mocks/currentUser.ts` (one `UserProfile` record), `useCurrentUserQuery.ts` mirrors `useDiscoveryTaxonomiesQuery.ts`. `orders.ts`/`reservations.ts`/`paymentMethods.ts`/`notificationSettings.ts` deferred to US3-6.
 - **Routes — Implemented**: `app/(tabs)/profile.tsx` (US1-2). `app/profile/{orders,reservations,payment,notifications}.tsx` and `app/login.tsx` exist as real `PlaceholderScreen` routes.
@@ -192,3 +185,4 @@ A user taps "Notificações" and sees notification categories, each with a real,
 | 2026-07-23 | Design update: 4 of 5 account options now navigate to real screens (not sheets); added US3-6. |
 | 2026-07-23 | Design added Sidebar Menu + Login frames (`auth.md` created); corrected FR-007 — logout is real, not simulated. Promoted `UserProfile`/`currentUser` to shared `src/types/`/`src/mocks/`. |
 | 2026-07-24 | US1-2 implemented (`feat/profile-menu`). Built `stores/favorites.ts` and `stores/auth.ts` this round, ahead of their owning specs. Orders/reservations stats hardcoded `0`. New shared `PlaceholderScreen.tsx`. |
+| 2026-08-18 | Rewritten for tone — narrative/historical framing removed from body sections, consolidated into this Changelog. |

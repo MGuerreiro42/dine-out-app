@@ -39,21 +39,21 @@ Cross-feature index, not a feature spec — shows how screens chain together for
 **Status**: Partial (core browsing implemented; several branch destinations not started)
 **Entry point**: Home tab (also **Flow 1**'s landing point)
 
-3a. Home renders — cuisine/occasion/ambient rails, featured banner, "Best Deliveries" rail — `search.md` US1 — **Implemented**. *(The old Dine-in/Bars/Takeout quick-nav icons and institutional benefits grid no longer exist — removed, see `search.md` FR-008/FR-009.)*
+3a. Home renders — cuisine/occasion/ambient rails, featured banner, "Best Deliveries" rail — `search.md` US1 — **Implemented**.
 3b. Switch the active cuisine/occasion/ambient chip → the corresponding rail updates — **Implemented**.
 3c. Tap any restaurant card (any rail) → **Flow 6** (Restaurant Detail).
 3d. Tap the cuisine rail's "view {cuisine} page" link → **Flow 4** (Category Page), that cuisine preselected — **Implemented**.
 3e. Tap the cuisine rail's "view all cuisines" link → **Flow 4b** (Categories Overview) — **Implemented**.
 3f. Tap the occasion rail's "View all occasions" or "View more" link → **Flow 5** (Occasion Page) — **Implemented**.
 3h. Tap the location header → **Flow 11** (Location) — **Not Started** (`search.md` US4; today the sheet shows placeholder content).
-3i. Tap the search bar → navigates to **Flow 7** (Search) — **Implemented** (the bar itself is a non-editable tap target here, not an inline filter — see `search.md`'s FR-022 correction).
+3i. Tap the search bar → navigates to **Flow 7** (Search) — **Implemented**. The bar itself is a non-editable tap target here, not an inline filter.
 3j. Tap the ≡ menu icon → **Flow 8** (Sidebar).
 
 ---
 
 ## Flow 4 — Category Page (per cuisine)
 
-**Status**: Implemented, at `/type/cuisine/{id}` — **note**: this flow's steps still describe US3's original per-cuisine implementation, which `search.md` itself flags as stale (deleted 2026-08-12, replaced by the dimension-agnostic `TypeDetailScreen` also serving Flow 5/occasion — see that spec's own not-yet-done correction note)
+**Status**: Implemented, at `/type/cuisine/{id}`
 **Entry points**: **Flow 3** step 3d; **Flow 4b** step 4b-ii
 
 4a. Category page loads with the active cuisine (hero banner, best-rated/trending/near-you grids) — `search.md` US3 — **Implemented**.
@@ -110,13 +110,11 @@ Cross-feature index, not a feature spec — shows how screens chain together for
 6s. Tap the header share icon → simulated feedback — **Implemented**.
 6t. Tap the like/favorite icon → toggles the global favorites store, reflected in **Flow 9** — **Implemented** (`restaurant.md` US7, via `DetailHeaderActions.tsx`).
 
-*(The header's location/settings/profile icons, 6p-6r in an earlier version of this flow, were dropped from the shipped header overlay by the `feat/restaurant-detail-redesign` round — the address row (6l) still covers the location action; settings/profile-link have no remaining entry point on this screen.)*
-
 ---
 
 ## Flow 7 — Search
 
-**Status**: Implemented (no map — removed 2026-08-12, see `search.md` US2)
+**Status**: Implemented
 **Entry points**: bottom tab "Buscar", **Flow 3** step 3i, **Flow 4** step 4c, **Flow 5** step 5d
 
 7a. Screen loads — result count, Sort control, Filters chip, a scrollable list of restaurant cards — `search.md` US2 — **Implemented**.
@@ -149,8 +147,6 @@ Cross-feature index, not a feature spec — shows how screens chain together for
 9c. Tap a favorited card → **Flow 6** — **Not Started** (blocked on 9b).
 9d. Unfavorite it (6t again) → disappears from the rail on next render — **Not Started** (blocked on 9b).
 
-*(Zero favorites → the rail's empty state is itself `[NEEDS CLARIFICATION]` in `favorites.md` — exact copy/visual isn't specified by the design.)*
-
 ---
 
 ## Flow 10 — Profile & Account
@@ -172,7 +168,7 @@ Cross-feature index, not a feature spec — shows how screens chain together for
 
 ## Flow 11 — Location
 
-**Status**: Not Started (`search.md` US4 — superseded 2026-08-17 design: no saved-address list/form, GPS-only)
+**Status**: Not Started (`search.md` User Story 4)
 **Entry point**: **Flow 3** step 3h / **Flow 1** step 1c
 
 11a. App opens, location permission granted → real GPS coordinate resolves into `src/stores/location.ts`, `LocationHeader` shows the reverse-geocoded label — **Not Started**.

@@ -2,7 +2,7 @@
 
 **Feature**: `favorites` — folder `src/features/favorites/`
 **Created**: 2026-07-23
-**Status**: Draft
+**Status**: In Progress — User Story 1 Implemented (`stores/favorites.ts`, the like icon per `restaurant.md` US7); User Story 2 (Profile rail) designed, not implemented
 **Design reference**: `App Flow.dc.html`, frame "6 · Profile" (favorites rail) and frame "2 · Restaurant Detail" (like toggle, spec'd in `restaurant.md`, contract owned here)
 
 ## Summary
@@ -11,7 +11,7 @@ The mechanism by which a user marks restaurants as favorites and later finds the
 
 ## User Stories
 
-### User Story 1 - Favorited state persists across the app (Priority: P1)
+### User Story 1 - Favorited state persists across the app (Priority: P1) — Implemented
 
 Once a user favorites a restaurant from anywhere in the app, that fact is available everywhere else in the app that cares about it — the detail screen's heart icon, the Profile favorites rail, and any future entry point — without each place tracking its own separate copy.
 
@@ -24,11 +24,11 @@ Once a user favorites a restaurant from anywhere in the app, that fact is availa
 1. **Given** no restaurants are favorited, **when** the app starts, **then** the favorites store reports an empty set and the Profile favorites rail renders its empty state.
 2. **Given** a restaurant is favorited from its detail screen, **when** the user opens Profile, **then** that restaurant appears in the favorites rail.
 3. **Given** a restaurant is favorited, **when** the user unfavorites it (from wherever the toggle is exposed), **then** it's removed from the favorites rail on next render, and the detail screen's heart icon (if revisited) reflects the change.
-4. **Given** the app is closed and reopened, **when** it restarts, **then** favorited state does NOT need to survive the restart at this stage — in-memory-only is acceptable. **Resolved** (was `[NEEDS CLARIFICATION]`): no local persistence (no `AsyncStorage`/`persist` middleware) for now. Favorites will eventually belong to the user account once login exists — see the Future Direction note in Architecture Mapping below — so persisting them client-side now would be throwaway work.
+4. **Given** the app is closed and reopened, **when** it restarts, **then** favorited state does NOT need to survive the restart — in-memory-only, no `AsyncStorage`/`persist` middleware.
 
 ---
 
-### User Story 2 - Browse my favorites from Profile (Priority: P2)
+### User Story 2 - Browse my favorites from Profile (Priority: P2) — Designed, not implemented
 
 A user checks the Profile screen and sees the restaurants they've favorited, as a horizontal rail of cards, and can tap into any of them to revisit the detail screen.
 
@@ -40,15 +40,14 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 
 1. **Given** one or more restaurants are favorited, **when** the Profile screen renders, **then** the favorites rail shows a card per favorited restaurant.
 2. **Given** the favorites rail, **when** the user taps a card, **then** the app navigates to that restaurant's detail screen.
-3. **Given** zero restaurants are favorited, **when** the Profile screen renders, **then** the favorites rail area shows an explicit empty state rather than rendering nothing / an empty gap — **Resolved** (was `[NEEDS CLARIFICATION]`): no design mockup exists for this state, so a minimal default was chosen rather than blocking on it. A centered block replaces the rail's card row: a muted outline heart icon (`Icon`, reusing the same `Ionicons` `heart-outline` glyph the like button itself uses — no new asset), the line "Você ainda não tem favoritos," and a subtitle "Toque no coração de um restaurante para salvá-lo aqui." An "Explorar restaurantes" link to Home, matching `LoggedOutPrompt`'s existing link convention — added after PO review found the original "no CTA" reasoning left the user with no next step.
+3. **Given** zero restaurants are favorited, **when** the Profile screen renders, **then** the favorites rail area shows an explicit empty state: a muted outline heart icon (`Ionicons` `heart-outline`), "Você ainda não tem favoritos," a subtitle "Toque no coração de um restaurante para salvá-lo aqui," and an "Explorar restaurantes" link to Home.
 
 ---
 
 ### Edge Cases
 
-- **A favorited restaurant's id no longer resolves** in the mock data (e.g. mock data changes during development): the favorites rail's card-rendering must not crash — either filter the id out silently or show a broken-entry placeholder. Not specified by the design; default to filtering silently unless told otherwise.
-- **Toggling the same restaurant rapidly** (double-tap the like icon): must not leave the store in an inconsistent state — the final state must match the actual number of taps (odd = favorited, even = not), not the number of renders.
-- **Favoriting the same restaurant from two places "simultaneously"** (not really possible in this app's current single-screen-at-a-time navigation, but worth stating): the store is a single source of truth, so this isn't actually a race condition here — noted for completeness, not because it's a real risk yet.
+- **A favorited restaurant's id no longer resolves** in the mock data: the favorites rail filters the id out silently rather than crashing or showing a broken entry.
+- **Toggling the same restaurant rapidly** (double-tap the like icon): final state matches the actual number of taps (odd = favorited, even = not), not the number of renders.
 
 ## Functional Requirements
 
@@ -57,8 +56,8 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 - **FR-003**: The system MUST provide a way to check whether a given restaurant id is currently favorited.
 - **FR-004**: The system MUST display, inside the Profile screen, a horizontal rail of the currently favorited restaurants as cards.
 - **FR-005**: The user MUST be able to tap a favorited-restaurant card and navigate to its detail screen.
-- **FR-006 — Resolved**: The system MUST show an explicit empty state in the favorites rail area when no restaurants are favorited — copy/visual defined above in User Story 2's acceptance scenario 3 (was `[NEEDS CLARIFICATION]`).
-- **FR-007**: Favorited state does NOT need to persist across app restarts at this stage — in-memory only, resettable on reload. This is deliberate, not a shortcut: real persistence will be tied to the user account once authentication exists (see Architecture Mapping's Future Direction note), so a client-side persistence layer built now would be replaced, not extended.
+- **FR-006**: The system MUST show an explicit empty state in the favorites rail area when no restaurants are favorited — copy/visual defined in User Story 2's acceptance scenario 3.
+- **FR-007**: Favorited state MUST NOT persist across app restarts — in-memory only, resettable on reload. Real persistence is tied to a user account once authentication exists (see Architecture Mapping).
 
 ### Key Entities
 
@@ -72,8 +71,8 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 
 ## Architecture Mapping
 
-- **Feature folder**: `src/features/favorites/{api,components,types}`. The scaffolded `stores/` placeholder in this folder **stays empty** — this is intentional, not an oversight: the actual state lives in `src/stores/favorites.ts` (global), because it's read and written by `restaurant` too, and features can't import each other's local stores. `favorites` is the feature that *owns the contract* for that global store, not the folder it physically lives in.
-- **`src/stores/favorites.ts` (global, Zustand) — this spec is where its contract is defined, already implemented**: built in `profile.md`'s round (`feat/profile-menu`), ahead of this spec and ahead of `restaurant.md`'s US7 too — the user chose to build it early so Profile's favorites-count stat would be real from day one, rather than a `0` placeholder. Contract matches exactly what's defined below, no drift:
+- **Feature folder**: `src/features/favorites/{api,components,types}`. The scaffolded `stores/` placeholder stays empty — the actual state lives in `src/stores/favorites.ts` (global), read and written by `restaurant` too. `favorites` owns the contract for that global store, not the folder it lives in.
+- **`src/stores/favorites.ts`** (global, Zustand), contract owned by this spec:
   ```ts
   type FavoritesStore = {
     favoriteIds: Set<number>;
@@ -83,11 +82,11 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
   ```
   Any feature needing favorited state (`restaurant` for the like icon, `favorites` for the rail) reads/writes this store directly — neither imports the other.
 - **Reuses from `src/components/ui/`**: `RestaurantCard`, `HorizontalRail`.
-- **Fetching favorited restaurants' full data**: `favoriteIds` only holds ids. `features/favorites/api/useFavoriteRestaurantsQuery.ts` calls `src/mocks/repository.ts`'s `getNearbyPlaces()` directly (same entry point `search`'s `useRestaurantsQuery` calls) and filters the resolved `Restaurant[]` by `favoriteIds` — small deliberate duplication rather than `favorites` importing `search`'s hook, keeping features isolated. Filtering by id (not fetching per-id) also resolves the "favorited id no longer resolves" edge case by construction — a non-matching id just doesn't appear.
-- **Types**: no new type needed — reuses the shared `Restaurant` from `src/types/restaurant.ts`.
+- **Fetching favorited restaurants' full data**: `favoriteIds` only holds ids. `features/favorites/api/useFavoriteRestaurantsQuery.ts` calls `src/mocks/repository.ts`'s `getNearbyPlaces()` and filters the resolved `Restaurant[]` by `favoriteIds` — filtering by id resolves the "favorited id no longer resolves" edge case by construction.
+- **Types**: no new type — reuses the shared `Restaurant` from `src/types/restaurant.ts`.
 - **Mocks**: no new mock file — reuses `src/mocks/restaurants.ts`.
-- **New dependencies**: none. No persistence middleware needed at this stage (see FR-007) — implement `favoriteIds` as plain in-memory Zustand state, no `persist` middleware, no `AsyncStorage`.
-- **Future direction (not this spec's scope, recorded so it isn't lost)**: favorited restaurants will eventually belong to a user account once a login/auth system exists — at that point, `favoriteIds` stops being client-only Zustand state and becomes server-backed, scoped per user. When that happens, this spec's contract (`toggleFavorite`, `isFavorite`) can likely stay the same at the call-site level — only `useRestaurantsQuery`-style internals change from reading a mock to calling a real, authenticated endpoint. Don't build speculative auth scaffolding now; this is just so the next person (or agent) writing the login/account feature knows favorites is one of the things that'll need migrating.
+- **New dependencies**: none. `favoriteIds` is plain in-memory Zustand state, no `persist` middleware, no `AsyncStorage`.
+- **Future direction**: once a login/auth system exists, `favoriteIds` moves from client-only Zustand state to server-backed, scoped per user. This spec's contract (`toggleFavorite`, `isFavorite`) can stay the same at the call-site level — only the internals change from reading a mock to calling an authenticated endpoint.
 
 ## Out of Scope
 
@@ -95,18 +94,18 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 - Favoriting from contexts other than the restaurant detail screen (e.g. a heart icon directly on Home cards) — not shown in the current design's Home frame.
 - Any social/sharing feature around favorites (e.g. sharing a favorites list).
 - Sorting, filtering, or organizing favorites (e.g. into custom lists/collections).
-- The rest of the Profile screen (avatar, stats, account menu with orders/reservations/payment/notifications/logout) — **flagging a real gap**: none of that Profile content maps to `search`, `restaurant`, or `favorites`. It has no owning feature yet in `PROJECT.md`'s Feature Index. Out of scope here; needs its own spec (likely a new `profile`/`account` feature) before it's implemented.
+- The rest of the Profile screen (avatar, stats, account menu) — owned by `profile.md`.
 
 ## Assumptions and Dependencies
 
-- Depends on `app/(tabs)/profile.tsx` existing as a route (it does, currently a placeholder) and on `restaurant.md`'s User Story 7 for the actual UI trigger that writes to the store this spec defines.
-- Confirmed: in-memory (non-persisted) favorited state is acceptable for this prototype phase. Persistence is intentionally deferred to a future login/account system, not an oversight — see the Future Direction note in Architecture Mapping.
+- Depends on `app/(tabs)/profile.tsx` (implemented) and `restaurant.md`'s User Story 7 for the UI trigger that writes to the store this spec defines.
+- In-memory, non-persisted favorited state is acceptable for this prototype phase. Persistence is deferred to a future login/account system.
 
 ## Notes for the AI Agent
 
-- `src/stores/favorites.ts` already exists (built in `profile.md`'s round) — don't recreate it. This spec's remaining job is the actual UI: the favorite icon on the restaurant detail screen (`restaurant.md`'s US7) and the favorites rail on Profile (User Story 2 below).
-- Persistence is resolved: do NOT add `persist` middleware or `AsyncStorage` — plain in-memory Zustand state only (see FR-007).
-- Verification: `npx tsc --noEmit` clean + bundle smoke test on `/profile` per the pattern in the root `CLAUDE.md`. Since this feature has no route of its own, there's no dedicated URL to smoke-test beyond `/profile` and `/restaurant/[id]` (already covered by `restaurant.md`).
+- `src/stores/favorites.ts` already exists — don't recreate it. The like icon (`restaurant.md`'s US7) is implemented. This spec's remaining job is the favorites rail on Profile (User Story 2).
+- Do NOT add `persist` middleware or `AsyncStorage` — plain in-memory Zustand state only (FR-007).
+- Verification: `npx tsc --noEmit` clean + bundle smoke test on `/profile` and `/restaurant/[id]`.
 
 ## Changelog
 
@@ -115,4 +114,5 @@ A user checks the Profile screen and sees the restaurants they've favorited, as 
 | 2026-07-23 | Spec created. |
 | 2026-07-23 | Resolved persistence `[NEEDS CLARIFICATION]`: none needed at this stage, in-memory only. Empty-state copy (FR-006) still open. |
 | 2026-07-24 | `src/stores/favorites.ts` built in `profile.md`'s round, ahead of this spec — matches this spec's contract exactly, no drift. This spec's own User Stories (like icon, favorites rail) still not implemented. |
-| 2026-08-17 | Design pass for US2 (favorites rail): resolved FR-006's empty-state `[NEEDS CLARIFICATION]` with a minimal default. Corrected the data-fetching note: the mock layer moved to `src/mocks/repository.ts` since this spec was drafted — `useFavoriteRestaurantsQuery.ts` calls `getNearbyPlaces()`. Surfaced that `restaurant.md`'s US7 (the like icon) already shipped (`e3da6e0`, 2026-08-12) without that spec being updated — flagged there, not fixed here. |
+| 2026-08-17 | Design pass for US2 (favorites rail): resolved FR-006's empty-state `[NEEDS CLARIFICATION]` with a minimal default. Corrected the data-fetching note: the mock layer moved to `src/mocks/repository.ts` — `useFavoriteRestaurantsQuery.ts` calls `getNearbyPlaces()`. Confirmed `restaurant.md`'s US7 (the like icon) already shipped. |
+| 2026-08-18 | Rewritten for tone — narrative/historical framing removed from body sections, consolidated into this Changelog. Status line and User Story headers corrected to reflect actual implementation state. |
