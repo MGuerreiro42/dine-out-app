@@ -1,12 +1,5 @@
 import type { AppPlace, GooglePriceLevel } from '@/lib/googlePlaces';
 
-/**
- * Same 6 Unsplash photos the app has always used (no more exist in the
- * source design to pull from) — the pool is now referenced by opaque mock
- * photo names instead of direct URLs, resolved through the two-hop photo
- * flow in src/mocks/repository.ts's getPlacePhotoUrl, mirroring Google
- * Places API (New)'s real photo-reference contract.
- */
 const PHOTO_URL_POOL = [
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80',
   'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&q=80',
@@ -41,7 +34,6 @@ const PRICE = {
 };
 
 const SEEDS: PlaceSeed[] = [
-  // Churrasco (brazilian_restaurant)
   { id: '1', name: 'Fogo & Brasa', formattedAddress: 'Av. Paulista, 1200 - Bela Vista, São Paulo - SP', location: { latitude: -23.5649, longitude: -46.6583 }, rating: 4.8, userRatingCount: 980, priceLevel: PRICE.high, primaryType: 'brazilian_restaurant', occasion: 'familia', ambient: 'fancy', photoPoolIndex: 1 },
   { id: '2', name: 'Brasa Real', formattedAddress: 'Av. Brigadeiro Faria Lima, 2200 - Itaim Bibi, São Paulo - SP', location: { latitude: -23.5808, longitude: -46.678 }, rating: 4.7, userRatingCount: 640, priceLevel: PRICE.high, primaryType: 'brazilian_restaurant', occasion: 'grupo', ambient: 'fancy', photoPoolIndex: 4 },
   { id: '3', name: 'Espeto & Cia', formattedAddress: 'Rua Aspicuelta, 45 - Vila Madalena, São Paulo - SP', location: { latitude: -23.5558, longitude: -46.6901 }, rating: 4.3, userRatingCount: 310, priceLevel: PRICE.low, primaryType: 'brazilian_restaurant', occasion: 'musica', ambient: 'agitated', photoPoolIndex: 6 },
@@ -49,7 +41,6 @@ const SEEDS: PlaceSeed[] = [
   { id: '5', name: 'Rancho do Chef', formattedAddress: 'Alameda Santos, 700 - Jardim Paulista, São Paulo - SP', location: { latitude: -23.5634, longitude: -46.6646 }, rating: 4.4, userRatingCount: 250, priceLevel: PRICE.mid, primaryType: 'brazilian_restaurant', occasion: 'familia', ambient: 'relaxed', photoPoolIndex: 5 },
   { id: '6', name: 'Points Grill', formattedAddress: 'Rua Teodoro Sampaio, 500 - Pinheiros, São Paulo - SP', location: { latitude: -23.5616, longitude: -46.6888 }, rating: 4.2, userRatingCount: 190, priceLevel: PRICE.low, primaryType: 'brazilian_restaurant', occasion: 'grupo', ambient: 'agitated', photoPoolIndex: 3 },
 
-  // Mediterrâneo
   { id: '7', name: 'Terra Nostra', formattedAddress: 'Rua Oscar Freire, 340 - Jardins, São Paulo - SP', location: { latitude: -23.5724, longitude: -46.668 }, rating: 4.5, userRatingCount: 560, priceLevel: PRICE.mid, primaryType: 'mediterranean_restaurant', occasion: 'encontro', ambient: 'cozy', photoPoolIndex: 2 },
   { id: '8', name: 'Zeytin Meze', formattedAddress: 'Rua Girassol, 155 - Vila Madalena, São Paulo - SP', location: { latitude: -23.5594, longitude: -46.6901 }, rating: 4.4, userRatingCount: 380, priceLevel: PRICE.mid, primaryType: 'mediterranean_restaurant', occasion: 'encontro', ambient: 'cozy', photoPoolIndex: 5 },
   { id: '9', name: 'Oliveira & Azeite', formattedAddress: 'Rua Cardeal Arcoverde, 220 - Pinheiros, São Paulo - SP', location: { latitude: -23.5688, longitude: -46.6834 }, rating: 4.6, userRatingCount: 410, priceLevel: PRICE.mid, primaryType: 'mediterranean_restaurant', occasion: 'familia', ambient: 'relaxed', photoPoolIndex: 1 },
@@ -57,7 +48,6 @@ const SEEDS: PlaceSeed[] = [
   { id: '11', name: 'Cedro do Líbano', formattedAddress: 'Rua Bela Cintra, 900 - Consolação, São Paulo - SP', location: { latitude: -23.5562, longitude: -46.6638 }, rating: 4.7, userRatingCount: 720, priceLevel: PRICE.mid, primaryType: 'mediterranean_restaurant', occasion: 'familia', ambient: 'cozy', photoPoolIndex: 6 },
   { id: '12', name: 'Ilha Grega', formattedAddress: 'Rua Augusta, 2100 - Jardins, São Paulo - SP', location: { latitude: -23.5634, longitude: -46.668 }, rating: 4.1, userRatingCount: 150, priceLevel: PRICE.low, primaryType: 'mediterranean_restaurant', occasion: 'musica', ambient: 'agitated', photoPoolIndex: 3 },
 
-  // Italiana
   { id: '13', name: 'Casa Oliveira', formattedAddress: 'Rua Fradique Coutinho, 88 - Vila Madalena, São Paulo - SP', location: { latitude: -23.5504, longitude: -46.6901 }, rating: 4.6, userRatingCount: 500, priceLevel: PRICE.mid, primaryType: 'italian_restaurant', occasion: 'grupo', ambient: 'relaxed', photoPoolIndex: 3 },
   { id: '14', name: 'Trattoria Bella Vita', formattedAddress: 'Rua dos Pinheiros, 610 - Pinheiros, São Paulo - SP', location: { latitude: -23.5724, longitude: -46.6834 }, rating: 4.8, userRatingCount: 900, priceLevel: PRICE.high, primaryType: 'italian_restaurant', occasion: 'encontro', ambient: 'cozy', photoPoolIndex: 1 },
   { id: '15', name: 'Forno di Napoli', formattedAddress: 'Rua Wisard, 240 - Vila Madalena, São Paulo - SP', location: { latitude: -23.5594, longitude: -46.6955 }, rating: 4.5, userRatingCount: 640, priceLevel: PRICE.mid, primaryType: 'italian_restaurant', occasion: 'familia', ambient: 'relaxed', photoPoolIndex: 5 },
@@ -65,7 +55,6 @@ const SEEDS: PlaceSeed[] = [
   { id: '17', name: 'Al Dente Cucina', formattedAddress: 'Rua Mourato Coelho, 970 - Pinheiros, São Paulo - SP', location: { latitude: -23.567, longitude: -46.687 }, rating: 4.2, userRatingCount: 210, priceLevel: PRICE.low, primaryType: 'italian_restaurant', occasion: 'grupo', ambient: 'agitated', photoPoolIndex: 6 },
   { id: '18', name: 'Ristorante Toscano', formattedAddress: 'Rua Haddock Lobo, 1300 - Jardins, São Paulo - SP', location: { latitude: -23.5652, longitude: -46.6662 }, rating: 4.6, userRatingCount: 480, priceLevel: PRICE.mid, primaryType: 'italian_restaurant', occasion: 'familia', ambient: 'cozy', photoPoolIndex: 4 },
 
-  // Indiana
   { id: '19', name: 'Taj Especiarias', formattedAddress: 'Rua Pamplona, 700 - Jardim Paulista, São Paulo - SP', location: { latitude: -23.5634, longitude: -46.6574 }, rating: 4.5, userRatingCount: 340, priceLevel: PRICE.mid, primaryType: 'indian_restaurant', occasion: 'encontro', ambient: 'cozy', photoPoolIndex: 1 },
   { id: '20', name: 'Curry House', formattedAddress: 'Rua Consolação, 2400 - Consolação, São Paulo - SP', location: { latitude: -23.5526, longitude: -46.6656 }, rating: 4.3, userRatingCount: 260, priceLevel: PRICE.mid, primaryType: 'indian_restaurant', occasion: 'familia', ambient: 'relaxed', photoPoolIndex: 4 },
   { id: '21', name: 'Masala & Cia', formattedAddress: 'Alameda Itu, 850 - Jardim Paulista, São Paulo - SP', location: { latitude: -23.5724, longitude: -46.6628 }, rating: 4.4, userRatingCount: 300, priceLevel: PRICE.high, primaryType: 'indian_restaurant', occasion: 'grupo', ambient: 'fancy', photoPoolIndex: 2 },
@@ -73,7 +62,6 @@ const SEEDS: PlaceSeed[] = [
   { id: '23', name: 'Tandoori Nights', formattedAddress: 'Rua Frei Caneca, 610 - Consolação, São Paulo - SP', location: { latitude: -23.5598, longitude: -46.6602 }, rating: 4.1, userRatingCount: 170, priceLevel: PRICE.low, primaryType: 'indian_restaurant', occasion: 'musica', ambient: 'agitated', photoPoolIndex: 3 },
   { id: '24', name: 'Spice Route', formattedAddress: 'Rua Oscar Freire, 985 - Jardins, São Paulo - SP', location: { latitude: -23.567, longitude: -46.6644 }, rating: 4.7, userRatingCount: 530, priceLevel: PRICE.high, primaryType: 'indian_restaurant', occasion: 'encontro', ambient: 'fancy', photoPoolIndex: 6 },
 
-  // Chinesa
   { id: '25', name: 'Dragão Dourado', formattedAddress: 'Rua Galvão Bueno, 60 - Liberdade, São Paulo - SP', location: { latitude: -23.5562, longitude: -46.6386 }, rating: 4.2, userRatingCount: 220, priceLevel: PRICE.low, primaryType: 'chinese_restaurant', occasion: 'grupo', ambient: 'agitated', photoPoolIndex: 2 },
   { id: '26', name: 'Jardim de Jade', formattedAddress: 'Rua Tomás Gonzaga, 66 - Liberdade, São Paulo - SP', location: { latitude: -23.5544, longitude: -46.6368 }, rating: 4.6, userRatingCount: 480, priceLevel: PRICE.mid, primaryType: 'chinese_restaurant', occasion: 'encontro', ambient: 'cozy', photoPoolIndex: 5 },
   { id: '27', name: 'Panda Wok', formattedAddress: 'Rua Estados Unidos, 1500 - Jardim Paulista, São Paulo - SP', location: { latitude: -23.5616, longitude: -46.661 }, rating: 4.3, userRatingCount: 290, priceLevel: PRICE.low, primaryType: 'chinese_restaurant', occasion: 'familia', ambient: 'relaxed', photoPoolIndex: 1 },

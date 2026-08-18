@@ -9,8 +9,6 @@ type AmbientSelectorProps = {
   onSelect: (id: string) => void;
 };
 
-// Icon badges, matching CuisineSelector/OccasionSelector's shared visual
-// pattern — not the shared Chip, which stays a plain text pill.
 export function AmbientSelector({ ambients, onSelect }: AmbientSelectorProps) {
   return (
     <ScrollView

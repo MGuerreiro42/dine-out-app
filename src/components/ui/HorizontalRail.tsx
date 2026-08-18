@@ -7,10 +7,6 @@ type HorizontalRailProps = {
   children: ReactNode;
 };
 
-// Phone: unchanged horizontal scroll. Tablet+: the same fixed-width cards
-// wrap into a real multi-column grid instead of scrolling — every existing
-// call site (RestaurantSection, SimilarPlacesSection) needs no changes,
-// since they only ever pass children through this one component.
 export function HorizontalRail({ children }: HorizontalRailProps) {
   const breakpoint = useBreakpoint();
 

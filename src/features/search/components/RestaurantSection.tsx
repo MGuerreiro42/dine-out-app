@@ -11,9 +11,6 @@ type RestaurantSectionProps = {
   viewMoreLabel?: string;
 };
 
-// "View more" lives as a trailing tile inside the rail itself, rather than a
-// full-width button row below it — keeps the CTA reachable without spending
-// an extra row of vertical space on every section.
 export function RestaurantSection({
   restaurants,
   onSelectRestaurant,
