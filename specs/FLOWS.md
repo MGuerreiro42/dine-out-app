@@ -1,8 +1,8 @@
 # App Flows
 
-This is a cross-feature index, not a feature spec — it doesn't redefine any FR or acceptance scenario, it just shows how screens chain together for a real user journey and points back to the spec/User Story that actually owns each step. When a flow diverges from what's in the specs, the specs win; fix this file to match.
+Cross-feature index, not a feature spec — shows how screens chain together for a user journey and points back to the spec/User Story that owns each step. When a flow diverges from the specs, the specs win; fix this file to match.
 
-**Methodology**: User/Task Flow diagrams — the standard UX deliverable for "how do screens connect toward a goal," as distinct from a User Story's own Given/When/Then (one screen's behavior in isolation) or the design canvas's frame numbers (an unordered screen inventory). Notation: **Flow N** is one end-to-end journey; **Step Na, Nb, Nc...** are its screens/actions in sequence; a branch that leads into a different journey cross-references that Flow's number instead of nesting letters indefinitely (keeps this navigable instead of a combinatorial tree). Each step is tagged `— <owning spec> <User Story> — <status>`.
+**Methodology**: User/Task Flow diagrams — distinct from a User Story's Given/When/Then (one screen in isolation) or the design canvas's frame numbers (unordered inventory). **Flow N** is one end-to-end journey; **Step Na, Nb, Nc...** are its screens/actions in sequence; a branch into a different journey cross-references that Flow's number rather than nesting letters indefinitely. Each step tagged `— <owning spec> <User Story> — <status>`.
 
 **Status legend**: **Implemented** · **Partial** (some sub-steps implemented, others not) · **Not Started**.
 
@@ -39,27 +39,26 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 **Status**: Partial (core browsing implemented; several branch destinations not started)
 **Entry point**: Home tab (also **Flow 1**'s landing point)
 
-3a. Home renders — cuisine/occasion/ambient rails, featured banner, quick-nav icons, benefits grid, "Best Deliveries" rail — `search.md` US1 — **Implemented**.
+3a. Home renders — cuisine/occasion/ambient rails, featured banner, "Best Deliveries" rail — `search.md` US1 — **Implemented**.
 3b. Switch the active cuisine/occasion/ambient chip → the corresponding rail updates — **Implemented**.
 3c. Tap any restaurant card (any rail) → **Flow 6** (Restaurant Detail).
 3d. Tap the cuisine rail's "view {cuisine} page" link → **Flow 4** (Category Page), that cuisine preselected — **Implemented**.
 3e. Tap the cuisine rail's "view all cuisines" link → **Flow 4b** (Categories Overview) — **Implemented**.
-3f. Tap the occasion rail's "view all" link → **Flow 5** (Occasion Page) — **Not Started** (`search.md` US6; today this opens a simulated-message sheet instead).
-3g. Tap a Dine-in/Bars/Takeout quick-nav icon → simulated-message sheet, no real navigation — **Implemented**.
-3h. Tap the location header → **Flow 11** (Address management) — **Not Started** (`search.md` US4; today the sheet that opens has placeholder content).
-3i. Tap the search bar → navigates to **Flow 7** (Search & Map) — **Implemented** (the bar itself is a non-editable tap target here, not an inline filter — see `search.md`'s FR-022 correction).
+3f. Tap the occasion rail's "View all occasions" or "View more" link → **Flow 5** (Occasion Page) — **Implemented**.
+3h. Tap the location header → **Flow 11** (Location) — **Not Started** (`search.md` US4; today the sheet shows placeholder content).
+3i. Tap the search bar → navigates to **Flow 7** (Search) — **Implemented**. The bar itself is a non-editable tap target here, not an inline filter.
 3j. Tap the ≡ menu icon → **Flow 8** (Sidebar).
 
 ---
 
 ## Flow 4 — Category Page (per cuisine)
 
-**Status**: Implemented
+**Status**: Implemented, at `/type/cuisine/{id}`
 **Entry points**: **Flow 3** step 3d; **Flow 4b** step 4b-ii
 
 4a. Category page loads with the active cuisine (hero banner, best-rated/trending/near-you grids) — `search.md` US3 — **Implemented**.
 4b. Switch the in-page cuisine tab → all four sections update — **Implemented**.
-4c. Tap "View on map" → **Flow 7** (Search & Map) — **Implemented**.
+4c. Tap "View on map" → **Flow 7** (Search) — **Implemented**.
 4d. Tap a subtype icon → placeholder sheet, subtype filtering isn't real — **Implemented**.
 4e. Tap any restaurant card (any grid) → **Flow 6** (Restaurant Detail) — **Implemented**.
 
@@ -71,29 +70,27 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 **Entry points**: bottom tab "Categorias", Sidebar "Categorias", **Flow 3** step 3e
 
 4b-i. Categories Overview grid loads — one square photo card per cuisine — **Implemented**.
-4b-ii. Tap a cuisine card → **Flow 4** (Category Page) for that cuisine — **Implemented**.
-
-*Routing note*: the bottom tab bar's `app/(tabs)/category.tsx` file now renders this grid (its tab registration didn't need to change); the per-cuisine content moved to `app/category/[cuisine].tsx`, a pushed route with its own back button, no longer a tab root.
+4b-ii. Tap a cuisine card → **Flow 4** (Category Page) for that cuisine, at `/type/cuisine/{id}` — **Implemented**.
 
 ---
 
 ## Flow 5 — Occasion Page
 
-**Status**: Not Started (`search.md` US6, documented from a design expansion)
+**Status**: Implemented (`search.md` US6, shipped as a byproduct of generalizing US3's Category page into the dimension-agnostic `TypeDetailScreen`)
 **Entry point**: **Flow 3** step 3f
 
-5a. Occasion page loads with the active occasion (hero banner, "Best for {occasion}" grid) — **Not Started**.
-5b. Switch the in-page occasion tab → content updates — **Not Started**.
-5c. Tap "View on map" → **Flow 7** — **Not Started**.
-5d. Tap "Refine pelo estilo" subtype row → (behavior TBD, likely a placeholder sheet as in Flow 4d) — **Not Started**.
-5e. Tap any restaurant card → **Flow 6** — **Not Started**.
+5a. Occasion page loads (`/type/occasion/{id}`) — Champion card, "Champions - Best Rated" grid — **Implemented**.
+5b. Two refine rows (cuisine, ambient), each with its own filtered grid — no in-page occasion tabs — **Implemented**.
+5c. "Trending" and "{occasion} Near You" grids — **Implemented**.
+5d. Any section's "View all" → **Flow 7** (Search), pre-filtered to that occasion — **Implemented**.
+5e. Tap any restaurant card → **Flow 6** — **Implemented**.
 
 ---
 
 ## Flow 6 — Restaurant Detail Engagement
 
-**Status**: Partial — US1–US6 implemented, US7 (favorite) not started
-**Entry point**: any restaurant card anywhere in the app (Home rails, Category/Occasion pages, Search & Map, Similar Places, Favorites rail, Orders/Reservations once built)
+**Status**: Implemented — US1–US7 all implemented
+**Entry point**: any restaurant card anywhere in the app (Home rails, Category/Occasion pages, Search, Similar Places, Favorites rail, Orders/Reservations once built)
 
 6a. Detail screen loads — photo gallery, name, description, tags, address, price, rating — `restaurant.md` US1 — **Implemented**.
 6b. Swipe/tap the photo gallery's next/previous controls → photo + counter update — **Implemented**.
@@ -110,23 +107,20 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 6m. Tap "view all N reviews" → sheet — **Implemented**.
 6n. Tap Instagram "Follow" → toggles Following (local state only) — **Implemented**.
 6o. Tap a Similar Places card → back to **Flow 6** for that restaurant, replacing the current screen (not stacking) — **Implemented**.
-6p. Tap the header location icon → same sheet as 6l — **Implemented**.
-6q. Tap the header settings icon → simulated placeholder — **Implemented** *(`[NEEDS CLARIFICATION]` in `restaurant.md`: real meaning of "restaurant settings" here is undefined by the design)*.
-6r. Tap the header profile icon → **Flow 10** (Profile) — **Implemented**.
 6s. Tap the header share icon → simulated feedback — **Implemented**.
-6t. Tap the like/favorite icon → toggles the global favorites store, reflected in **Flow 9** — **Not Started** (`restaurant.md` US7; the store itself already exists, only this UI trigger is missing).
+6t. Tap the like/favorite icon → toggles the global favorites store, reflected in **Flow 9** — **Implemented** (`restaurant.md` US7, via `DetailHeaderActions.tsx`).
 
 ---
 
-## Flow 7 — Search & Map
+## Flow 7 — Search
 
 **Status**: Implemented
-**Entry points**: bottom tab "Buscar", **Flow 3** step 3i, **Flow 4** step 4c, **Flow 5** step 5c
+**Entry points**: bottom tab "Buscar", **Flow 3** step 3i, **Flow 4** step 4c, **Flow 5** step 5d
 
-7a. Screen loads — full-screen map + pins, floating search bar, collapsed results sheet — `search.md` US2 — **Implemented**.
-7b. Type in the search bar → live (debounced) filter by name/cuisine on both the pins and the sheet's list — **Implemented**.
-7c. Sheet auto-expands while a query is active; drag or tap the handle to expand/collapse manually otherwise — **Implemented**.
-7d. Tap a map pin or a list card → **Flow 6** (Restaurant Detail) — **Implemented**.
+7a. Screen loads — result count, Sort control, Filters chip, a scrollable list of restaurant cards — `search.md` US2 — **Implemented**.
+7b. Type in the search bar → live (debounced) filter by name/cuisine — **Implemented**.
+7c. Open Sort, pick an option → list reorders — **Implemented**. Open Filters → all 6 entries are decorative (`Alert`), except cuisine/occasion/ambient/delivery when seeded via an incoming route param (dismissible chip).
+7d. Tap a list card → **Flow 6** (Restaurant Detail) — **Implemented**.
 
 ---
 
@@ -145,22 +139,20 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 
 ## Flow 9 — Favorites
 
-**Status**: Not Started (`favorites.md`; the global store exists, but both of this flow's UI triggers are unbuilt)
+**Status**: Partial — favoriting itself works (`restaurant.md` US7); the Profile rail that surfaces it (`favorites.md` US2) is unbuilt
 **Entry point**: **Flow 6** step 6t
 
-9a. Favorite a restaurant from its detail screen (6t) — **Not Started**.
+9a. Favorite a restaurant from its detail screen (6t) — **Implemented**.
 9b. Open **Flow 10** (Profile) → the favorites rail shows it (between stats and the account menu) — **Not Started**.
-9c. Tap a favorited card → **Flow 6** — **Not Started**.
-9d. Unfavorite it (6t again) → disappears from the rail on next render — **Not Started**.
-
-*(Zero favorites → the rail's empty state is itself `[NEEDS CLARIFICATION]` in `favorites.md` — exact copy/visual isn't specified by the design.)*
+9c. Tap a favorited card → **Flow 6** — **Not Started** (blocked on 9b).
+9d. Unfavorite it (6t again) → disappears from the rail on next render — **Not Started** (blocked on 9b).
 
 ---
 
 ## Flow 10 — Profile & Account
 
 **Status**: Partial — US1–US2 implemented, US3–US6 not started
-**Entry points**: bottom tab "Perfil", **Flow 8** step 8b/8c, **Flow 6** step 6r, **Flow 2** step 2c
+**Entry points**: bottom tab "Perfil", **Flow 8** step 8b/8c, **Flow 2** step 2c
 
 10a. Profile loads — identity + 3 stats (logged in) or "Visitante" + CTA (logged out) — `profile.md` US1 — **Implemented**.
 10b. *(logged out)* Tap "Entrar ou criar conta" → **Flow 2** — **Implemented**.
@@ -174,16 +166,14 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 
 ---
 
-## Flow 11 — Address Management
+## Flow 11 — Location
 
-**Status**: Not Started (`search.md` US4, documented from a design expansion)
+**Status**: Not Started (`search.md` User Story 4)
 **Entry point**: **Flow 3** step 3h / **Flow 1** step 1c
 
-11a. Tap the location header → address list sheet (saved addresses, checkmark on the current one) — **Not Started**.
-11b. Tap a saved address → selects it, closes the sheet — **Not Started**.
-11c. Tap "+ Adicionar novo endereço" → add-address form sheet — **Not Started**.
-11d. Tap "Selecionar no mapa" → `[NEEDS CLARIFICATION: real pin-drop or simulated, like this prototype's other redirect affordances?]` — **Not Started**.
-11e. Fill the form, tap "Salvar endereço" → `[NEEDS CLARIFICATION: does this persist to a store, or simulate like the rest of the prototype?]` — **Not Started**.
+11a. App opens, location permission granted → real GPS coordinate resolves into `src/stores/location.ts`, `LocationHeader` shows the reverse-geocoded label — **Not Started**.
+11b. Permission denied/timeout/error → falls back silently to the existing static coordinate, no error dialog — **Not Started**.
+11c. Tap the location header → sheet shows the resolved (or fallback) address, with a "Tentar novamente" retry only when permission was denied — **Not Started**.
 
 ---
 
@@ -193,15 +183,15 @@ This is a cross-feature index, not a feature spec — it doesn't redefine any FR
 |---|---|
 | 1 — First Launch & Guest Entry | Implemented |
 | 2 — Login / Signup | Implemented |
-| 3 — Home Discovery | Partial (3e, 3f, 3h not started) |
+| 3 — Home Discovery | Partial (3h not started) |
 | 4 — Category Page | Implemented |
 | 4b — Categories Overview | Implemented |
-| 5 — Occasion Page | Not Started |
-| 6 — Restaurant Detail Engagement | Partial (6t not started) |
-| 7 — Search & Map | Implemented |
+| 5 — Occasion Page | Implemented |
+| 6 — Restaurant Detail Engagement | Implemented |
+| 7 — Search | Implemented |
 | 8 — Sidebar Navigation | Implemented |
-| 9 — Favorites | Not Started |
+| 9 — Favorites | Partial (9b–9d not started) |
 | 10 — Profile & Account | Partial (10d–10h not started) |
-| 11 — Address Management | Not Started |
+| 11 — Location | Not Started |
 
 Every "Not Started" step above already has an owning spec/User Story (cited inline) — this document adds no new requirements, it just makes the gaps visible as *journeys* instead of a flat FR list.

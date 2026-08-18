@@ -48,3 +48,22 @@ jobs:
 
       - name: Run Jest
         run: npx jest --ci
+
+  build:
+    name: Web bundle export
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm ci
+
+      # Catches real Metro bundler failures (unresolved imports, syntax errors) that
+      # tsc and biome don't — a route can typecheck and lint clean and still fail to
+      # bundle. Web-only: iOS/Android need native credentials this job doesn't have.
+      - name: Export web bundle
+        run: npx expo export --platform web
