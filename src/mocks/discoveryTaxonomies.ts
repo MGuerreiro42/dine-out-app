@@ -3,8 +3,6 @@ import type { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vect
 import type { IconSpec } from '@/components/ui/Icon';
 import type { Ambient, Benefit, CategorySubtype, Cuisine, Occasion } from '@/features/search/types';
 
-// Overloaded per set so each call site still gets a compile-time check
-// against that set's real glyph names, despite the shared helper.
 function icon(set: 'Ionicons', name: keyof typeof Ionicons.glyphMap): IconSpec;
 function icon(set: 'MaterialCommunityIcons', name: keyof typeof MaterialCommunityIcons.glyphMap): IconSpec;
 function icon(set: 'MaterialIcons', name: keyof typeof MaterialIcons.glyphMap): IconSpec;
