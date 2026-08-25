@@ -1,7 +1,7 @@
 # Data Model
 
 **Created**: 2026-08-13
-**Status**: Draft — `Restaurant` entity family modeled; no backend/ORM/framework work started
+**Status**: `Restaurant` entity family modeled and implemented (`dine-out-backend`'s Overture-backed catalog, 41,205 São Paulo rows). A field-enrichment extension (10 additional Overture-sourced columns) is specced below, not yet migrated — see `dine-out-backend`'s `specs/restaurants.md` FR-015–FR-022.
 
 Cross-feature index, not a feature spec — same role `FLOWS.md` plays for user flows: a source of truth for the app's *persisted* entities and how they relate, citing the feature spec that owns each field's requirement. When this file and a feature spec disagree, the feature spec wins; fix this file to match. Full backend topology, auth design, and API surface: `ARCHITECTURE.md`, which owns the compliance rule below.
 
@@ -16,6 +16,7 @@ Cross-feature index, not a feature spec — same role `FLOWS.md` plays for user 
 ## Data sourcing
 
 - Restaurant core data (`displayName`, `formattedAddress`, `latitude`, `longitude`, `category`) comes from Overture Maps' Places dataset, populated by an offline ingestion script (`dine-out-backend`'s `specs/restaurants.md`), not a per-request fetch. `sourceId`/`source` identify the Overture record; `confidence` and `sourceAttributes` carry provenance; `lastSyncedAt` marks the last ingestion touch — not a TTL, since Overture's license imposes no retention limit.
+- `phones`, `websites`, `socialLinks`, `categoryAlternates`, `categoryHierarchy`, `postalCode`, `region`, `country`, `brandName`, `brandWikidataId` are the same Overture ingestion's additional fields (`dine-out-backend`'s `specs/restaurants.md` FR-015–FR-018), specced but not yet migrated. Same indefinite-retention rule as the core fields above.
 - Reviews have no source today. A future Google Places enrichment layer (`ARCHITECTURE.md` §10) is deferred, not implemented; if built, its content would be fetched live and not persisted, per Google's Terms. No `Review` table exists in this model.
 - `occasion`, `ambient`, `tags`, `whatsapp`, `instagramHandle`, `menu`, `thingsToKnow`, `highlights` are product-authored. Restaurant partners author their own listing's editable fields via a CNPJ/CPF ownership claim (`ARCHITECTURE.md` §9). Unclaimed restaurants come from the Overture ingestion script — the previously-undefined seeding process — with `occasion`/`ambient` `null` until claimed (`dine-out-backend`'s `specs/restaurants.md` FR-009).
 
@@ -48,6 +49,12 @@ Opening hours, review text/timestamp, and photo URLs are fetched live from Googl
 | `formattedAddress` | string, nullable | Overture-sourced; not every source row has an address. Indefinite retention. |
 | `latitude`, `longitude` | float | Overture-sourced. Indefinite retention. |
 | `googlePlaceId` | string, unique, nullable | Reserved for a future Google enrichment layer (`ARCHITECTURE.md` §10). Not populated by ingestion. |
+| `phones`, `websites` | string[] | Overture-sourced. Specced (`dine-out-backend`'s `specs/restaurants.md` FR-015), not yet migrated. |
+| `socialLinks` | string[] | Overture's `socials` column, renamed: mixed-platform URLs (overwhelmingly Facebook), distinct from `instagramHandle` below. Specced (FR-015), not yet migrated. |
+| `categoryAlternates` | string[] | Overture `categories.alternate` — a place's secondary category tags, distinct from `category` above. Specced (FR-016), not yet migrated. Whether `GET /restaurants?category=X` matches this field too is open — `dine-out-backend`'s `specs/restaurants.md` FR-021. |
+| `categoryHierarchy` | string[] | Overture `taxonomy.hierarchy` — full category tree path (e.g. `food_and_drink > restaurant > italian_restaurant > pizza_restaurant`). Specced (FR-016), not yet migrated. |
+| `postalCode`, `region`, `country` | string, nullable | Structured address components from `addresses[0]`, alongside the freeform `formattedAddress` above. Specced (FR-017), not yet migrated. |
+| `brandName`, `brandWikidataId` | string, nullable | Overture `brand.names.primary`/`brand.wikidata` — populated only for rows resolved to a known chain. Specced (FR-018), not yet migrated. Whether a `?brand=X` filter ships is open — `dine-out-backend`'s `specs/restaurants.md` FR-022. |
 | `occasion`, `ambient` | string, nullable | Product-authored, no Overture equivalent. Null until an ownership claim sets them (`ARCHITECTURE.md` §9) — see the unclaimed-row open question above. |
 | `tags` | string[] | Product-authored. |
 | `whatsapp`, `instagramHandle` | string, nullable | Product-authored. |
@@ -108,3 +115,4 @@ No migrations, no repo scaffolding, no endpoints — entity/relationship design 
 | 2026-08-18 | Rewritten for tone — narrative/historical framing removed from body sections, consolidated into this Changelog. |
 | 2026-08-25 | Restaurant catalog re-sourced from Overture Maps Places (CDLA Permissive 2.0) instead of a live Google Places pass-through — the Google-caching compliance rule now applies only to a deferred, unbuilt future enrichment layer. `Restaurant` gains `source`/`sourceId`/`category`/`confidence`/`sourceAttributes`/`lastSyncedAt`/`displayName`/`formattedAddress`, all persisted indefinitely under Overture's license (re-adding `displayName`/`formattedAddress`, removed 2026-08-18 as Google-sourced-not-persisted, now Overture-sourced-and-persisted). `googlePlaceId` becomes nullable, reserved for the deferred enrichment layer. `coordsCachedAt` removed — no TTL under Overture's license, replaced by `lastSyncedAt`. `occasion`/`ambient` become nullable: resolves "seeding process for unclaimed restaurants is undefined" (now: the Overture ingestion script). Full design: `dine-out-backend`'s `specs/restaurants.md`. |
 | 2026-08-25 | User resolved this entry's open item: a row ingestion alone created (unclaimed) returns `occasion`/`ambient` as `null`; the mobile wire contract's matching update is tracked as separate follow-up work, not this document. Ingestion confidence floor set to `>= 0.5` (`dine-out-backend`'s `specs/restaurants.md` FR-014). |
+| 2026-08-25 | `Restaurant` gains ten additional Overture-sourced fields, confirmed worth capturing by real fill-rate research over the live 41,205-row dataset: `phones`, `websites`, `socialLinks` (renamed from Overture's `socials`), `categoryAlternates`, `categoryHierarchy`, `postalCode`, `region`, `country`, `brandName`, `brandWikidataId`. All additive nullable/default-empty columns. Design specced in `dine-out-backend`'s `specs/restaurants.md` (FR-015–FR-018), not yet migrated. Two open product decisions block implementation: whether `category` filtering broadens to `categoryAlternates` (FR-021), whether a `?brand=X` filter ships this round (FR-022). |
