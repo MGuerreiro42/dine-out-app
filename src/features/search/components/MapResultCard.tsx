@@ -1,6 +1,6 @@
 import { Alert, Image, Pressable, Text, View } from 'react-native';
 
-import { Icon } from '@/components/ui';
+import { Icon, PhotoPlaceholder } from '@/components/ui';
 import type { MapResultData } from '@/features/search/hooks';
 import { useFavoritesStore } from '@/stores/favorites';
 
@@ -16,7 +16,11 @@ export function MapResultCard({ restaurant, onPress }: MapResultCardProps) {
   return (
     <Pressable onPress={() => onPress(restaurant)} className="flex-row gap-3">
       <View className="relative overflow-hidden rounded-xl">
-        <Image source={{ uri: restaurant.photo }} className="h-[110px] w-[130px]" />
+        {restaurant.photo ? (
+          <Image source={{ uri: restaurant.photo }} className="h-[110px] w-[130px]" />
+        ) : (
+          <PhotoPlaceholder className="h-[110px] w-[130px]" iconSize={20} />
+        )}
         {restaurant.isOpenNow ? (
           <View className="absolute left-1.5 top-1.5 rounded-full bg-[#dcfce7] px-1.5 py-0.5">
             <Text className="text-[11px] font-light text-[#16a34a]">Open</Text>
@@ -46,12 +50,14 @@ export function MapResultCard({ restaurant, onPress }: MapResultCardProps) {
         <Text className="text-sm font-bold text-[#111827]" numberOfLines={1}>
           {restaurant.name}
         </Text>
-        <View className="mt-xs flex-row items-center gap-1">
-          <Icon spec={{ set: 'Ionicons', name: 'star' }} size={11} color="#fbbf24" />
-          <Text className="text-xs text-[#6b7280]">
-            {restaurant.rating} · {restaurant.priceLevel}
-          </Text>
-        </View>
+        {restaurant.rating !== null || restaurant.priceLevel !== null ? (
+          <View className="mt-xs flex-row items-center gap-1">
+            <Icon spec={{ set: 'Ionicons', name: 'star' }} size={11} color="#fbbf24" />
+            <Text className="text-xs text-[#6b7280]">
+              {[restaurant.rating, restaurant.priceLevel].filter((value): value is string => value !== null).join(' · ')}
+            </Text>
+          </View>
+        ) : null}
         <Text className="mt-xs text-xs text-[#6b7280]">{restaurant.cuisineLabel.toLowerCase()}</Text>
         {restaurant.tags.length > 0 ? (
           <View className="mt-sm flex-row flex-wrap gap-1">

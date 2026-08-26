@@ -2,7 +2,7 @@
 
 **Feature**: `restaurant` — folder `src/features/restaurant/`
 **Created**: 2026-07-23
-**Status**: Implemented — User Stories 1–7
+**Status**: Implemented — User Stories 1–7, now against real `dine-out-backend-overture` data. Description, amenities, opening hours, and reviews sections have no backend field yet and render as correctly-empty/hidden — see 2026-08-26 Changelog entry and `PROJECT.md`'s decision log
 **Design reference**: `App Flow.dc.html`, frame "2 · Restaurant Detail"
 
 ## Summary
@@ -214,3 +214,4 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 | 2026-08-12 | `feat/restaurant-detail-redesign` (`e3da6e0`) implemented US7 (like icon, `DetailHeaderActions.tsx`) and removed the header's location/settings/profile icons, leaving share + favorite only. |
 | 2026-08-17 | Spec corrected to match shipped code — US7 marked Implemented, removed FRs for the location/settings/profile icons. |
 | 2026-08-18 | Rewritten for tone — narrative/historical framing removed from body sections, consolidated into this Changelog. |
+| 2026-08-26 | Wired to the real `dine-out-backend-overture` API (`feat/wire-real-backend`). `src/lib/googlePlaces/` replaced with `src/lib/api/`. The real backend has no rating, price level, photos, amenity flags, opening hours, editorial description, or reviews — `AmenitiesSection`/`AmenitiesSheetContent`/`OpeningHoursSheetContent` deleted, the description block removed from `app/restaurant/[id].tsx`, `InstagramSection`/`InfoActionsRow` made null-tolerant. US1's description/price/rating acceptance scenarios and US3's amenities/opening-hours scenarios are stale pending a fuller spec rewrite — the *screen* still renders correctly (empty states), but the FR text below still describes the old mock-only behavior. |

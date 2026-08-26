@@ -1,6 +1,6 @@
 import { Alert, Image, Pressable, Text, View } from 'react-native';
 
-import { Icon } from '@/components/ui';
+import { Icon, PhotoPlaceholder } from '@/components/ui';
 import type { HomeCardData } from '@/features/search/hooks';
 import { useFavoritesStore } from '@/stores/favorites';
 
@@ -19,7 +19,11 @@ export function HomeRestaurantCard({ restaurant, onPress }: HomeRestaurantCardPr
       className="w-[130px] overflow-hidden rounded-xl bg-white shadow-md shadow-black/10"
     >
       <View className="relative">
-        <Image source={{ uri: restaurant.photo }} className="aspect-[4/3] w-full" />
+        {restaurant.photo ? (
+          <Image source={{ uri: restaurant.photo }} className="aspect-[4/3] w-full" />
+        ) : (
+          <PhotoPlaceholder className="aspect-[4/3] w-full" iconSize={20} />
+        )}
         {restaurant.isOpenNow ? (
           <View className="absolute left-1.5 top-1.5 rounded-full bg-[#dcfce7] px-1.5 py-0.5">
             <Text className="text-[11px] font-light text-[#16a34a]">Open</Text>
@@ -49,12 +53,14 @@ export function HomeRestaurantCard({ restaurant, onPress }: HomeRestaurantCardPr
         <Text className="text-xs font-bold text-[#111827]" numberOfLines={1}>
           {restaurant.name}
         </Text>
-        <View className="mt-xs flex-row items-center gap-1">
-          <Icon spec={{ set: 'Ionicons', name: 'star' }} size={10} color="#fbbf24" />
-          <Text className="text-[13px] text-[#6b7280]" numberOfLines={1}>
-            {restaurant.rating} · {restaurant.priceLevel}
-          </Text>
-        </View>
+        {restaurant.rating !== null || restaurant.priceLevel !== null ? (
+          <View className="mt-xs flex-row items-center gap-1">
+            <Icon spec={{ set: 'Ionicons', name: 'star' }} size={10} color="#fbbf24" />
+            <Text className="text-[13px] text-[#6b7280]" numberOfLines={1}>
+              {[restaurant.rating, restaurant.priceLevel].filter((value): value is string => value !== null).join(' · ')}
+            </Text>
+          </View>
+        ) : null}
         <Text className="mt-xs text-[13px] text-[#6b7280]" numberOfLines={1}>
           {restaurant.cuisineLabel.toLowerCase()}
         </Text>

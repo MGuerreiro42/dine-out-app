@@ -58,7 +58,12 @@ export function useHomeDiscovery() {
   const featuredCuisineLabel = featured ? (cuisines.find((c) => c.id === featured.cuisine)?.label ?? '') : '';
   const featuredAmbientLabel = featured ? (ambients.find((a) => a.id === featured.ambient)?.label ?? '') : '';
   const featuredTagline = featured
-    ? `Authentic ${featuredCuisineLabel} dining with a ${featuredAmbientLabel.toLowerCase()} atmosphere.`
+    ? [
+        featuredCuisineLabel && `Authentic ${featuredCuisineLabel} dining`,
+        featuredAmbientLabel && `a ${featuredAmbientLabel.toLowerCase()} atmosphere`,
+      ]
+        .filter(Boolean)
+        .join(' with ')
     : '';
 
   return {

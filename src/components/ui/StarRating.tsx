@@ -2,14 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { View } from 'react-native';
 
 type StarRatingProps = {
-  rating: number;
+  rating: number | null | undefined;
   size?: number;
   color?: string;
   count?: number;
 };
 
 export function StarRating({ rating, size = 12, color = '#f5a623', count = 5 }: StarRatingProps) {
-  const filled = Math.round(rating);
+  const filled = typeof rating === 'number' && Number.isFinite(rating) ? Math.round(rating) : 0;
 
   return (
     <View className="flex-row items-center gap-0.5">

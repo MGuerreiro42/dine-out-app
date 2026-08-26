@@ -2,7 +2,7 @@
 
 **Feature**: `search` — folder `src/features/search/`
 **Created**: 2026-07-23
-**Status**: In Progress — User Stories 1, 2, 3, 5, 6 Implemented; User Story 4 (geolocation) and Filters drill-down (FR-016, FR-017, FR-019, FR-020) designed, not started
+**Status**: In Progress — User Stories 1, 2, 3, 5, 6 Implemented against real `dine-out-backend-overture` data; User Story 4 (geolocation) and Features filter drill-down (FR-016, FR-017, FR-019) designed, not started; Price filter (FR-020) removed 2026-08-26, not just deferred — no price data exists in the real backend
 **Design reference**: `App Flow.dc.html` — frames "1 · Home", "3 · Categories Overview", "4 · Category page", "4b · Occasion page". Frame "2 · Search & Map" is stale — the shipped screen has no map.
 
 ## Summary
@@ -192,3 +192,4 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 | 2026-08-12 | US3's Category page rebuilt into the dimension-agnostic `TypeDetailScreen`/`TypeOverviewScreen` (`d2bb1c6`, `e1d90b7`), superseding the prior per-cuisine components. US6 (Occasion page) shipped as a byproduct of this change. Search screen rebuilt from map+sheet into a plain filterable list (`02e9cb9`); `SearchMapView`/`MapSearchBar`/`MapResultsSheet` unused since. |
 | 2026-08-17 | Spec corrected against shipped code. Removed two FRs describing Home shortcuts (Dine-in/Bars/Takeout) and a benefits grid, both deleted. Filters drill-down and geolocation designed, not started. |
 | 2026-08-18 | Rewritten for tone — narrative/historical framing removed from body sections, consolidated into this Changelog. |
+| 2026-08-26 | Wired to the real `dine-out-backend-overture` API (`feat/wire-real-backend`). The Price filter category and the two price-based sort options were removed (not left inert) — the real backend has no price data, so they could never match anything. FR-011's `rating · priceLevel` card text now renders only the segments that exist (both are null for every restaurant today). |

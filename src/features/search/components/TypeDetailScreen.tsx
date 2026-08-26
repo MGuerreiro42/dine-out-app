@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
-import { HorizontalRail, Icon, type IconSpec } from '@/components/ui';
+import { HorizontalRail, Icon, PhotoPlaceholder, type IconSpec } from '@/components/ui';
 import { HomeRestaurantCard } from '@/features/search/components/HomeRestaurantCard';
 import { useDebouncedValue } from '@/features/search/hooks/useDebouncedValue';
 import type { HomeCardData } from '@/features/search/hooks/useHomeDiscovery';
@@ -183,16 +183,23 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
         {champion ? (
           <View className="mx-4 mt-md overflow-hidden rounded-xl bg-white shadow-md shadow-black/10">
             <View className="relative aspect-[4/3]">
-              <Image source={{ uri: champion.photo }} className="h-full w-full" />
+              {champion.photo ? (
+                <Image source={{ uri: champion.photo }} className="h-full w-full" />
+              ) : (
+                <PhotoPlaceholder iconSize={24} />
+              )}
               <View className="absolute left-3.5 top-3.5 rounded-full bg-[#fef3c7] px-2.5 py-1">
                 <Text className="text-[12px] font-bold text-[#b45309]">Champion</Text>
               </View>
             </View>
             <View className="p-3.5">
               <Text className="text-lg font-bold text-ink">{champion.name}</Text>
-              <Text className="mt-xs text-xs text-[#6b7280]">
-                ★ {champion.rating} · {champion.reviewCount} reviews
-              </Text>
+              {champion.rating !== null ? (
+                <Text className="mt-xs text-xs text-[#6b7280]">
+                  ★ {champion.rating}
+                  {champion.reviewCount !== null ? ` · ${champion.reviewCount} reviews` : ''}
+                </Text>
+              ) : null}
             </View>
           </View>
         ) : null}

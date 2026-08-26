@@ -4,8 +4,26 @@ import type { ReactNode } from 'react';
 import React from 'react';
 
 import { useFavoriteRestaurantsQuery } from '@/features/favorites/api/useFavoriteRestaurantsQuery';
+import type { RestaurantSummary } from '@/lib/api';
 import * as repository from '@/mocks/repository';
 import { useFavoritesStore } from '@/stores/favorites';
+
+const RESTAURANTS: RestaurantSummary[] = [
+  {
+    id: 1,
+    displayName: 'Fogo & Brasa',
+    formattedAddress: 'Av. Paulista, 1200 - Bela Vista, São Paulo - SP',
+    latitude: -23.5649,
+    longitude: -46.6583,
+    category: 'brazilian_restaurant',
+    cuisineId: 'brazilian',
+    occasion: 'date-night',
+    ambient: 'cozy',
+    tags: [],
+    whatsapp: null,
+    instagramHandle: null,
+  },
+];
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -25,7 +43,7 @@ afterEach(() => {
 });
 
 test('reacts to favoriteIds changes without an extra mock/network call', async () => {
-  const getNearbyPlacesSpy = jest.spyOn(repository, 'getNearbyPlaces');
+  const getNearbyPlacesSpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
 
   const { result } = await renderHook(() => useFavoriteRestaurantsQuery(), { wrapper: createWrapper() });
 

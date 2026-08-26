@@ -21,12 +21,20 @@ function toMapResult(
   occasionLabel: string,
   ambientLabel: string,
 ): MapResultData {
+  const tags = [ambientLabel, occasionLabel].filter((label): label is string => Boolean(label));
+  const tagline = [
+    ambientLabel && `${ambientLabel} atmosphere`,
+    occasionLabel && `for ${occasionLabel.toLowerCase()}`,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return {
     ...restaurant,
     cuisineLabel,
     distance: `${(1 + (restaurant.id % 5) * 0.3).toFixed(1)} km`,
-    tagline: `${ambientLabel} atmosphere for ${occasionLabel.toLowerCase()}`,
-    tags: [ambientLabel, occasionLabel],
+    tagline,
+    tags,
     isOpenNow: restaurant.id % 4 !== 0,
     hasDelivery: restaurant.id % 3 !== 0,
     outdoorSeating: restaurant.ambient === 'cozy' || restaurant.ambient === 'relaxed',

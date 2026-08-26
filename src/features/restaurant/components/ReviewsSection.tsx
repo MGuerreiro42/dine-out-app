@@ -10,9 +10,9 @@ import { ReviewsSheetContent } from './ReviewsSheetContent';
 const PREVIEW_COUNT = 3;
 
 type ReviewsSectionProps = {
-  rating: string;
+  rating: string | null;
   reviews: Review[];
-  reviewCount: number;
+  reviewCount: number | null;
 };
 
 export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionProps) {
@@ -29,7 +29,7 @@ export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionP
         <Text className="text-base font-bold text-ink">What Our Customers Think</Text>
         <View className="flex-row items-center gap-1">
           <Ionicons name="star" size={13} color="#fbbf24" />
-          <Text className="text-[15px] font-bold text-ink">{rating}</Text>
+          <Text className="text-[15px] font-bold text-ink">{rating ?? '—'}</Text>
         </View>
       </View>
 
@@ -57,7 +57,7 @@ export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionP
         onPress={() => setSheetOpen(true)}
         className="mt-3 items-center rounded-full border border-[#e5e7eb] py-3"
       >
-        <Text className="text-[15px] font-light text-[#4f46e5]">View all {reviewCount} reviews</Text>
+        <Text className="text-[15px] font-light text-[#4f46e5]">View all {reviewCount ?? 0} reviews</Text>
       </Pressable>
 
       <BottomSheet visible={sheetOpen} onClose={() => setSheetOpen(false)}>

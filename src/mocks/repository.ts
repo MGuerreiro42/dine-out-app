@@ -1,43 +1,39 @@
-import { mapPrimaryTypeToCuisine } from '@/lib/googlePlaces/mappers';
-import { AMBIENTS, BENEFITS, CATEGORY_SUBTYPES, CUISINES, OCCASIONS } from '@/mocks/discoveryTaxonomies';
-import { PLACE_DETAILS } from '@/mocks/restaurantDetails';
-import { PLACES, photoUrlForMockName } from '@/mocks/restaurants';
+import { apiGet, ApiError } from '@/lib/apiClient';
+import type { RestaurantDetail, RestaurantSummary } from '@/lib/api';
+import type { DiscoveryTaxonomies } from '@/features/search/types';
 import { CURRENT_USER } from '@/mocks/currentUser';
+import { useLocationStore } from '@/stores/location';
 
-export async function getNearbyPlaces() {
-  return { places: PLACES };
-}
+const NEARBY_RADIUS_KM = 10;
+const NEARBY_LIMIT = 50;
 
-export async function searchPlaces(textQuery: string) {
-  const needle = textQuery.trim().toLowerCase();
-
-  const matches = PLACES.filter((place) => {
-    const cuisineLabel = CUISINES.find((c) => c.id === mapPrimaryTypeToCuisine(place.primaryType))?.label ?? '';
-    return (
-      place.displayName.text.toLowerCase().includes(needle) || cuisineLabel.toLowerCase().includes(needle)
-    );
+export async function getNearbyPlaces(): Promise<RestaurantSummary[]> {
+  const { latitude, longitude } = useLocationStore.getState();
+  return apiGet<RestaurantSummary[]>('/restaurants', {
+    lat: latitude,
+    lng: longitude,
+    radiusKm: NEARBY_RADIUS_KM,
+    limit: NEARBY_LIMIT,
   });
-
-  return { places: matches };
 }
 
-export async function getPlaceDetails(id: string) {
-  return PLACE_DETAILS[id] ?? null;
+export async function searchPlaces(textQuery: string): Promise<RestaurantSummary[]> {
+  return apiGet<RestaurantSummary[]>('/restaurants', { q: textQuery, limit: NEARBY_LIMIT });
 }
 
-export async function getPlacePhotoUrl(name: string) {
-  const photoUri = photoUrlForMockName(name);
-  return photoUri ? { name, photoUri } : null;
+export async function getPlaceDetails(id: string): Promise<RestaurantDetail | null> {
+  try {
+    return await apiGet<RestaurantDetail>(`/restaurants/${id}`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
-export async function getDiscoveryTaxonomies() {
-  return {
-    cuisines: CUISINES,
-    occasions: OCCASIONS,
-    ambients: AMBIENTS,
-    benefits: BENEFITS,
-    categorySubtypes: CATEGORY_SUBTYPES,
-  };
+export async function getDiscoveryTaxonomies(): Promise<DiscoveryTaxonomies> {
+  return apiGet<DiscoveryTaxonomies>('/taxonomies');
 }
 
 export async function getCurrentUser() {
