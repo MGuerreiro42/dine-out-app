@@ -39,7 +39,7 @@ Mobile (Expo/React Native) communicates over REST/JSON with a Bearer token to a 
 3. `RestaurantsService` returns the row's Overture-sourced fields (`displayName`, `formattedAddress`, `latitude`, `longitude`, `category`) alongside product-authored fields (`occasion`, `ambient`, `tags`, `whatsapp`, `instagramHandle`) as one response. No merge step, no outbound call.
 4. Response returned to mobile.
 
-`GET /restaurants` behaves identically in kind: `lat`/`lng` (radius) or `q` (case-insensitive substring on `displayName`), plus `category`/`occasion` filters, run directly against Postgres — no external search call.
+`GET /restaurants` behaves identically in kind: `lat`/`lng` (radius) or `q` (case-insensitive substring on `displayName`), plus `category`/`occasion`/`cuisine` filters, run directly against Postgres — no external search call.
 
 The catalog is populated and refreshed by a separate, offline ingestion script (`dine-out-backend`'s `specs/restaurants.md`), not by any request handler. A request never triggers ingestion and never blocks on an external service.
 
@@ -118,7 +118,7 @@ The retention restriction below (Google Maps Platform's Terms) applies only to t
 
 | Route | Module | Auth | Notes |
 |---|---|---|---|
-| `GET /restaurants` | Restaurants | none | Query: `q`, `lat`, `lng`, `category`, `occasion`. Filter set tracks `search.md` US4/US6, not started. `category` matches exact only, not `categoryAlternates`; no `brand` query param this round — `dine-out-backend`'s `specs/restaurants.md` FR-021/FR-022. |
+| `GET /restaurants` | Restaurants | none | Query: `q`, `lat`, `lng`, `category`, `occasion`, `cuisine`. Filter set tracks `search.md` US4/US6, not started. `category` matches exact only, not `categoryAlternates`; no `brand` query param this round — `dine-out-backend`'s `specs/restaurants.md` FR-021/FR-022. `cuisine` matches exact against `Restaurant.cuisineId` (one of 11 buckets), combinable with `category`/`occasion`; specced, not yet migrated — `specs/restaurants.md` FR-023–FR-025. |
 | `GET /restaurants/:id` | Restaurants | none | §2 |
 | `GET /restaurants/:id/photos/:photoName` | Restaurants | none | Deferred — Overture has no photo field; no fallback source chosen. Dropped from `dine-out-backend`'s `specs/restaurants.md` this pass, not implemented |
 | `GET /taxonomies` | Restaurants | none | cuisines, occasions, ambients, benefits, categorySubtypes |
@@ -163,7 +163,7 @@ Public routes bypass the guard, making `auth.md`'s "browse fully while logged ou
 
 ## 8. Database schema
 
-Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `Review`, or `OpeningHours` table — prohibited under §3. `Favorite`, `Order`, and `Reservation` each hold foreign keys to both `User` and `Restaurant`, resolving three separate many-to-many relationships. `Restaurant`'s ten field-enrichment columns below (`phones` through `brandWikidataId`) are specced (`dine-out-backend`'s `specs/restaurants.md` FR-015–FR-018), not yet migrated.
+Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `Review`, or `OpeningHours` table — prohibited under §3. `Favorite`, `Order`, and `Reservation` each hold foreign keys to both `User` and `Restaurant`, resolving three separate many-to-many relationships. `Restaurant`'s ten field-enrichment columns below (`phones` through `brandWikidataId`) are specced (`dine-out-backend`'s `specs/restaurants.md` FR-015–FR-018), not yet migrated. `Restaurant.cuisineId` (below) is likewise specced (FR-023–FR-024), not yet migrated.
 
 | Table | Field | Type | Notes |
 |---|---|---|---|
@@ -181,6 +181,7 @@ Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `
 | | source | enum (`OVERTURE`) | Which catalog source populated this row. Extensible |
 | | sourceId | string | Overture GERS id. `(source, sourceId)` unique together — the ingestion upsert key |
 | | category | string | Overture `categories.primary`. Indexed — `GET /restaurants`'s `category` filter |
+| | cuisineId | string, indexed | One of 11 buckets, computed from `category` at ingestion time (not per-request). Specced (`dine-out-backend`'s `specs/restaurants.md` FR-023–FR-024), not yet migrated. `GET /restaurants`'s `cuisine` filter (§6) |
 | | confidence | float | Overture's row-level confidence score, 0-1 |
 | | sourceAttributes | json | Full raw source row, for traceability without re-fetching |
 | | lastSyncedAt | timestamp | Last ingestion touch. Not a TTL — no field on this table expires |
@@ -240,6 +241,7 @@ New table: `RestaurantClaim` — id, restaurantId (FK), claimantUserId (FK), doc
 - **Photo fallback**: no image source is chosen for a restaurant with no photos (every ingested-but-unclaimed row, since Overture has no photo field). `GET /restaurants/:id/photos/:photoName` is dropped from `dine-out-backend`'s `specs/restaurants.md` this pass, not built.
 - **Category filter broadening**: resolved — `GET /restaurants?category=X` (§6) stays exact-match against `category` only, `Restaurant.categoryAlternates` is not matched. `dine-out-backend`'s `specs/restaurants.md` FR-021.
 - **Brand filter scope**: resolved — no `?brand=X` query param (§6) this round. `brandName`/`brandWikidataId` are captured, not queryable, until a User Story requests chain browsing. `dine-out-backend`'s `specs/restaurants.md` FR-022.
+- **Cuisine taxonomy**: `GET /taxonomies`'s 5 arbitrary cuisines and `Restaurant.cuisineId`/`GET /restaurants?cuisine=X` (§6/§8) are specced, not migrated — three open product decisions block implementation (`halal_restaurant`/`kosher_restaurant` bucket placement, whether the thin `latin_american` bucket ships standalone, the `restaurant` catch-all's subtype-list size). `dine-out-backend`'s `specs/restaurants.md` FR-023–FR-027.
 
 Resolved by this document: content authorship for `occasion`/`tags`/`menu` — restaurant partners, via CNPJ/CPF claim (§9). Seeding process for unclaimed restaurants — the Overture ingestion script (`dine-out-backend`'s `specs/restaurants.md`), resolving the prior open item below.
 
@@ -259,3 +261,4 @@ Resolved by this document: content authorship for `occasion`/`tags`/`menu` — r
 | 2026-08-25 | User resolved the three open items raised above: ingestion confidence floor `>= 0.5`; unclaimed-restaurant `occasion`/`ambient` return `null` on the wire (mobile contract update tracked as separate follow-up, not this document); `dine-out-backend`'s `feat/api-docs` merged to `main`, no new backend dependency blocker. |
 | 2026-08-25 | `Restaurant`'s schema (§8) and field provenance table (§3) gain ten additional Overture-sourced fields: `phones`, `websites`, `socialLinks` (renamed from Overture's `socials`), `categoryAlternates`, `categoryHierarchy`, `postalCode`, `region`, `country`, `brandName`, `brandWikidataId` — specced in `dine-out-backend`'s `specs/restaurants.md` (FR-015–FR-018), not yet migrated. |
 | 2026-08-25 | User resolved both open items from the entry above (§10): `category` filtering (§6) stays exact-match only, not broadened to `categoryAlternates` (FR-021); no `brand` query param this round (FR-022). |
+| 2026-08-26 | `Restaurant`'s schema (§8) gains `cuisineId`, and `GET /restaurants` (§6) gains a `cuisine` query param — a new indexed, ingestion-computed column mapping `category`'s 122 raw Overture values onto 11 real cuisine buckets, replacing `GET /taxonomies`'s 5 arbitrary ones. `brazilian_restaurant` (~9.4% of the catalog) becomes its own top-level bucket rather than folding into a broader "Latin American" grouping. Specced in `dine-out-backend`'s `specs/restaurants.md` (FR-023–FR-027), not yet migrated; three open product decisions listed in §10. |
