@@ -16,6 +16,7 @@ import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { LocationHeader, MapResultCard } from '@/features/search/components';
 import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hooks';
 import type { MapResultData } from '@/features/search/hooks';
+import { compareByRating } from '@/features/search/lib/ratingSort';
 
 type TaxonomyDimension = 'cuisine' | 'occasion' | 'ambient';
 type ActiveFilters = Partial<Record<TaxonomyDimension, string>>;
@@ -31,10 +32,6 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'trending', label: 'Trending' },
 ];
 
-// Price is not part of the FILTER_CATEGORIES/SORT_OPTIONS lists below: the
-// real backend (dine-out-backend-overture) carries no price data at all, so
-// a price filter/sort could never match anything — hidden rather than left
-// visibly inert (see wire-real-backend implementation report).
 const FILTER_CATEGORIES: { icon: IconSpec; label: string; dimension: FilterMenuView | 'delivery' }[] = [
   { icon: { set: 'Ionicons', name: 'restaurant-outline' }, label: 'Cuisine', dimension: 'cuisine' },
   { icon: { set: 'Ionicons', name: 'wine-outline' }, label: 'Ambient', dimension: 'ambient' },
@@ -57,13 +54,11 @@ const FILTER_MENU_TITLES: Record<Exclude<FilterMenuView, 'root'>, string> = {
   features: 'Features',
 };
 
-const ratingValue = (rating: string | null): number => (rating === null ? -Infinity : Number(rating));
-
 const sortResults = (results: MapResultData[], sortBy: SortKey) =>
   [...results].sort((a, b) => {
     switch (sortBy) {
       case 'top_rated':
-        return ratingValue(b.rating) - ratingValue(a.rating);
+        return compareByRating(a.rating, b.rating);
       case 'trending':
         return a.id - b.id;
       default:

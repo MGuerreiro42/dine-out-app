@@ -5,6 +5,8 @@ import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
 import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
 import type { Restaurant } from '@/types';
 
+import { compareByRating } from '@/features/search/lib/ratingSort';
+
 import { deriveHomeCard } from './useHomeDiscovery';
 
 export type TaxonomyDimension = 'cuisine' | 'occasion' | 'ambient';
@@ -18,7 +20,7 @@ const REFINE_DIMENSIONS: Record<TaxonomyDimension, [TaxonomyDimension, TaxonomyD
 const GRID_SIZE = 4;
 
 function topRated(list: Restaurant[]) {
-  return [...list].sort((a, b) => Number(b.rating) - Number(a.rating));
+  return [...list].sort((a, b) => compareByRating(a.rating, b.rating));
 }
 
 export function useTypeDetail(dimension: TaxonomyDimension, id: string | undefined, searchQuery?: string) {
