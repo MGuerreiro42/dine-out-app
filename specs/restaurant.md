@@ -56,7 +56,7 @@ A user weighing whether to go can check what the place offers, when it's open, a
 3. **Given** the detail screen, **when** the user taps "Opening Hours," **then** a sheet opens showing hours for every day of the week.
 4. **Given** the detail screen, **when** it renders, **then** a "Things to know" section shows title+text pairs without requiring a tap.
 5. **Given** the detail screen, **when** it renders, **then** a tappable address opens a sheet offering to open the location in a maps app.
-6. **Given** the detail screen, **when** it renders, **then** a "Contact & socials" control opens a sheet with phone, WhatsApp, and Instagram options, each simulating a redirect.
+6. **Given** the detail screen, **when** it renders, **then** a "Contact & socials" section shows every phone, WhatsApp, Instagram, website, and social link inline as its own row, each simulating a redirect on tap — no sheet required.
 
 ---
 
@@ -143,7 +143,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **FR-014**: The system MUST display the restaurant's Instagram handle, a preview photo grid, and a toggleable Follow/Following control — local UI state only.
 - **FR-015**: The system MUST display a "Similar Places" rail; tapping an entry MUST navigate to that restaurant's own detail screen, replacing the current screen (`router.replace`).
 - **FR-016**: The user MUST be able to toggle a restaurant's favorited state from the detail screen, reading and writing the shared favorites store defined in `favorites.md`.
-- **FR-017**: The system MUST display contact options (every phone number, WhatsApp, Instagram, every website, every social link) in a dedicated sheet, each simulating a redirect. Social links show a human platform label (e.g. "Facebook"), not the raw URL.
+- **FR-017**: The system MUST display contact options (every phone number, WhatsApp, Instagram, every website, every social link) inline on the detail screen as individual rows, no sheet required, each simulating a redirect on tap. Social links show a human platform label (e.g. "Facebook"), not the raw URL.
 - **FR-020**: The system MUST display a visible empty state (icon + "No reviews yet" + a non-functional "Add a review" control) when a restaurant has zero reviews, in place of hiding the section.
 - **FR-021**: The system MUST display the restaurant's own category and any alternate categories as a humanized chip row (`snake_case` → `Title Case`), visually distinct from owner-authored tags.
 - **FR-022**: The system MUST display a "Part of {brandName}" badge near the restaurant name when the restaurant has a non-null `brandName`.
@@ -170,7 +170,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 
 - **Feature folder**: `src/features/restaurant/{api,components,hooks,types}`. No `stores/` — the one piece of cross-screen state this feature touches (favorited) is global, owned by `favorites.md`.
 - **Shared `src/components/ui/` component**: `PhotoCarousel` (gallery with next/previous + counter).
-- **US3 components** (`features/restaurant/components/`): `InfoActionsRow` (Contact/Opening Hours button row, reuses `RedirectOptionsSheetContent`), `OpeningHoursSheetContent`, `AmenitiesSection` + `AmenitiesSheetContent`, `ThingsToKnowSection` (always visible, no sheet).
+- **US3 components** (`features/restaurant/components/`): `InfoActionsRow` (Contact & socials section, renders every phone/WhatsApp/Instagram/website/social-link row inline, no sheet — `Alert.alert('Demo', ...)` directly on tap, mirrors `InstagramSection`'s inline-redirect pattern rather than reusing `RedirectOptionsSheetContent`), `OpeningHoursSheetContent`, `AmenitiesSection` + `AmenitiesSheetContent`, `ThingsToKnowSection` (always visible, no sheet).
 - **US4 components**: `ReviewsSection` (rating header, preview review, "view all N reviews" trigger; renders a visible empty state + non-functional "Add a review" control when `reviews.length === 0`) + `ReviewsSheetContent`, `HighlightsRow` (always visible, no sheet).
 - **US5 component**: `InstagramSection` — handle, Follow/Following toggle (local `useState`), 3-column photo grid.
 - **Reuses from `src/components/ui/`**: `RestaurantCard`, `HorizontalRail` (Similar Places rail), `BottomSheet` (every quick-action and info sheet), `RatingBadge`.

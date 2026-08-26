@@ -1,10 +1,7 @@
-import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 
-import { BottomSheet, Icon, type IconSpec } from '@/components/ui';
+import { Icon, type IconSpec } from '@/components/ui';
 import { getSocialLinkIcon, getSocialLinkLabel, getWebsiteLabel } from '@/features/restaurant/lib/labels';
-
-import { RedirectOptionsSheetContent } from './RedirectOptionsSheetContent';
 
 type InfoActionsRowProps = {
   phones: string[];
@@ -15,8 +12,6 @@ type InfoActionsRowProps = {
 };
 
 export function InfoActionsRow({ phones, whatsapp, instagramHandle, websites, socialLinks }: InfoActionsRowProps) {
-  const [sheetOpen, setSheetOpen] = useState(false);
-
   const contactOptions: { icon: IconSpec; label: string }[] = [
     ...phones.map((phone) => ({ icon: { set: 'Ionicons', name: 'call-outline' } as IconSpec, label: `Call: ${phone}` })),
     whatsapp ? { icon: { set: 'Ionicons', name: 'logo-whatsapp' } as IconSpec, label: `WhatsApp: ${whatsapp}` } : null,
@@ -35,18 +30,21 @@ export function InfoActionsRow({ phones, whatsapp, instagramHandle, websites, so
   }
 
   return (
-    <View className="px-4 pb-4">
-      <Pressable
-        onPress={() => setSheetOpen(true)}
-        className="flex-row items-center justify-center gap-1.5 rounded-2xl bg-[#f3f4f6] p-3.5"
-      >
-        <Icon spec={{ set: 'Ionicons', name: 'call-outline' }} size={16} color="#1f2937" />
-        <Text className="text-[15px] font-bold text-[#1f2937]">Contact & socials</Text>
-      </Pressable>
+    <View className="border-t border-gray-100 px-4 py-5">
+      <Text className="mb-3 text-base font-bold text-ink">Contact & socials</Text>
 
-      <BottomSheet visible={sheetOpen} onClose={() => setSheetOpen(false)}>
-        <RedirectOptionsSheetContent title="Contact & socials" options={contactOptions} />
-      </BottomSheet>
+      <View className="gap-2.5">
+        {contactOptions.map((option, index) => (
+          <Pressable
+            key={`${option.label}-${index}`}
+            onPress={() => Alert.alert('Demo', `Would redirect to ${option.label}`)}
+            className="flex-row items-center gap-2.5 rounded-xl bg-sand-light p-3.5"
+          >
+            <Icon spec={option.icon} size={18} />
+            <Text className="text-sm font-bold text-ink">{option.label}</Text>
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 }
