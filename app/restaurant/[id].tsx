@@ -14,6 +14,7 @@ import {
   SimilarPlacesSection,
 } from '@/features/restaurant/components';
 import { useRestaurantDetailQuery } from '@/features/restaurant/api';
+import { humanizeCategory } from '@/features/restaurant/lib/labels';
 import { useRestaurantsQuery } from '@/features/search/api';
 
 export default function RestaurantDetailScreen() {
@@ -58,6 +59,7 @@ export default function RestaurantDetailScreen() {
   const hasPrice = restaurant.priceLevel !== null;
   const hasAddress = restaurant.addressShort !== null;
   const hasInfoRow = hasRating || hasPrice || hasAddress;
+  const categoryChips = Array.from(new Set([restaurant.category, ...restaurant.categoryAlternates]));
 
   return (
     <View className="flex-1 bg-white">
@@ -94,10 +96,25 @@ export default function RestaurantDetailScreen() {
         <View className="px-4 pt-4">
           <Text className="text-2xl font-bold text-ink">{restaurant.name}</Text>
 
+          {restaurant.brandName ? (
+            <View className="mt-1 flex-row items-center gap-1">
+              <Icon spec={{ set: 'Ionicons', name: 'storefront-outline' }} size={13} color="#8a8580" />
+              <Text className="text-xs text-muted">Part of {restaurant.brandName}</Text>
+            </View>
+          ) : null}
+
           <View className="mt-2.5 flex-row flex-wrap gap-2">
             {restaurant.tags.map((tag) => (
               <View key={tag} className="rounded-full bg-[#e0e7ff] px-3 py-1.5">
                 <Text className="text-xs font-light text-[#4338ca]">{tag}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View className="mt-1.5 flex-row flex-wrap gap-1.5">
+            {categoryChips.map((category) => (
+              <View key={category} className="rounded-full border border-[#e5e7eb] px-2.5 py-1">
+                <Text className="text-[11px] font-light text-muted">{humanizeCategory(category)}</Text>
               </View>
             ))}
           </View>
@@ -128,7 +145,13 @@ export default function RestaurantDetailScreen() {
 
         <ActionGrid menu={restaurant.menu} />
 
-        <InfoActionsRow phone={restaurant.phone} whatsapp={restaurant.whatsapp} instagramHandle={restaurant.instagramHandle} />
+        <InfoActionsRow
+          phones={restaurant.phones}
+          whatsapp={restaurant.whatsapp}
+          instagramHandle={restaurant.instagramHandle}
+          websites={restaurant.websites}
+          socialLinks={restaurant.socialLinks}
+        />
 
         <ReviewsSection rating={restaurant.rating} reviews={restaurant.reviews} reviewCount={restaurant.reviewCount} />
 

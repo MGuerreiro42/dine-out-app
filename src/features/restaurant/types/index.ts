@@ -36,12 +36,17 @@ export type Highlight = z.infer<typeof HighlightSchema>;
 export const RestaurantDetailSchema = RestaurantSchema.extend({
   photos: z.array(z.string()),
   tags: z.array(z.string()),
+  category: z.string(),
   addressShort: z.string().nullable(),
   menu: z.array(MenuItemSchema),
   thingsToKnow: z.array(ThingToKnowSchema),
-  phone: z.string().nullable(),
+  phones: z.array(z.string()),
   whatsapp: z.string().nullable(),
   instagramHandle: z.string().nullable(),
+  websites: z.array(z.string()),
+  socialLinks: z.array(z.string()),
+  categoryAlternates: z.array(z.string()),
+  brandName: z.string().nullable(),
   reviews: z.array(ReviewSchema),
   highlights: z.array(HighlightSchema),
 });
