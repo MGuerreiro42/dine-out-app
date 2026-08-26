@@ -15,7 +15,7 @@ test('renders nothing when there is no contact info at all', async () => {
   expect(toJSON()).toBeNull();
 });
 
-test('lists every phone, website and social link inline, no sheet required', async () => {
+test('lists every phone, website and social link once the sheet is opened', async () => {
   await render(
     <InfoActionsRow
       phones={['+551156962828', '+551199998888']}
@@ -26,7 +26,8 @@ test('lists every phone, website and social link inline, no sheet required', asy
     />,
   );
 
-  expect(screen.getByText('Contact & socials')).toBeTruthy();
+  await fireEvent.press(screen.getByText('Contact & socials'));
+
   expect(screen.getByText('Call: +551156962828')).toBeTruthy();
   expect(screen.getByText('Call: +551199998888')).toBeTruthy();
   expect(screen.getByText('Website: habibs.com.br')).toBeTruthy();
@@ -45,6 +46,7 @@ test('shows a demo redirect alert when a contact option is pressed', async () =>
       socialLinks={[]}
     />,
   );
+  await fireEvent.press(screen.getByText('Contact & socials'));
   await fireEvent.press(screen.getByText('Call: +551156962828'));
 
   expect(alertSpy).toHaveBeenCalledWith('Demo', 'Would redirect to Call: +551156962828');
