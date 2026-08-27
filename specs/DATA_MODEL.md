@@ -42,6 +42,7 @@ Opening hours, review text/timestamp, and photo URLs are fetched live from Googl
 | `occasion`, `ambient` | string/enum | Product-authored, no Google equivalent. |
 | `tags` | string[] | Product-authored. |
 | `whatsapp`, `instagramHandle` | string, nullable | Product-authored. |
+| `photoUrl` | string, nullable → non-nullable after backfill | Ingestion-assigned, not Google-sourced and not product-authored: drawn once, randomly, from the restaurant's cuisine bucket's 5-photo stock pool at first ingestion; excluded from every later re-ingestion's upsert so it never reassigns. A stock fallback, not real per-restaurant photography. `dine-out-backend-overture`'s `specs/restaurants.md` FR-028–FR-031. |
 | `ownerId` | FK → `User`, nullable | Set on an approved ownership claim — `ARCHITECTURE.md` §9. |
 | `createdAt`, `updatedAt` | timestamp | |
 
@@ -97,3 +98,4 @@ No migrations, no repo scaffolding, no endpoints — entity/relationship design 
 | 2026-08-13 | Corrected sourcing pattern from proactive "sync" to cache-aside (check DB by `googlePlaceId`, call Google only on a miss/TTL expiry). Renamed `lastSyncedAt` → `cachedAt`. Resolved the `Review` de-dup question: a cache refresh deletes and reinserts reviews wholesale. |
 | 2026-08-18 | Corrected for Google Maps Platform ToS compliance (`ARCHITECTURE.md`): the 24h cache-aside pattern above violates the Terms — only `place_id` (indefinite) and coordinates (≤30 days) may be cached. Removed `RestaurantPhoto`, `Review`, `OpeningHours` as persisted entities (all live-only now); removed `Restaurant`'s Google-sourced display columns (`displayName`, `formattedAddress`, `rating`, `userRatingCount`, `priceLevel`, `primaryType`, `internationalPhoneNumber`, `editorialSummary`, 12 amenity flags); renamed whole-row `cachedAt` → `coordsCachedAt`, scoped to `latitude`/`longitude` only. Added `Restaurant.ownerId`, resolving "who authors custom fields" via `ARCHITECTURE.md` §9's ownership-claim system. |
 | 2026-08-18 | Rewritten for tone — narrative/historical framing removed from body sections, consolidated into this Changelog. |
+| 2026-08-27 | Added `Restaurant.photoUrl` (nullable stock-photo fallback, ingestion-assigned once per row from its cuisine bucket's pool, never reassigned — `dine-out-backend-overture`'s `specs/restaurants.md` FR-028–FR-031). This document still models the pre-Overture-pivot Google Places shape (`googlePlaceId`, `coordsCachedAt`; no `cuisineId`/`source`/`sourceId`) — not resynced in full this round, scoped to `photoUrl` only. |

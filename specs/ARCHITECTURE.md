@@ -159,6 +159,8 @@ Public routes bypass the guard, making `auth.md`'s "browse fully while logged ou
 
 Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `Review`, or `OpeningHours` table — prohibited under §3. `Favorite`, `Order`, and `Reservation` each hold foreign keys to both `User` and `Restaurant`, resolving three separate many-to-many relationships.
 
+**Note**: this table predates `PROJECT.md`'s 2026-08-26 decision-log entry pivoting `Restaurant`'s real backend off Google Places onto `dine-out-backend-overture` (Overture Maps-sourced: `cuisineId`, `source`/`sourceId`, `category`, and the FR-015–FR-018 enrichment columns are not reflected below). Full resync is a separate follow-up; only `photoUrl` is added here, scoped to this round's change.
+
 | Table | Field | Type | Notes |
 |---|---|---|---|
 | `User` | id | serial, PK | |
@@ -178,6 +180,7 @@ Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `
 | | occasion, ambient | enum/string | Product-authored |
 | | tags | string[] | Product-authored |
 | | whatsapp, instagramHandle | string, nullable | Product-authored |
+| | photoUrl | string, nullable → non-nullable after backfill | Ingestion-assigned stock photo, randomly drawn once from the restaurant's cuisine bucket's photo pool — not live/per-restaurant Google photography. Fixed at first ingestion, never reassigned on re-ingestion. `dine-out-backend-overture`'s `specs/restaurants.md` FR-028–FR-031 |
 | | createdAt, updatedAt | timestamp | |
 | `MenuItem` | id, restaurantId | serial PK, FK → Restaurant | |
 | | name, price | string, string (display) | |
@@ -230,4 +233,5 @@ Resolved by this document: content authorship for `occasion`/`tags`/`menu` — r
 | Date | Change |
 |------|--------|
 | 2026-08-18 | Created. Resolves `DATA_MODEL.md`'s Google-caching compliance gap (cache-aside → live pass-through). Confirms NestJS/Postgres/Prisma/REST. Specifies auth token strategy, API surface, request lifecycle, database schema, restaurant-claim system. Design only, not built. |
+| 2026-08-27 | §8: added `Restaurant.photoUrl` (nullable stock-photo fallback, ingestion-assigned once per row from its cuisine bucket's pool, `dine-out-backend-overture`'s `specs/restaurants.md` FR-028–FR-031). Noted this table predates the 2026-08-26 Overture-backed pivot and is otherwise unsynced with the real shipped schema — flagged, not fixed in full this round. |
 | 2026-08-18 | Rewritten for tone: removed narrative framing, "X, not Y" constructions, explanatory asides. |
