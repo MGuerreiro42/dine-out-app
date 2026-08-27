@@ -1,24 +1,26 @@
 # Architecture — Target Backend Design
 
 **Status**: Vision — target architecture, not built. Compare against `PROJECT.md`'s Feature Index for current build state.
-**Builds on**: `DATA_MODEL.md`'s `Restaurant` entity family; Google Maps Platform's Service Specific Terms.
+**Builds on**: `DATA_MODEL.md`'s `Restaurant` entity family; Overture Maps' CDLA Permissive 2.0 license; Google Maps Platform's Service Specific Terms (deferred enrichment layer only, §10).
 **Created**: 2026-08-18
 
-This document specifies the backend's target design: module topology, the Google Places integration pattern, authentication, API surface, database schema, and the restaurant-ownership system. Diff against `PROJECT.md`'s Feature Index to determine remaining work.
+This document specifies the backend's target design: module topology, the restaurant catalog's Overture Maps sourcing, authentication, API surface, database schema, and the restaurant-ownership system. Diff against `PROJECT.md`'s Feature Index to determine remaining work.
 
-**Compliance constraint**: Google Maps Platform's Terms restrict caching of Places content. Only `place_id` may be retained indefinitely; coordinates may be retained up to 30 days. All other Places content — name, address, rating, photos, reviews, hours, phone — must be fetched live on each request and must not be persisted, regardless of schema or storage format.
+**Overture sourcing**: the restaurant catalog's base read path is populated by an offline ingestion script reading Overture Maps' Places dataset (`dine-out-backend`'s `specs/restaurants.md`). Overture's CDLA Permissive 2.0 license permits indefinite retention of the full place record — no live per-request fetch, no caching restriction, no share-alike obligation.
 
-**Legal status**: retention windows below are derived from Google's developer policy pages and secondary summaries, not a complete reading of the current Service Specific Terms (the primary document did not fully load during research). Verify exact wording, section numbers, and the EEA addendum before deployment.
+**Compliance constraint (deferred enrichment layer only)**: Google Maps Platform's Terms restrict caching of Places content. Only `place_id` may be retained indefinitely; coordinates may be retained up to 30 days. All other Places content — name, address, rating, photos, reviews, hours, phone — must be fetched live on each request and must not be persisted, regardless of schema or storage format. This constraint does not apply to any Overture-sourced field (§3); it would apply only if the deferred Google enrichment layer (§10) is built.
+
+**Legal status**: retention windows below are derived from Google's developer policy pages and secondary summaries, not a complete reading of the current Service Specific Terms (the primary document did not fully load during research). Verify exact wording, section numbers, and the EEA addendum before deployment — relevant only if the deferred Google enrichment layer is built.
 
 ---
 
 ## 1. System topology
 
-Mobile (Expo/React Native) communicates over REST/JSON with a Bearer token to a NestJS API of seven modules, backed by PostgreSQL via Prisma. `RestaurantsModule` is the only module with a live external dependency (Google Places API, New).
+Mobile (Expo/React Native) communicates over REST/JSON with a Bearer token to a NestJS API of seven modules, backed by PostgreSQL via Prisma. No module has a live external dependency on the request path. `RestaurantsModule`'s catalog is populated offline by a batch ingestion script reading Overture Maps' Places dataset (`dine-out-backend`'s `specs/restaurants.md`); a possible future Google Places enrichment layer (reviews, photos) is deferred, not implemented (§10).
 
 | Module | Responsibility |
 |---|---|
-| `RestaurantsModule` | Reads the stored row (product-authored fields), fetches from Google live, merges before responding. No Google-sourced field is persisted. |
+| `RestaurantsModule` | Reads the stored row — Overture-sourced catalog fields merged with product-authored fields — from Postgres. No live external call per request. |
 | `AuthModule` | Signup, login, refresh, logout. Issues the Bearer token. Includes `GET /users/me`. |
 | `FavoritesModule` | `User`–`Restaurant` relation. |
 | `OrdersModule` | `profile.md` US3. Provisional, not specced. |
@@ -26,21 +28,22 @@ Mobile (Expo/React Native) communicates over REST/JSON with a Bearer token to a 
 | `PaymentMethodsModule` | `profile.md` US5. Provisional, not specced. Card-data storage is a separate decision (PCI scope, likely a tokenizing provider). |
 | `NotificationSettingsModule` | `profile.md` US6. Provisional, not specced. |
 
-`RestaurantsModule` performs a live merge on every request. It does not cache, sync, or persist Google-sourced content.
+`RestaurantsModule` reads Postgres only. The catalog itself is kept current by re-running the ingestion script (`dine-out-backend`'s `specs/restaurants.md`), not by a per-request fetch.
 
 ---
 
 ## 2. Restaurant read: request sequence
 
 1. Mobile sends `GET /restaurants/:id`.
-2. Backend loads the stored row by id: `googlePlaceId`, `occasion`, `ambient`, `tags`, `menu`.
-3. Backend calls Google Place Details using `googlePlaceId`. Every request. No TTL check. Result not persisted.
-4. `RestaurantsService` merges stored fields with the Google response.
-5. Response returned to mobile.
+2. Backend loads the stored row by id, joined with `MenuItem`/`ThingToKnow`/`Highlight`.
+3. `RestaurantsService` returns the row's Overture-sourced fields (`displayName`, `formattedAddress`, `latitude`, `longitude`, `category`) alongside product-authored fields (`occasion`, `ambient`, `tags`, `whatsapp`, `instagramHandle`) as one response. No merge step, no outbound call.
+4. Response returned to mobile.
 
-Search behaves identically: Nearby/Text Search results are returned directly from the live Google response. `place_id` may be persisted for later lookups; list content is not.
+`GET /restaurants` behaves identically in kind: `lat`/`lng` (radius) or `q` (case-insensitive substring on `displayName`), plus `category`/`occasion`/`cuisine` filters, run directly against Postgres — no external search call.
 
-Each detail view and each search issues a billable Google request. There is no cache hit path.
+The catalog is populated and refreshed by a separate, offline ingestion script (`dine-out-backend`'s `specs/restaurants.md`), not by any request handler. A request never triggers ingestion and never blocks on an external service.
+
+Restaurant ownership claims and edit rights are unaffected by this change — §9 still governs who may set `occasion`/`ambient`/`tags`/`whatsapp`/`instagramHandle`, which are always product-authored regardless of catalog source. An ingested-but-unclaimed row returns `occasion`/`ambient` as `null` on the wire (`dine-out-backend`'s `specs/restaurants.md` FR-009) — the mobile client's wire contract (`src/types/restaurant.ts`, `src/lib/googlePlaces/schema.ts`) needs the same nullable update before it can consume this API; tracked as follow-up work, not part of this document.
 
 ---
 
@@ -48,15 +51,18 @@ Each detail view and each search issues a billable Google request. There is no c
 
 | Field / entity | Source | Retention |
 |---|---|---|
-| `googlePlaceId` | Google (ID only) | Indefinite — exempt from the caching restriction |
-| `latitude`, `longitude` | Google | ≤ 30 days |
-| `occasion`, `ambient`, `tags`, `whatsapp`, `instagramHandle` | Product-authored | Indefinite |
+| `sourceId`, `source`, `category`, `confidence`, `sourceAttributes`, `lastSyncedAt`, `displayName`, `formattedAddress`, `latitude`, `longitude` | Overture Maps Places (CDLA Permissive 2.0) | Indefinite — no caching restriction applies to Overture-sourced content |
+| `phones`, `websites`, `socialLinks`, `categoryAlternates`, `categoryHierarchy`, `postalCode`, `region`, `country`, `brandName`, `brandWikidataId` | Overture Maps Places (CDLA Permissive 2.0) | Indefinite, same rule as the row above. Specced (`dine-out-backend`'s `specs/restaurants.md` FR-015–FR-018), not yet migrated |
+| `googlePlaceId` | Reserved for a future Google enrichment layer | Not populated by ingestion; nullable |
+| `occasion`, `ambient`, `tags`, `whatsapp`, `instagramHandle` | Product-authored | Indefinite. Null until an ownership claim sets them (§9) for a row ingestion alone created |
 | `MenuItem`, `ThingToKnow`, `Highlight` | Product-authored | Indefinite |
 | `User`, `Favorite`, `Order`, `Reservation`, `PaymentMethod`, `NotificationSetting` | Account/product data | Indefinite |
-| `displayName`, `formattedAddress`, `rating`, `userRatingCount`, `priceLevel`, `primaryType`, `editorialSummary`, phone, amenity flags | Google | Not persisted |
-| Photos | Google | Not persisted |
-| Reviews | Google | Not persisted |
-| Opening hours | Google | Not persisted |
+| `rating`, `userRatingCount`, `priceLevel`, `primaryType`, `editorialSummary`, phone, amenity flags | Google (deferred enrichment layer, not implemented) | Would not be persisted if implemented — Google's Terms restrict caching of this content (below) |
+| Photos | Google (deferred enrichment layer, not implemented) | Not persisted if implemented. No fallback source chosen; `dine-out-backend`'s `specs/restaurants.md` drops the photo route this pass |
+| Reviews | Google (deferred enrichment layer, not implemented) | Not persisted if implemented |
+| Opening hours | Google (deferred enrichment layer, not implemented) | Not persisted if implemented |
+
+The retention restriction below (Google Maps Platform's Terms) applies only to the deferred enrichment layer. It does not constrain the Overture-sourced fields above — Overture's CDLA Permissive 2.0 license permits indefinite retention with no share-alike or caching restriction.
 
 ---
 
@@ -68,7 +74,7 @@ Each detail view and each search issues a billable Google request. There is no c
 | Database | PostgreSQL | Relational schema matches `DATA_MODEL.md` — foreign keys and enums, not document storage. |
 | ORM | Prisma | Prisma Studio/migrate tooling already available in this environment. |
 | API style | REST | `repository.ts` mirrors Google's REST response shapes with Zod contracts. |
-| Google content strategy | Live pass-through | Cache-aside (24h TTL, previously specified in `DATA_MODEL.md`) violates the Terms. §3. Corrected in `DATA_MODEL.md`'s Changelog. |
+| Restaurant catalog source | Overture Maps Places, offline ingestion | CDLA Permissive 2.0 permits indefinite retention; unblocks `RestaurantsModule` without the still-blocked Google Places API key. §2/§3. A prior live Google pass-through design, and before that a 24h cache-aside design, are both superseded — see `DATA_MODEL.md`'s Changelog. |
 | Session strategy | JWT access (15 min), rotating refresh (30 d) | Access tokens are not persisted on either side. Refresh tokens rotate on each use with reuse detection; a stolen refresh token is usable once before all sessions for that user are revoked. |
 | Password hashing | argon2id | Current OWASP-recommended default. Applies only to email/password accounts — Google/Apple accounts have no `passwordHash`. |
 | Token storage (mobile) | Refresh token in `expo-secure-store`; access token in memory only | AsyncStorage and a persisted Zustand store are unencrypted. SecureStore uses the platform Keychain/Keystore. |
@@ -102,9 +108,9 @@ Each detail view and each search issues a billable Google request. There is no c
 
 | Mock function | Route | Change |
 |---|---|---|
-| `getNearbyPlaces()` / `searchPlaces(q)` | `GET /restaurants` | Single route. Nearby-vs-Text-Search selection (presence of `q`) is internal to `RestaurantsService`. |
-| `getPlaceDetails(id)` | `GET /restaurants/:id` | Same shape; live merge per §2. |
-| `getPlacePhotoUrl(name)` | `GET /restaurants/:id/photos/:photoName` | Proxies Google's Photo Media endpoint. API key stays server-side. |
+| `getNearbyPlaces()` / `searchPlaces(q)` | `GET /restaurants` | Single route. Radius-vs-substring-search selection (presence of `q`) is internal to `RestaurantsService`, resolved against Postgres per §2. |
+| `getPlaceDetails(id)` | `GET /restaurants/:id` | Same shape; stored-row read per §2, no merge step. |
+| `getPlacePhotoUrl(name)` | `GET /restaurants/:id/photos/:photoName` | Deferred — see the row below and §10. |
 | `getDiscoveryTaxonomies()` | `GET /taxonomies` | No change. |
 | `getCurrentUser()` | `GET /users/me` | First route requiring the Bearer token. |
 
@@ -112,9 +118,9 @@ Each detail view and each search issues a billable Google request. There is no c
 
 | Route | Module | Auth | Notes |
 |---|---|---|---|
-| `GET /restaurants` | Restaurants | none | Query: `q`, `lat`, `lng`, `category`, `occasion`. Filter set tracks `search.md` US4/US6, not started. |
+| `GET /restaurants` | Restaurants | none | Query: `q`, `lat`, `lng`, `category`, `occasion`, `cuisine`. Filter set tracks `search.md` US4/US6, not started. `category` matches exact only, not `categoryAlternates`; no `brand` query param this round — `dine-out-backend`'s `specs/restaurants.md` FR-021/FR-022. `cuisine` matches exact against `Restaurant.cuisineId` (one of 11 buckets), combinable with `category`/`occasion`; specced, not yet migrated — `specs/restaurants.md` FR-023–FR-025. |
 | `GET /restaurants/:id` | Restaurants | none | §2 |
-| `GET /restaurants/:id/photos/:photoName` | Restaurants | none | Proxy |
+| `GET /restaurants/:id/photos/:photoName` | Restaurants | none | Deferred — Overture has no photo field; no fallback source chosen. Dropped from `dine-out-backend`'s `specs/restaurants.md` this pass, not implemented |
 | `GET /taxonomies` | Restaurants | none | cuisines, occasions, ambients, benefits, categorySubtypes |
 | `POST /auth/signup` | Auth | none | Body: name, email, password. argon2id |
 | `POST /auth/login` | Auth | none | Body: email, password. Returns token pair, §5 |
@@ -157,7 +163,7 @@ Public routes bypass the guard, making `auth.md`'s "browse fully while logged ou
 
 ## 8. Database schema
 
-Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `Review`, or `OpeningHours` table — prohibited under §3. `Favorite`, `Order`, and `Reservation` each hold foreign keys to both `User` and `Restaurant`, resolving three separate many-to-many relationships.
+Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `Review`, or `OpeningHours` table — prohibited under §3. `Favorite`, `Order`, and `Reservation` each hold foreign keys to both `User` and `Restaurant`, resolving three separate many-to-many relationships. `Restaurant`'s ten field-enrichment columns below (`phones` through `brandWikidataId`) are specced (`dine-out-backend`'s `specs/restaurants.md` FR-015–FR-018), not yet migrated. `Restaurant.cuisineId` (below) is likewise specced (FR-023–FR-024), not yet migrated.
 
 | Table | Field | Type | Notes |
 |---|---|---|---|
@@ -171,11 +177,25 @@ Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `
 | | tokenHash | string | Not the raw token |
 | | expiresAt, revokedAt | timestamp, nullable | |
 | | replacedByTokenId | FK → RefreshToken, nullable, self | Set on rotation |
-| `Restaurant` | id | serial, PK | Internal ID, distinct from Google's |
-| | googlePlaceId | string, unique, indexed | Indefinite retention. §3 |
-| | latitude, longitude | float | ≤ 30 days. §3 |
-| | coordsCachedAt | timestamp | TTL for the row above. No other field on this table has a TTL |
-| | occasion, ambient | enum/string | Product-authored |
+| `Restaurant` | id | serial, PK | Internal ID, distinct from any source's own id |
+| | source | enum (`OVERTURE`) | Which catalog source populated this row. Extensible |
+| | sourceId | string | Overture GERS id. `(source, sourceId)` unique together — the ingestion upsert key |
+| | category | string | Overture `categories.primary`. Indexed — `GET /restaurants`'s `category` filter |
+| | cuisineId | string, indexed | One of 11 buckets, computed from `category` at ingestion time (not per-request). Specced (`dine-out-backend`'s `specs/restaurants.md` FR-023–FR-024), not yet migrated. `GET /restaurants`'s `cuisine` filter (§6) |
+| | confidence | float | Overture's row-level confidence score, 0-1 |
+| | sourceAttributes | json | Full raw source row, for traceability without re-fetching |
+| | lastSyncedAt | timestamp | Last ingestion touch. Not a TTL — no field on this table expires |
+| | displayName | string | Overture `names.primary`. Indefinite retention. §3 |
+| | formattedAddress | string, nullable | Overture-sourced. Indefinite retention. §3 |
+| | latitude, longitude | float | Overture-sourced. Indefinite retention, indexed for bbox/radius queries. §3 |
+| | googlePlaceId | string, unique, nullable | Reserved for a future Google enrichment layer. Not populated by ingestion |
+| | phones, websites | string[] | Overture-sourced. Specced (`dine-out-backend`'s `specs/restaurants.md` FR-015), not yet migrated |
+| | socialLinks | string[] | Overture's `socials` column, renamed — mixed-platform URLs, distinct from `instagramHandle`. Specced (FR-015), not yet migrated |
+| | categoryAlternates | string[] | Overture `categories.alternate`. Specced (FR-016), not yet migrated. `category` filtering (§6) does not match this field (FR-021) |
+| | categoryHierarchy | string[] | Overture `taxonomy.hierarchy` — full category tree path. Specced (FR-016), not yet migrated |
+| | postalCode, region, country | string, nullable | Structured address components alongside `formattedAddress`. Specced (FR-017), not yet migrated |
+| | brandName, brandWikidataId | string, nullable | Overture `brand.names.primary`/`brand.wikidata`. Specced (FR-018), not yet migrated. Capture-only — no `brand` filter (§6) this round (FR-022) |
+| | occasion, ambient | string, nullable | Product-authored. Null until an ownership claim sets them (§9) |
 | | tags | string[] | Product-authored |
 | | whatsapp, instagramHandle | string, nullable | Product-authored |
 | | createdAt, updatedAt | timestamp | |
@@ -211,13 +231,19 @@ New table: `RestaurantClaim` — id, restaurantId (FK), claimantUserId (FK), doc
 
 ## 10. Open items
 
-- **Legal**: retention windows derived from secondary sources, not a full reading of the current Service Specific Terms. Verify before deployment, including the EEA addendum.
+- **Legal**: retention windows derived from secondary sources, not a full reading of the current Service Specific Terms. Verify before deployment, including the EEA addendum — relevant only if the deferred Google enrichment layer is built.
 - **First admins**: dispute review and tier upgrades (§9) require at least one admin `User`. Provisioning mechanism undecided; presumed seeded directly, not via public signup.
 - **Hosting/deployment**: not addressed. Object storage for claim evidence documents not chosen.
 - **Real OAuth**: `auth.md`'s Google/Apple buttons remain simulated. Real implementation (authorization code + PKCE) is out of scope for this document.
 - **First-run default**: whether a fresh install defaults to logged-out is unresolved, carried over from `auth.md`.
+- **Unclaimed-restaurant `occasion`/`ambient`**: resolved — the API returns `null` until a claim sets them (`dine-out-backend`'s `specs/restaurants.md` FR-009). The mobile wire contract (`src/types/restaurant.ts`, `src/lib/googlePlaces/schema.ts`) still needs updating to accept `null` and render a "no occasion/ambient set" state — tracked as follow-up work for whenever `dine-out-app` swaps its mocks for this API, not resolved by this document.
+- **Ingestion confidence floor**: resolved — `confidence >= 0.5` (`dine-out-backend`'s `specs/restaurants.md` FR-014).
+- **Photo fallback**: no image source is chosen for a restaurant with no photos (every ingested-but-unclaimed row, since Overture has no photo field). `GET /restaurants/:id/photos/:photoName` is dropped from `dine-out-backend`'s `specs/restaurants.md` this pass, not built.
+- **Category filter broadening**: resolved — `GET /restaurants?category=X` (§6) stays exact-match against `category` only, `Restaurant.categoryAlternates` is not matched. `dine-out-backend`'s `specs/restaurants.md` FR-021.
+- **Brand filter scope**: resolved — no `?brand=X` query param (§6) this round. `brandName`/`brandWikidataId` are captured, not queryable, until a User Story requests chain browsing. `dine-out-backend`'s `specs/restaurants.md` FR-022.
+- **Cuisine taxonomy**: `GET /taxonomies`'s 5 arbitrary cuisines and `Restaurant.cuisineId`/`GET /restaurants?cuisine=X` (§6/§8) are specced, not yet migrated. All three open product decisions resolved: `halal_restaurant`/`kosher_restaurant` stay in the `restaurant` catch-all, `latin_american` ships as a standalone bucket, the catch-all's full 45-entry subtype list ships as specced. `dine-out-backend`'s `specs/restaurants.md` FR-023–FR-027.
 
-Resolved by this document: content authorship for `occasion`/`tags`/`menu` — restaurant partners, via CNPJ/CPF claim (§9). Seeding process for unclaimed restaurants remains undefined.
+Resolved by this document: content authorship for `occasion`/`tags`/`menu` — restaurant partners, via CNPJ/CPF claim (§9). Seeding process for unclaimed restaurants — the Overture ingestion script (`dine-out-backend`'s `specs/restaurants.md`), resolving the prior open item below.
 
 ## Follow-up
 
@@ -231,3 +257,9 @@ Resolved by this document: content authorship for `occasion`/`tags`/`menu` — r
 |------|--------|
 | 2026-08-18 | Created. Resolves `DATA_MODEL.md`'s Google-caching compliance gap (cache-aside → live pass-through). Confirms NestJS/Postgres/Prisma/REST. Specifies auth token strategy, API surface, request lifecycle, database schema, restaurant-claim system. Design only, not built. |
 | 2026-08-18 | Rewritten for tone: removed narrative framing, "X, not Y" constructions, explanatory asides. |
+| 2026-08-25 | Restaurant catalog re-sourced from Overture Maps Places (CDLA Permissive 2.0) instead of a live Google Places pass-through, unblocking `RestaurantsModule` without the still-blocked Google API key (§1/§2/§3/§4/§8). Google Places becomes a documented, deferred future enrichment layer (§10), not removed. `Restaurant`'s schema (§8) gains `source`/`sourceId`/`category`/`confidence`/`sourceAttributes`/`lastSyncedAt`/`displayName`/`formattedAddress`; `googlePlaceId` becomes nullable; `coordsCachedAt` removed (no TTL under Overture's license); `occasion`/`ambient` become nullable. Photo route dropped from this pass (§6). Full design: `dine-out-backend`'s `specs/restaurants.md`. |
+| 2026-08-25 | User resolved the three open items raised above: ingestion confidence floor `>= 0.5`; unclaimed-restaurant `occasion`/`ambient` return `null` on the wire (mobile contract update tracked as separate follow-up, not this document); `dine-out-backend`'s `feat/api-docs` merged to `main`, no new backend dependency blocker. |
+| 2026-08-25 | `Restaurant`'s schema (§8) and field provenance table (§3) gain ten additional Overture-sourced fields: `phones`, `websites`, `socialLinks` (renamed from Overture's `socials`), `categoryAlternates`, `categoryHierarchy`, `postalCode`, `region`, `country`, `brandName`, `brandWikidataId` — specced in `dine-out-backend`'s `specs/restaurants.md` (FR-015–FR-018), not yet migrated. |
+| 2026-08-25 | User resolved both open items from the entry above (§10): `category` filtering (§6) stays exact-match only, not broadened to `categoryAlternates` (FR-021); no `brand` query param this round (FR-022). |
+| 2026-08-26 | `Restaurant`'s schema (§8) gains `cuisineId`, and `GET /restaurants` (§6) gains a `cuisine` query param — a new indexed, ingestion-computed column mapping `category`'s 122 raw Overture values onto 11 real cuisine buckets, replacing `GET /taxonomies`'s 5 arbitrary ones. `brazilian_restaurant` (~9.4% of the catalog) becomes its own top-level bucket rather than folding into a broader "Latin American" grouping. Specced in `dine-out-backend`'s `specs/restaurants.md` (FR-023–FR-027), not yet migrated; three open product decisions listed in §10. |
+| 2026-08-26 | User resolved the three open items from the entry above (§10). |
