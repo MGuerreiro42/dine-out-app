@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 
-import { Icon, type IconSpec } from '@/components/ui';
+import { Icon, type IconSpec, PhotoPlaceholder } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { AMBIENT_ICONS, DEFAULT_AMBIENT_ICON } from '@/features/search/lib/taxonomyIcons';
 import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
@@ -92,7 +92,11 @@ export function TypeOverviewScreen({ dimension }: TypeOverviewScreenProps) {
           dimension === 'cuisine' ? (
             <Pressable key={item.id} onPress={() => goToDetail(item)} className="w-[48%] md:w-[31%] lg:w-[23%]">
               <View className="aspect-square overflow-hidden rounded-2xl">
-                <Image source={{ uri: (item as Cuisine).photos[0] }} className="h-full w-full" />
+                {(item as Cuisine).photos[0] ? (
+                  <Image source={{ uri: (item as Cuisine).photos[0] }} className="h-full w-full" />
+                ) : (
+                  <PhotoPlaceholder />
+                )}
                 <View className="absolute inset-0 bg-black/30" />
                 <Text className="absolute bottom-2.5 left-2.5 text-sm font-bold text-white">{item.label}</Text>
               </View>
