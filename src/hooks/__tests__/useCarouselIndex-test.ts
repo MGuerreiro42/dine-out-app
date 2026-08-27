@@ -13,6 +13,18 @@ test('goNext and goPrev wrap around the list length', async () => {
   expect(result.current.index).toBe(2);
 });
 
+test('tracks direction: forward on goNext/auto-advance, backward on goPrev', async () => {
+  const { result } = await renderHook(() => useCarouselIndex(3, 0));
+
+  expect(result.current.direction).toBe('forward');
+
+  await act(async () => result.current.goPrev());
+  expect(result.current.direction).toBe('backward');
+
+  await act(async () => result.current.goNext());
+  expect(result.current.direction).toBe('forward');
+});
+
 test('resets index to 0 when the list shrinks below the current index', async () => {
   const { result, rerender } = await renderHook(({ length }: { length: number }) => useCarouselIndex(length, 0), {
     initialProps: { length: 3 },
@@ -32,6 +44,7 @@ test('auto-advances on an interval when there is more than one item', async () =
 
   await act(async () => jest.advanceTimersByTime(1000));
   expect(result.current.index).toBe(1);
+  expect(result.current.direction).toBe('forward');
 
   await act(async () => jest.advanceTimersByTime(2000));
   expect(result.current.index).toBe(0);

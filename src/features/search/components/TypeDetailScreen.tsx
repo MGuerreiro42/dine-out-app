@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import { HorizontalRail, Icon, PhotoPlaceholder, type IconSpec } from '@/components/ui';
 import { HomeRestaurantCard } from '@/features/search/components/HomeRestaurantCard';
@@ -14,7 +14,7 @@ import {
   DEFAULT_CUISINE_ICON,
 } from '@/features/search/lib/taxonomyIcons';
 import type { Occasion } from '@/features/search/types';
-import { useCarouselIndex } from '@/hooks';
+import { useCarouselIndex, useSlideAnimation } from '@/hooks';
 
 type TypeDetailScreenProps = {
   dimension: TaxonomyDimension;
@@ -117,7 +117,8 @@ type ChampionCardProps = {
 };
 
 function ChampionCard({ champions }: ChampionCardProps) {
-  const { index, goPrev, goNext } = useCarouselIndex(champions.length);
+  const { index, direction, goPrev, goNext } = useCarouselIndex(champions.length);
+  const { onLayout, translateX } = useSlideAnimation(index, direction);
   const hasMultiple = champions.length > 1;
   const champion = champions[index];
 
@@ -125,9 +126,11 @@ function ChampionCard({ champions }: ChampionCardProps) {
 
   return (
     <View className="mx-4 mt-md overflow-hidden rounded-xl bg-white shadow-md shadow-black/10">
-      <View className="relative aspect-[4/3]">
+      <View className="relative aspect-[4/3] overflow-hidden" onLayout={onLayout}>
         {champion.photo ? (
-          <Image source={{ uri: champion.photo }} className="h-full w-full" />
+          <Animated.View className="h-full w-full" style={{ transform: [{ translateX }] }}>
+            <Image source={{ uri: champion.photo }} className="h-full w-full" />
+          </Animated.View>
         ) : (
           <PhotoPlaceholder iconSize={24} />
         )}

@@ -1,8 +1,8 @@
-import { Image, Pressable, Text, View } from 'react-native';
+import { Animated, Image, Pressable, Text, View } from 'react-native';
 
 import { Icon, PhotoPlaceholder } from '@/components/ui';
 import type { HomeCardData } from '@/features/search/hooks/useHomeDiscovery';
-import { useCarouselIndex } from '@/hooks';
+import { useCarouselIndex, useSlideAnimation } from '@/hooks';
 
 type FeaturedBannerProps = {
   restaurants: HomeCardData[];
@@ -10,7 +10,8 @@ type FeaturedBannerProps = {
 };
 
 export function FeaturedBanner({ restaurants, taglineFor }: FeaturedBannerProps) {
-  const { index, goPrev, goNext } = useCarouselIndex(restaurants.length);
+  const { index, direction, goPrev, goNext } = useCarouselIndex(restaurants.length);
+  const { onLayout, translateX } = useSlideAnimation(index, direction);
   const hasMultiple = restaurants.length > 1;
   const restaurant = restaurants[index];
 
@@ -18,9 +19,11 @@ export function FeaturedBanner({ restaurants, taglineFor }: FeaturedBannerProps)
 
   return (
     <View>
-      <View className="mx-4 mt-1.5 aspect-[16/7] overflow-hidden rounded-2xl">
+      <View className="mx-4 mt-1.5 aspect-[16/7] overflow-hidden rounded-2xl" onLayout={onLayout}>
         {restaurant.photo ? (
-          <Image source={{ uri: restaurant.photo }} className="h-full w-full" />
+          <Animated.View className="h-full w-full" style={{ transform: [{ translateX }] }}>
+            <Image source={{ uri: restaurant.photo }} className="h-full w-full" />
+          </Animated.View>
         ) : (
           <PhotoPlaceholder iconSize={26} label="No photo available" />
         )}
