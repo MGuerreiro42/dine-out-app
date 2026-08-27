@@ -163,7 +163,7 @@ Public routes bypass the guard, making `auth.md`'s "browse fully while logged ou
 
 ## 8. Database schema
 
-Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `Review`, or `OpeningHours` table — prohibited under §3. `Favorite`, `Order`, and `Reservation` each hold foreign keys to both `User` and `Restaurant`, resolving three separate many-to-many relationships. `Restaurant`'s ten field-enrichment columns below (`phones` through `brandWikidataId`) are specced (`dine-out-backend`'s `specs/restaurants.md` FR-015–FR-018), not yet migrated. `Restaurant.cuisineId` (below) is likewise specced (FR-023–FR-024), not yet migrated.
+Thirteen tables, fourteen including `RestaurantClaim` (§9). No `RestaurantPhoto`, `Review`, or `OpeningHours` table — prohibited under §3. `Favorite`, `Order`, and `Reservation` each hold foreign keys to both `User` and `Restaurant`, resolving three separate many-to-many relationships. `OrderItem` and `PaymentTransaction` each hold foreign keys to two non-hub tables (`Order`↔`MenuItem`, `Order`↔`PaymentMethod` respectively). `Restaurant`'s ten field-enrichment columns below (`phones` through `brandWikidataId`) are specced (`dine-out-backend`'s `specs/restaurants.md` FR-015–FR-018), not yet migrated. `Restaurant.cuisineId` (below) is likewise specced (FR-023–FR-024), not yet migrated.
 
 | Table | Field | Type | Notes |
 |---|---|---|---|
@@ -201,15 +201,31 @@ Eleven tables, twelve including `RestaurantClaim` (§9). No `RestaurantPhoto`, `
 | | createdAt, updatedAt | timestamp | |
 | `MenuItem` | id, restaurantId | serial PK, FK → Restaurant | |
 | | name, price | string, string (display) | |
+| | category | string | Free-form, not an enum — restaurant-defined groupings |
+| | isAvailable | boolean | |
 | `ThingToKnow` | id, restaurantId | serial PK, FK → Restaurant | |
 | | title, text | string, text | |
 | `Highlight` | id, restaurantId | serial PK, FK → Restaurant | |
 | | title, description | string, text | |
 | `Favorite` | userId, restaurantId | composite PK, FK × 2 | |
 | | createdAt | timestamp | |
-| `Order` (provisional) | id, userId, restaurantId | serial PK, FK × 2 | `profile.md` US3 not specced |
+| `Order` (provisional) | id, userId, restaurantId | bigserial PK, FK × 2 | `profile.md` US3 not specced |
+| | status | enum | `PENDING`\|`CONFIRMED`\|`COMPLETED`\|`CANCELLED`\|`REFUNDED`. Derived from `PaymentTransaction.status`, not set directly |
+| | totalCents | integer | |
+| `OrderItem` (provisional) | id, orderId | bigserial PK, FK → Order (CASCADE) | Line items — `Order` alone is a total with no detail |
+| | menuItemId | FK → MenuItem, nullable (SET NULL) | |
+| | nameSnapshot, unitPriceCents | text, integer | Copied from `MenuItem` at order time, never read live — decouples receipts from menu price changes |
+| | quantity | smallint, CHECK > 0 | |
 | `Reservation` (provisional) | id, userId, restaurantId | serial PK, FK × 2 | `profile.md` US4 not specced |
+| | status | enum | `PENDING`\|`CONFIRMED`\|`CANCELLED`\|`COMPLETED`\|`NO_SHOW` |
 | `PaymentMethod` (provisional) | id, userId | serial PK, FK → User | `profile.md` US5 not specced |
+| `PaymentTransaction` (provisional) | id, orderId | bigserial PK, FK → Order (CASCADE) | One row per charge attempt |
+| | paymentMethodId | FK → PaymentMethod, nullable (SET NULL) | |
+| | idempotencyKey | text, unique | Guards against duplicate charges on retry |
+| | providerRef, amountCents | text nullable, integer | |
+| | methodLast4, methodBrand | text | Snapshotted at charge time |
+| | status | enum | `PENDING`\|`SUCCEEDED`\|`FAILED`\|`REFUNDED`\|`PARTIALLY_REFUNDED` |
+| | failureReason | text, nullable | |
 | `NotificationSetting` (provisional) | userId | PK, FK → User (1–1) | `profile.md` US6 not specced |
 
 ---
@@ -257,6 +273,7 @@ Resolved by this document: content authorship for `occasion`/`tags`/`menu` — r
 |------|--------|
 | 2026-08-18 | Created. Resolves `DATA_MODEL.md`'s Google-caching compliance gap (cache-aside → live pass-through). Confirms NestJS/Postgres/Prisma/REST. Specifies auth token strategy, API surface, request lifecycle, database schema, restaurant-claim system. Design only, not built. |
 | 2026-08-18 | Rewritten for tone: removed narrative framing, "X, not Y" constructions, explanatory asides. |
+| 2026-08-18 | §8 schema reconciled against a standalone data-modeling review: added `OrderItem` (order line items, price-snapshotted) and `PaymentTransaction` (charge attempts, idempotency-keyed) to close the gap where `Order` referenced `MenuItem` price live and had no payment-retry safety. Added `MenuItem.category`/`isAvailable`, resolved `Order.status`/`Reservation.status` enum values. Indexing, integrity, and scalability rationale for these additions is not reproduced here — kept out-of-repo pending the entities' owning spec, consistent with `DATA_MODEL.md`'s scope rule. |
 | 2026-08-25 | Restaurant catalog re-sourced from Overture Maps Places (CDLA Permissive 2.0) instead of a live Google Places pass-through, unblocking `RestaurantsModule` without the still-blocked Google API key (§1/§2/§3/§4/§8). Google Places becomes a documented, deferred future enrichment layer (§10), not removed. `Restaurant`'s schema (§8) gains `source`/`sourceId`/`category`/`confidence`/`sourceAttributes`/`lastSyncedAt`/`displayName`/`formattedAddress`; `googlePlaceId` becomes nullable; `coordsCachedAt` removed (no TTL under Overture's license); `occasion`/`ambient` become nullable. Photo route dropped from this pass (§6). Full design: `dine-out-backend`'s `specs/restaurants.md`. |
 | 2026-08-25 | User resolved the three open items raised above: ingestion confidence floor `>= 0.5`; unclaimed-restaurant `occasion`/`ambient` return `null` on the wire (mobile contract update tracked as separate follow-up, not this document); `dine-out-backend`'s `feat/api-docs` merged to `main`, no new backend dependency blocker. |
 | 2026-08-25 | `Restaurant`'s schema (§8) and field provenance table (§3) gain ten additional Overture-sourced fields: `phones`, `websites`, `socialLinks` (renamed from Overture's `socials`), `categoryAlternates`, `categoryHierarchy`, `postalCode`, `region`, `country`, `brandName`, `brandWikidataId` — specced in `dine-out-backend`'s `specs/restaurants.md` (FR-015–FR-018), not yet migrated. |
