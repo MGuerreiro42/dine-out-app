@@ -2,7 +2,7 @@
 
 **Feature**: `search` — folder `src/features/search/`
 **Created**: 2026-07-23
-**Status**: In Progress — User Stories 1, 2, 3, 5, 6 Implemented against real `dine-out-backend-overture` data; User Story 4 (geolocation) and Features filter drill-down (FR-016, FR-017, FR-019) designed, not started; Price filter (FR-020) removed 2026-08-26, not just deferred — no price data exists in the real backend
+**Status**: In Progress — User Stories 1, 2, 3, 4, 5, 6 Implemented against real `dine-out-backend-overture` data; Features filter drill-down (FR-019) designed, not started; Price filter (FR-020) removed 2026-08-26, not just deferred — no price data exists in the real backend
 **Design reference**: `App Flow.dc.html` — frames "1 · Home", "3 · Categories Overview", "4 · Category page", "4b · Occasion page". Frame "2 · Search & Map" is stale — the shipped screen has no map.
 
 ## Summary
@@ -66,15 +66,19 @@ The user lands on a dedicated page for one cuisine, occasion, or ambient value a
 
 ---
 
-### User Story 4 - Use my current location automatically (Priority: P3) — Designed, not started
+### User Story 4 - Use my current location, search an address, or pick a point on the map (Priority: P3) — Implemented
 
-The app detects the device's GPS location on open and uses it as the search anchor automatically. One location, always current, no address book.
+The app detects the device's GPS location on open and uses it as the search anchor automatically. The location sheet also lets the user override that anchor: type an address to forward-geocode, or pick a point on a full-screen map. A denied permission surfaces a visible action to enable location in OS settings, instead of failing silently. The location row also carries a radius selector controlling how far `getNearbyPlaces()` searches.
 
 **Acceptance scenarios**:
 
-1. **Given** the app opens and location permission is granted, **when** the coordinate resolves, **then** `src/stores/location.ts` holds `{latitude, longitude}` and a reverse-geocoded label; `LocationHeader` displays that label.
-2. **Given** permission is denied, times out, or errors, **when** that happens, **then** the app falls back to the existing static coordinate silently — no error dialog, no blocked screen.
-3. **Given** `LocationHeader` is tapped, **when** the sheet opens, **then** it shows the resolved address or a fallback label, and, only when permission was denied, a retry button.
+1. **Given** the app opens and location permission is granted, **when** the coordinate resolves, **then** `src/stores/location.ts` holds `{latitude, longitude, label, address}` and `status: 'resolved'`, `source: 'gps'`; `LocationHeader` displays the label.
+2. **Given** permission is denied, **when** that happens, **then** `status` becomes `'denied'` (distinct from `'fallback'`) and the store falls back to the static coordinate; a timeout or other error still falls back with `status: 'fallback'`. Neither case blocks any screen.
+3. **Given** `LocationHeader` is tapped, **when** the sheet opens, **then** it shows a `CurrentLocationCard` (tap re-resolves via GPS), an `AddressSearchInput` and a "Pick on map" row (both native-only, hidden on web), and, only when `status === 'denied'` and not on web, an "Enable location" button deep-linking to OS settings.
+4. **Given** the address search input (native only), **when** the user submits a query, **then** it forward-geocodes via `Location.geocodeAsync` and, on a match, calls `setManualLocation` with the first result and sets `source: 'manual'`.
+5. **Given** "Pick on map" is tapped (native only), **when** the user navigates to `/location-picker`, **then** a full-screen MapLibre map renders with a fixed center pin; confirming reads the map's own center (`MapRef.getCenter()`) and calls `setManualLocation`, then returns to the previous screen.
+6. **Given** the web platform, **when** `/location-picker` is opened directly, **then** it renders `MapPlaceholder` with "Manual map selection will be available soon." instead of a native map.
+7. **Given** the location row, **when** the user taps the radius pill next to the location pill, **then** a dropdown lists 5/10/50/100 km; selecting one calls `setRadiusKm` and the next `getNearbyPlaces()` request uses that value.
 
 ---
 
@@ -121,7 +125,7 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 - **FR-004**: The system MUST display a carousel of featured restaurants above the category rails, auto-advancing with manual prev/next controls and dot indicators.
 - **FR-005**: The user MUST be able to tap any restaurant card and navigate to its detail.
 - **FR-006**: The "Best Deliveries & Takeaways" rail MUST show only restaurants with `hasDelivery: true`.
-- **FR-007**: The system MUST display the user's location (area and address) at the top of Home. Static mock — see User Story 4.
+- **FR-007**: The system MUST display the user's location (area and address) at the top of Home, resolved from the device's real GPS coordinate (US4).
 - **FR-008**: `/type/{dimension}/{id}` MUST render a hero or champion card, best-rated grid, refine or subtype row, trending grid, and near-you grid for the active value, per User Story 3.
 - **FR-009**: The menu icon (≡) MUST open the navigation sidebar (`auth.md` User Story 3).
 - **FR-010**: On Home, Search, category/occasion detail pages, and Profile, the system MUST display a bottom tab bar with 4 items — Home, Search, Categories, Profile — highlighting the active tab.
@@ -130,10 +134,14 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 - **FR-013**: The Search screen MUST offer a Sort control (Top Rated / Trending / Price: Low to High / Price: High to Low) that reorders the visible list.
 - **FR-014**: The Search screen MUST offer a Filters chip listing Cuisine, Ambient, Occasion, Features, Price, Delivery. Cuisine/Occasion/Ambient/Delivery filter the list when set via an incoming route param, shown as a dismissible chip.
 - **FR-015**: Home's rail cards MUST show a tags row.
-- **FR-016** — Not started: On app open, the system MUST request foreground location permission (`expo-location`) and, if granted, resolve the device's coordinate into `src/stores/location.ts`, guarded by a timeout, falling back to the static coordinate on denial/timeout/error, never blocking any screen.
-- **FR-017** — Not started: `LocationHeader` MUST display the resolved label or a fallback label; its sheet MUST offer a retry action only when permission was denied.
+- **FR-016**: On app open, the system MUST request foreground location permission (`expo-location`) and, if granted, resolve the device's coordinate into `src/stores/location.ts`, guarded by a timeout; permission denial sets `status: 'denied'`, a timeout or other error sets `status: 'fallback'` — both fall back to the static coordinate, neither blocks any screen.
+- **FR-017**: `LocationHeader`'s sheet MUST offer a `CurrentLocationCard` showing the resolved label/address that re-resolves via GPS on tap.
 - **FR-019** — Not started: The Filters menu MUST let the user pick a Cuisine/Occasion/Ambient value directly, not only inherit one via route param.
 - **FR-020** — Not started: Price and Features MUST become real filters — Price as a single-select from `Restaurant.priceLevel`; Features as 4 multi-select flags (vegetarian options, good for groups, family friendly, outdoor seating), matching requires all active flags.
+- **FR-021**: `LocationHeader`'s sheet MUST offer an `AddressSearchInput` (hidden on web) that forward-geocodes a typed address via `Location.geocodeAsync` on submit and sets it as the search anchor via `setManualLocation`.
+- **FR-022**: `LocationHeader`'s sheet MUST offer a "Pick on map" row (hidden on web) navigating to `/location-picker`, a full-screen MapLibre map with a fixed center pin; confirming reads the map's center (`MapRef.getCenter()`) and calls `setManualLocation`. The web platform renders `MapPlaceholder` instead of a native map.
+- **FR-023**: When `status === 'denied'` (native only), `LocationHeader`'s sheet MUST show an "Enable location" button that deep-links to OS settings (`Linking.openSettings()`).
+- **FR-024**: The location row MUST offer a radius pill (`{radiusKm} km`) next to the location pill; tapping it opens a 4-option dropdown (5/10/50/100 km, default 10) that calls `setRadiusKm` on selection, threading the chosen value into `getNearbyPlaces()`'s `radiusKm` param.
 
 ### Key Entities
 
@@ -153,10 +161,10 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 - **Feature folder**: `src/features/search/{api,components,hooks,types}`. `stores/` unused — Home's state is local `useState`.
 - **Reuses from `src/components/ui/`**: `RestaurantCard`, `HorizontalRail`, `Chip`, `RatingBadge`, `BottomSheet`.
 - **Reuses from `src/components/layout/`**: `SearchBar` (controlled on Search, non-interactive tap target elsewhere), `SideMenu` (content owned by `auth.md`).
-- **Global state, not started (US4)**: `src/stores/location.ts` (Zustand) — `{latitude, longitude, label, status: 'resolved' | 'fallback'}`. Consumers: `LocationHeader.tsx`, `SearchMapView.tsx`.
+- **Global state (US4)**: `src/stores/location.ts` (Zustand) — `{latitude, longitude, label, address, status: 'resolved' | 'fallback' | 'denied', source: 'gps' | 'manual', radiusKm}`, `resolveLocation()`, `setManualLocation()`, `setRadiusKm()`. Consumers: `LocationHeader.tsx`, `CurrentLocationCard.tsx`, `AddressSearchInput.tsx`, `LocationPickerScreen.tsx`, `SearchMapView.tsx`, `src/mocks/repository.ts`'s `getNearbyPlaces()`.
 - **Types**: `Restaurant` shared (`src/types/restaurant.ts`); `Cuisine`/`Occasion`/`Ambient` feature-specific (`src/features/search/types/`).
 - **Mocks**: `src/mocks/restaurants.ts` (30 places, 6 per cuisine), `src/mocks/discoveryTaxonomies.ts`. `useRestaurantsQuery` mirrors the Google Places API (New) Nearby Search / Text Search contract; `useDiscoveryTaxonomiesQuery` reads the app's own mock endpoint.
-- **New dependency, not installed (US4)**: `expo-location`.
+- **Shared map style**: `src/features/search/lib/mapStyle.ts` exports `OSM_RASTER_STYLE`, reused by `SearchMapView.tsx` and `LocationPickerMap.tsx`.
 - **`TypeDetailScreen`/`useTypeDetail`** (`app/type/[dimension]/[id].tsx`) and **`TypeOverviewScreen`** (`app/type-overview/[dimension].tsx`) serve cuisine, occasion, and ambient from the same components — User Story 3.
 - **`DiscoveryCard`** (`features/search/components/`): the detail page's grid card. Feature-local, not `components/ui/`.
 - **Route for the Categories tab**: `app/(tabs)/category.tsx`, fixed, no dynamic segment. Per-cuisine content lives at `app/category/[cuisine].tsx`.
@@ -167,11 +175,10 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 - Voice search, and any filter beyond name/cuisine text matching.
 - Real subtype filtering on cuisine detail pages.
 - A map on the Search screen.
-- Full Filters menu functionality (FR-016, FR-017, FR-019, FR-020).
+- Full Filters menu functionality (FR-019, FR-020).
 
 ## Assumptions and Dependencies
 
-- User location is a static mock, not the device's real geolocation, until User Story 4.
 - Photos come from remote Unsplash URLs, no local asset bundling.
 - Depends on `app/restaurant/[id]` existing as a route.
 
@@ -195,3 +202,4 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 | 2026-08-26 | Wired to the real `dine-out-backend-overture` API (`feat/wire-real-backend`). The Price filter category and the two price-based sort options were removed (not left inert) — the real backend has no price data, so they could never match anything. FR-011's `rating · priceLevel` card text now renders only the segments that exist (both are null for every restaurant today). |
 | 2026-08-27 | Home's featured banner and the category detail page's Champion card became real carousels (`useCarouselIndex`) instead of always showing a single static restaurant — auto-advance every 5s plus tap chevrons/dots, cycling through 5 featured restaurants on Home and each category's top 4 champions. Verified `/type-overview/{dimension}` and `/type/{dimension}/{id}` are fully wired to the real backend and navigable end-to-end. |
 | 2026-08-27 | Both carousels gained a directional slide transition (`useSlideAnimation`, RN `Animated`, no new dependency) — the incoming photo slides in from the right on forward advances (manual or auto) and from the left on `goPrev`. |
+| 2026-08-27 | User Story 4 revived from an orphaned, never-merged branch (`feat/address-modal-expansion`, built 2026-08-18) and merged onto `feat/wire-real-backend`: `LocationHeader`'s sheet gained `CurrentLocationCard`, `AddressSearchInput` (native-only, forward-geocodes via `Location.geocodeAsync`), a "Pick on map" row (native-only, `/location-picker` route, full-screen MapLibre picker with a fixed center pin, confirms via `MapRef.getCenter()`), and an "Enable location" button (native-only) for the newly distinct `status: 'denied'` case. `src/stores/location.ts` gained `address`, `source: 'gps' \| 'manual'`, the `'denied'` status, and `setManualLocation()`. All copy translated from the original branch's Portuguese to English. FR-024 added: the location row gains a radius pill (5/10/50/100 km, default 10) opening a `Modal`+`measureInWindow` dropdown (same pattern as Search's Sort control), threading the selection into `getNearbyPlaces()`'s `radiusKm` param. Backend cap for `radiusKm` raised from 25 to 100 in `dine-out-backend-overture` (separate repo) to support the 100 km option. |

@@ -71,7 +71,7 @@ jest.config.js
 
 | Feature | Spec | Status |
 |---|---|---|
-| `search` | `specs/search.md` | Home (US1), Search list (US2, map removed), Category page (US3, superseded by dimension-agnostic Type Detail/Overview), Categories Overview (US5), Occasion page (US6) implemented, now against real restaurant data; address/geolocation (US4) and Features filters designed, not started; Price filter/sort removed 2026-08-26 (no price data in the real backend) |
+| `search` | `specs/search.md` | Home (US1), Search list (US2, map removed), Category page (US3, superseded by dimension-agnostic Type Detail/Overview), address/geolocation with address search and map-pick (US4), Categories Overview (US5), Occasion page (US6) implemented, now against real restaurant data; Features filters designed, not started; Price filter/sort removed 2026-08-26 (no price data in the real backend) |
 | `restaurant` | `specs/restaurant.md` | US1–US7 implemented; wired to real backend 2026-08-26 — rating/price/reviews/amenities/opening-hours/description have no backend equivalent yet and render as correctly-empty states (see PROJECT.md decision log) |
 | `favorites` | `specs/favorites.md` | Global store (`stores/favorites.ts`) implemented; User Story 2 (Profile rail) not implemented |
 | `profile` | `specs/profile.md` | US1+US2 implemented (mock data); US3-US6 not started |

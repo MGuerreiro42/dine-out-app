@@ -4,15 +4,14 @@ import type { DiscoveryTaxonomies } from '@/features/search/types';
 import { CURRENT_USER } from '@/mocks/currentUser';
 import { useLocationStore } from '@/stores/location';
 
-const NEARBY_RADIUS_KM = 10;
 const NEARBY_LIMIT = 50;
 
 export async function getNearbyPlaces(): Promise<RestaurantSummary[]> {
-  const { latitude, longitude } = useLocationStore.getState();
+  const { latitude, longitude, radiusKm } = useLocationStore.getState();
   return apiGet<RestaurantSummary[]>('/restaurants', {
     lat: latitude,
     lng: longitude,
-    radiusKm: NEARBY_RADIUS_KM,
+    radiusKm,
     limit: NEARBY_LIMIT,
   });
 }
