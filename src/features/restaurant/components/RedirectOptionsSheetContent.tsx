@@ -16,9 +16,9 @@ export function RedirectOptionsSheetContent({ title, options }: RedirectOptionsS
   return (
     <View>
       <Text className="mb-3.5 text-lg font-bold text-ink">{title}</Text>
-      {options.map((option, index) => (
+      {options.map((option) => (
         <Pressable
-          key={`${option.label}-${index}`}
+          key={option.label}
           onPress={() => Alert.alert('Demo', `Would redirect to ${option.label}`)}
           className="mb-2.5 flex-row items-center gap-2.5 rounded-xl bg-sand-light p-4"
         >

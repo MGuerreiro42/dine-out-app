@@ -41,7 +41,10 @@ Read `specs/PROJECT.md` before any architecture-level decision (new feature, glo
 ```bash
 npx tsc --noEmit
 npx jest
+npx biome lint .
 ```
+
+CI's "Typecheck & lint" gate runs `biome lint`, not just `tsc` — a clean `tsc --noEmit` does not imply clean CI; run `biome lint` locally too before pushing.
 
 `npx jest` runs once; `npm test` is watch mode. Tests hit the same `src/mocks/repository.ts` functions the app calls directly — no MSW, no network interception. To simulate a failure, `jest.spyOn` a `repository.ts` export and `mockRejectedValueOnce`/`mockResolvedValueOnce`, restoring with `jest.restoreAllMocks()` — see `useRestaurantsQuery-error-test.ts`.
 
