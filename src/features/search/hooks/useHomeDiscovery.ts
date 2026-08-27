@@ -54,17 +54,16 @@ export function useHomeDiscovery() {
 
   const toHomeCard = (restaurant: Restaurant) => deriveHomeCard(restaurant, cuisines, occasions, ambients);
 
-  const featured = restaurants[0];
-  const featuredCuisineLabel = featured ? (cuisines.find((c) => c.id === featured.cuisine)?.label ?? '') : '';
-  const featuredAmbientLabel = featured ? (ambients.find((a) => a.id === featured.ambient)?.label ?? '') : '';
-  const featuredTagline = featured
-    ? [
-        featuredCuisineLabel && `Authentic ${featuredCuisineLabel} dining`,
-        featuredAmbientLabel && `a ${featuredAmbientLabel.toLowerCase()} atmosphere`,
-      ]
-        .filter(Boolean)
-        .join(' with ')
-    : '';
+  const featured = restaurants.slice(0, 5).map(toHomeCard);
+  const taglineFor = (restaurant: HomeCardData) => {
+    const ambientLabel = ambients.find((a) => a.id === restaurant.ambient)?.label ?? '';
+    return [
+      restaurant.cuisineLabel && `Authentic ${restaurant.cuisineLabel} dining`,
+      ambientLabel && `a ${ambientLabel.toLowerCase()} atmosphere`,
+    ]
+      .filter(Boolean)
+      .join(' with ');
+  };
 
   return {
     isLoading: restaurantsQuery.isLoading || taxonomiesQuery.isLoading,
@@ -80,7 +79,8 @@ export function useHomeDiscovery() {
     cuisineList: (cuisineList.length ? cuisineList : restaurants.slice(0, 3)).map(toHomeCard),
     occasionList: (occasionList.length ? occasionList : restaurants.slice(0, 3)).map(toHomeCard),
     ambientList: (ambientList.length ? ambientList : restaurants.slice(0, 3)).map(toHomeCard),
-    featuredTagline,
+    featured,
+    taglineFor,
     setActiveCuisine,
     setActiveOccasion,
     setActiveAmbient,

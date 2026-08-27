@@ -57,7 +57,7 @@ The user lands on a dedicated page for one cuisine, occasion, or ambient value a
 **Acceptance scenarios**:
 
 1. **Given** the detail page (`/type/{dimension}/{id}`), **when** it renders, **then** a back button and search bar show in the header. Switching value happens from Home's rail or the overview grid, not from an in-page tab.
-2. **Given** a cuisine page, **when** it renders, **then** a hero banner shows the cuisine's photo and label. Occasion and ambient pages show a Champion card (the top-rated restaurant for that value) instead — those taxonomies have no `photo` field.
+2. **Given** a cuisine, occasion, or ambient page, **when** it renders, **then** a Champion card carousel shows the top-rated restaurants for that value, with the same prev/next/dot controls as Home's featured carousel.
 3. **Given** the detail page, **when** it renders, **then** a best-rated grid (top 4 by rating) shows, each card with photo, an overlaid rating badge, name, cuisine label and price, and an optional discount pill.
 4. **Given** a cuisine page, **when** it renders, **then** a subtype row shows below the best-rated grid; tapping an entry opens a placeholder sheet. Occasion and ambient pages show two refine rows instead, each with its own filtered grid.
 5. **Given** the detail page, **when** it renders, **then** a trending grid and a near-you grid render below, same card shape as the best-rated grid; near-you cards additionally show distance.
@@ -107,7 +107,7 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 ### Edge Cases
 
 - Empty filtered rail: falls back to the first 3 restaurants overall.
-- `restaurants[0]` missing: the featured banner doesn't render.
+- No restaurants: the featured banner doesn't render. Exactly one: it renders without chevrons/dots.
 - Cuisine category tabs use the same 5-cuisine taxonomy as Home.
 - Champions/trending/near-you derive from the same 30-restaurant mock; with 6 restaurants per cuisine, the same restaurant can appear in more than one grid.
 - `react-native-maps` has no web renderer; `SearchMapView.web.tsx` swaps in a placeholder via Metro's platform-file resolution. Neither is rendered on the Search screen.
@@ -118,7 +118,7 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 - **FR-001**: The system MUST display restaurants grouped into horizontal rails by cuisine, occasion, and ambient.
 - **FR-002**: The user MUST be able to switch the active cuisine, occasion, and ambient category independently.
 - **FR-003**: The system MUST visually highlight the active category in each selector.
-- **FR-004**: The system MUST display a featured restaurant above the category rails.
+- **FR-004**: The system MUST display a carousel of featured restaurants above the category rails, auto-advancing with manual prev/next controls and dot indicators.
 - **FR-005**: The user MUST be able to tap any restaurant card and navigate to its detail.
 - **FR-006**: The "Best Deliveries & Takeaways" rail MUST show only restaurants with `hasDelivery: true`.
 - **FR-007**: The system MUST display the user's location (area and address) at the top of Home. Static mock — see User Story 4.
@@ -193,3 +193,4 @@ The user taps Home's occasion rail's "View all occasions" or "View more" and lan
 | 2026-08-17 | Spec corrected against shipped code. Removed two FRs describing Home shortcuts (Dine-in/Bars/Takeout) and a benefits grid, both deleted. Filters drill-down and geolocation designed, not started. |
 | 2026-08-18 | Rewritten for tone — narrative/historical framing removed from body sections, consolidated into this Changelog. |
 | 2026-08-26 | Wired to the real `dine-out-backend-overture` API (`feat/wire-real-backend`). The Price filter category and the two price-based sort options were removed (not left inert) — the real backend has no price data, so they could never match anything. FR-011's `rating · priceLevel` card text now renders only the segments that exist (both are null for every restaurant today). |
+| 2026-08-27 | Home's featured banner and the category detail page's Champion card became real carousels (`useCarouselIndex`) instead of always showing a single static restaurant — auto-advance every 5s plus tap chevrons/dots, cycling through 5 featured restaurants on Home and each category's top 4 champions. Verified `/type-overview/{dimension}` and `/type/{dimension}/{id}` are fully wired to the real backend and navigable end-to-end. |

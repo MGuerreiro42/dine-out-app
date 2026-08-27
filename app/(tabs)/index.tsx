@@ -27,7 +27,8 @@ export default function HomeScreen() {
     cuisineList,
     occasionList,
     ambientList,
-    featuredTagline,
+    featured,
+    taglineFor,
     setActiveCuisine,
     setActiveOccasion,
     setActiveAmbient,
@@ -76,7 +77,7 @@ export default function HomeScreen() {
       <LocationHeader />
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
-        {restaurants[0] ? <FeaturedBanner restaurant={restaurants[0]} tagline={featuredTagline} /> : null}
+        {featured.length ? <FeaturedBanner restaurants={featured} taglineFor={taglineFor} /> : null}
 
       <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
         <View className="flex-row items-center gap-1.5">
