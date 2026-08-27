@@ -58,7 +58,7 @@ export function MapResultCard({ restaurant, onPress }: MapResultCardProps) {
             </Text>
           </View>
         ) : null}
-        <Text className="mt-xs text-xs text-[#6b7280]">{restaurant.cuisineLabel.toLowerCase()}</Text>
+        <Text className="mt-xs text-xs text-[#6b7280]">{restaurant.cuisineLabel}</Text>
         {restaurant.tags.length > 0 ? (
           <View className="mt-sm flex-row flex-wrap gap-1">
             {restaurant.tags.slice(0, 2).map((tag) => (

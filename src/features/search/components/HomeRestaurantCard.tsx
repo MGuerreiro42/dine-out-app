@@ -62,7 +62,7 @@ export function HomeRestaurantCard({ restaurant, onPress }: HomeRestaurantCardPr
           </View>
         ) : null}
         <Text className="mt-xs text-[13px] text-[#6b7280]" numberOfLines={1}>
-          {restaurant.cuisineLabel.toLowerCase()}
+          {restaurant.cuisineLabel}
         </Text>
         {restaurant.tags.length > 0 ? (
           <View className="mt-sm flex-row flex-wrap gap-1">
