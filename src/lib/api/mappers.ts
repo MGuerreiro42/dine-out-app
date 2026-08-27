@@ -5,7 +5,7 @@ export function mapSummaryToRestaurant(summary: RestaurantSummary): Restaurant {
   return {
     id: summary.id,
     name: summary.displayName,
-    photo: null,
+    photo: summary.photoUrl,
     rating: null,
     priceLevel: null,
     cuisine: summary.cuisineId,

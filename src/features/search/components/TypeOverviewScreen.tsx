@@ -92,7 +92,7 @@ export function TypeOverviewScreen({ dimension }: TypeOverviewScreenProps) {
           dimension === 'cuisine' ? (
             <Pressable key={item.id} onPress={() => goToDetail(item)} className="w-[48%] md:w-[31%] lg:w-[23%]">
               <View className="aspect-square overflow-hidden rounded-2xl">
-                <Image source={{ uri: (item as Cuisine).photo }} className="h-full w-full" />
+                <Image source={{ uri: (item as Cuisine).photos[0] }} className="h-full w-full" />
                 <View className="absolute inset-0 bg-black/30" />
                 <Text className="absolute bottom-2.5 left-2.5 text-sm font-bold text-white">{item.label}</Text>
               </View>

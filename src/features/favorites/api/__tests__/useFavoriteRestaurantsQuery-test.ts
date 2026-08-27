@@ -17,6 +17,7 @@ const RESTAURANTS: RestaurantSummary[] = [
     longitude: -46.6583,
     category: 'brazilian_restaurant',
     cuisineId: 'brazilian',
+    photoUrl: 'https://images.unsplash.com/photo-brazilian?w=1200&q=80',
     occasion: 'date-night',
     ambient: 'cozy',
     tags: [],

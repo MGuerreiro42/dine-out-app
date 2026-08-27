@@ -25,6 +25,7 @@ const WIRE_DETAIL: WireRestaurantDetail = {
   longitude: -46.57715268,
   category: 'fast_food_restaurant',
   cuisineId: 'fast_food',
+  photoUrl: 'https://images.unsplash.com/photo-fast-food?w=1200&q=80',
   occasion: null,
   ambient: null,
   tags: [],
@@ -63,6 +64,7 @@ test('threads phones, websites, socialLinks, categoryAlternates and brandName th
     categoryAlternates: ['restaurant', 'diner'],
     category: 'fast_food_restaurant',
     brandName: "Habib's",
+    photos: ['https://images.unsplash.com/photo-fast-food?w=1200&q=80'],
   });
 });
 

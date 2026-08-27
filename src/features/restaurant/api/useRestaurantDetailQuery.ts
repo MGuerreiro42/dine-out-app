@@ -19,7 +19,7 @@ export function useRestaurantDetailQuery(id: number) {
 
       const detail: RestaurantDetail = {
         ...base,
-        photos: [],
+        photos: wire.photoUrl ? [wire.photoUrl] : [],
         tags: wire.tags,
         category: wire.category,
         addressShort: wire.formattedAddress,

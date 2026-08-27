@@ -26,6 +26,7 @@ const RESTAURANTS: RestaurantSummary[] = [
     longitude: -46.6583,
     category: 'brazilian_restaurant',
     cuisineId: 'brazilian',
+    photoUrl: 'https://images.unsplash.com/photo-brazilian?w=1200&q=80',
     occasion: 'date-night',
     ambient: 'cozy',
     tags: [],
@@ -40,6 +41,7 @@ const RESTAURANTS: RestaurantSummary[] = [
     longitude: -46.6834,
     category: 'italian_restaurant',
     cuisineId: 'pizza_italian',
+    photoUrl: 'https://images.unsplash.com/photo-italian?w=1200&q=80',
     occasion: null,
     ambient: null,
     tags: [],
@@ -60,7 +62,12 @@ test('maps the nearby-places response into the domain restaurant list', async ()
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
   expect(result.current.data).toHaveLength(2);
-  expect(result.current.data?.[0]).toMatchObject({ id: 1, name: 'Fogo & Brasa', cuisine: 'brazilian' });
+  expect(result.current.data?.[0]).toMatchObject({
+    id: 1,
+    name: 'Fogo & Brasa',
+    cuisine: 'brazilian',
+    photo: 'https://images.unsplash.com/photo-brazilian?w=1200&q=80',
+  });
 });
 
 test('forwards a trimmed query to the search endpoint', async () => {

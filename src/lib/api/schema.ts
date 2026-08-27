@@ -8,6 +8,7 @@ export const RestaurantSummarySchema = z.object({
   longitude: z.number(),
   category: z.string(),
   cuisineId: z.string(),
+  photoUrl: z.string(),
   occasion: z.string().nullable(),
   ambient: z.string().nullable(),
   tags: z.array(z.string()),

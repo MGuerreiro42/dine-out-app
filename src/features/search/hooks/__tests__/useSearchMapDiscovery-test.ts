@@ -27,6 +27,7 @@ const RESTAURANTS: RestaurantSummary[] = [
     longitude: -46.6583,
     category: 'brazilian_restaurant',
     cuisineId: 'brazilian',
+    photoUrl: 'https://images.unsplash.com/photo-brazilian?w=1200&q=80',
     occasion: 'date-night',
     ambient: 'cozy',
     tags: [],
@@ -36,7 +37,7 @@ const RESTAURANTS: RestaurantSummary[] = [
 ];
 
 const TAXONOMIES: DiscoveryTaxonomies = {
-  cuisines: [{ id: 'brazilian', label: 'Brazilian', photo: 'https://example.com/photo.jpg' }],
+  cuisines: [{ id: 'brazilian', label: 'Brazilian', photos: ['https://example.com/photo.jpg'] }],
   occasions: [{ id: 'date-night', label: 'Date Night', icon: { set: 'Ionicons', name: 'heart-outline' } }],
   ambients: [{ id: 'cozy', label: 'Cozy' }],
   benefits: [],
