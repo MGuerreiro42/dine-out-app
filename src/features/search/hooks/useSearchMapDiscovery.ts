@@ -44,8 +44,14 @@ function toMapResult(
   };
 }
 
-export function useSearchMapDiscovery(searchQuery?: string) {
-  const restaurantsQuery = useRestaurantsQuery(searchQuery);
+const CATEGORY_LIMIT = 100;
+
+export function useSearchMapDiscovery(searchQuery?: string, filters?: { cuisine?: string; occasion?: string }) {
+  const isNarrowed = Boolean(searchQuery?.trim() || filters?.cuisine || filters?.occasion);
+  const restaurantsQuery = useRestaurantsQuery(
+    searchQuery,
+    isNarrowed ? { ...filters, limit: CATEGORY_LIMIT } : filters,
+  );
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
   const { data: restaurants = [] } = restaurantsQuery;
   const { data: taxonomies } = taxonomiesQuery;
@@ -63,6 +69,7 @@ export function useSearchMapDiscovery(searchQuery?: string) {
 
   return {
     isLoading: restaurantsQuery.isLoading || taxonomiesQuery.isLoading,
+    isFetching: restaurantsQuery.isFetching || taxonomiesQuery.isFetching,
     isError: restaurantsQuery.isError || taxonomiesQuery.isError,
     refetch: () => {
       restaurantsQuery.refetch();

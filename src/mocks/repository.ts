@@ -6,18 +6,24 @@ import { useLocationStore } from '@/stores/location';
 
 const NEARBY_LIMIT = 50;
 
-export async function getNearbyPlaces(): Promise<RestaurantSummary[]> {
+export async function getNearbyPlaces(params?: {
+  query?: string;
+  cuisine?: string;
+  occasion?: string;
+  category?: string;
+  limit?: number;
+}): Promise<RestaurantSummary[]> {
   const { latitude, longitude, radiusKm } = useLocationStore.getState();
   return apiGet<RestaurantSummary[]>('/restaurants', {
     lat: latitude,
     lng: longitude,
     radiusKm,
-    limit: NEARBY_LIMIT,
+    q: params?.query,
+    cuisine: params?.cuisine,
+    occasion: params?.occasion,
+    category: params?.category,
+    limit: params?.limit ?? NEARBY_LIMIT,
   });
-}
-
-export async function searchPlaces(textQuery: string): Promise<RestaurantSummary[]> {
-  return apiGet<RestaurantSummary[]>('/restaurants', { q: textQuery, limit: NEARBY_LIMIT });
 }
 
 export async function getPlaceDetails(id: string): Promise<RestaurantDetail | null> {

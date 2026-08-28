@@ -18,13 +18,23 @@ const REFINE_DIMENSIONS: Record<TaxonomyDimension, [TaxonomyDimension, TaxonomyD
 };
 
 const GRID_SIZE = 4;
+const CATEGORY_LIMIT = 100;
+
+const DIMENSION_FILTER_KEY: Partial<Record<TaxonomyDimension, 'cuisine' | 'occasion'>> = {
+  cuisine: 'cuisine',
+  occasion: 'occasion',
+};
 
 function topRated(list: Restaurant[]) {
   return [...list].sort((a, b) => compareByRating(a.rating, b.rating));
 }
 
 export function useTypeDetail(dimension: TaxonomyDimension, id: string | undefined, searchQuery?: string) {
-  const restaurantsQuery = useRestaurantsQuery(searchQuery);
+  const filterKey = DIMENSION_FILTER_KEY[dimension];
+  const restaurantsQuery = useRestaurantsQuery(
+    searchQuery,
+    id && filterKey ? { [filterKey]: id, limit: CATEGORY_LIMIT } : undefined,
+  );
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
   const { data: restaurants = [] } = restaurantsQuery;
   const { data: taxonomies } = taxonomiesQuery;

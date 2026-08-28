@@ -70,14 +70,58 @@ test('maps the nearby-places response into the domain restaurant list', async ()
   });
 });
 
-test('forwards a trimmed query to the search endpoint', async () => {
-  const searchSpy = jest.spyOn(repository, 'searchPlaces').mockResolvedValueOnce([RESTAURANTS[0]]);
+test('forwards a trimmed query to getNearbyPlaces', async () => {
+  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce([RESTAURANTS[0]]);
 
   const { result } = await renderHook(() => useRestaurantsQuery(' Fogo '), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-  expect(searchSpy).toHaveBeenCalledWith('Fogo');
+  expect(nearbySpy).toHaveBeenCalledWith({ query: 'Fogo' });
   expect(result.current.data).toHaveLength(1);
   expect(result.current.data?.[0].name).toBe('Fogo & Brasa');
+});
+
+test('an empty-string query is not forwarded as an empty q param', async () => {
+  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+
+  const { result } = await renderHook(() => useRestaurantsQuery('', { cuisine: 'brazilian', limit: 100 }), {
+    wrapper: createWrapper(),
+  });
+
+  await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+  expect(nearbySpy).toHaveBeenCalledWith({ query: undefined, cuisine: 'brazilian', limit: 100 });
+});
+
+test('forwards cuisine/occasion/category/limit filters to getNearbyPlaces and keys the query on them', async () => {
+  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce([RESTAURANTS[0]]);
+
+  const { result } = await renderHook(
+    () => useRestaurantsQuery(undefined, { cuisine: 'brazilian', occasion: 'date-night', limit: 100 }),
+    { wrapper: createWrapper() },
+  );
+
+  await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+  expect(nearbySpy).toHaveBeenCalledWith({
+    query: undefined,
+    cuisine: 'brazilian',
+    occasion: 'date-night',
+    limit: 100,
+  });
+});
+
+test('does not share a cache entry between differently filtered queries', async () => {
+  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS).mockResolvedValueOnce([RESTAURANTS[0]]);
+
+  const wrapper = createWrapper();
+  const unfiltered = await renderHook(() => useRestaurantsQuery(), { wrapper });
+  await waitFor(() => expect(unfiltered.result.current.isSuccess).toBe(true));
+
+  const filtered = await renderHook(() => useRestaurantsQuery(undefined, { cuisine: 'brazilian' }), { wrapper });
+  await waitFor(() => expect(filtered.result.current.isSuccess).toBe(true));
+
+  expect(unfiltered.result.current.data).toHaveLength(2);
+  expect(filtered.result.current.data).toHaveLength(1);
 });

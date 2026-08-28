@@ -71,13 +71,16 @@ export default function SearchScreen() {
   const params = useLocalSearchParams<{ cuisine?: string; occasion?: string; ambient?: string; delivery?: string }>();
   const [searchText, setSearchText] = useState('');
   const debouncedSearchText = useDebouncedValue(searchText);
-  const { isLoading, isError, refetch, results } = useSearchMapDiscovery(debouncedSearchText);
-  const { data: taxonomies } = useDiscoveryTaxonomiesQuery();
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     cuisine: params.cuisine,
     occasion: params.occasion,
     ambient: params.ambient,
   });
+  const { isLoading, isFetching, isError, refetch, results } = useSearchMapDiscovery(debouncedSearchText, {
+    cuisine: activeFilters.cuisine,
+    occasion: activeFilters.occasion,
+  });
+  const { data: taxonomies } = useDiscoveryTaxonomiesQuery();
   const [deliveryOnly, setDeliveryOnly] = useState(params.delivery === '1');
   const [activeFeatures, setActiveFeatures] = useState<FeatureKey[]>([]);
   const [sortBy, setSortBy] = useState<SortKey>('top_rated');
@@ -133,8 +136,6 @@ export default function SearchScreen() {
 
   const filteredResults = results.filter(
     (restaurant) =>
-      (!activeFilters.cuisine || restaurant.cuisine === activeFilters.cuisine) &&
-      (!activeFilters.occasion || restaurant.occasion === activeFilters.occasion) &&
       (!activeFilters.ambient || restaurant.ambient === activeFilters.ambient) &&
       (!deliveryOnly || restaurant.hasDelivery) &&
       activeFeatures.every((key) => FEATURE_OPTIONS.find((option) => option.key === key)?.matches(restaurant)),
@@ -193,7 +194,14 @@ export default function SearchScreen() {
       <LocationHeader />
 
       <View className="flex-row items-center justify-between px-4 pb-1 pt-4">
-        <Text className="text-sm text-[#6b7280]">{filteredResults.length} results</Text>
+        {isFetching ? (
+          <View className="flex-row items-center gap-1.5">
+            <ActivityIndicator size="small" />
+            <Text className="text-sm text-[#6b7280]">Updating...</Text>
+          </View>
+        ) : (
+          <Text className="text-sm text-[#6b7280]">{filteredResults.length} results</Text>
+        )}
         <Pressable ref={sortTriggerRef} onPress={openSortMenu} className="flex-row items-center gap-1">
           <Text className="text-[15px] font-semibold text-[#4f46e5]">Sort: {sortLabel}</Text>
           <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={14} color="#4f46e5" />

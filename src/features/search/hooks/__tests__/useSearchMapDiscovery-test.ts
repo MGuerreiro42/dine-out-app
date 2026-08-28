@@ -67,3 +67,62 @@ test('derives distance, tagline, tags, and open status for the map result list',
     isOpenNow: expect.any(Boolean),
   });
 });
+
+test('an active cuisine/occasion filter is forwarded to getNearbyPlaces with a 100 cap', async () => {
+  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+
+  const { result } = await renderHook(
+    () => useSearchMapDiscovery(undefined, { cuisine: 'brazilian', occasion: 'date-night' }),
+    { wrapper: createWrapper() },
+  );
+
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+  expect(nearbySpy).toHaveBeenCalledWith({
+    query: undefined,
+    cuisine: 'brazilian',
+    occasion: 'date-night',
+    limit: 100,
+  });
+});
+
+test('no free-text query or filter keeps the default nearby limit', async () => {
+  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+
+  const { result } = await renderHook(() => useSearchMapDiscovery(), { wrapper: createWrapper() });
+
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+  expect(nearbySpy).toHaveBeenCalledWith({ query: undefined });
+});
+
+test('a filter-chip change reports isFetching without flipping isLoading back to true, and keeps the previous results visible', async () => {
+  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
+
+  const { result, rerender } = await renderHook(
+    ({ filters }: { filters?: { cuisine?: string } }) => useSearchMapDiscovery(undefined, filters),
+    { wrapper: createWrapper(), initialProps: { filters: undefined as { cuisine?: string } | undefined } },
+  );
+
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+  expect(result.current.isFetching).toBe(false);
+
+  let resolveSecondFetch: (value: RestaurantSummary[]) => void = () => {};
+  const secondFetch = new Promise<RestaurantSummary[]>((resolve) => {
+    resolveSecondFetch = resolve;
+  });
+  jest.spyOn(repository, 'getNearbyPlaces').mockReturnValueOnce(secondFetch);
+
+  rerender({ filters: { cuisine: 'brazilian' } });
+
+  await waitFor(() => expect(result.current.isFetching).toBe(true));
+  expect(result.current.isLoading).toBe(false);
+  expect(result.current.results.length).toBeGreaterThan(0);
+
+  resolveSecondFetch(RESTAURANTS);
+
+  await waitFor(() => expect(result.current.isFetching).toBe(false));
+});
