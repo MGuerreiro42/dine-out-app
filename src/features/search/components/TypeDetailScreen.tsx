@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
-import { HorizontalRail, Icon, type IconSpec } from '@/components/ui';
+import { HorizontalRail, Icon, PhotoPlaceholder, type IconSpec } from '@/components/ui';
 import { HomeRestaurantCard } from '@/features/search/components/HomeRestaurantCard';
 import { useDebouncedValue } from '@/features/search/hooks/useDebouncedValue';
 import type { HomeCardData } from '@/features/search/hooks/useHomeDiscovery';
@@ -14,6 +14,7 @@ import {
   DEFAULT_CUISINE_ICON,
 } from '@/features/search/lib/taxonomyIcons';
 import type { Occasion } from '@/features/search/types';
+import { useCarouselIndex, useSlideAnimation } from '@/hooks';
 
 type TypeDetailScreenProps = {
   dimension: TaxonomyDimension;
@@ -111,11 +112,78 @@ function RefineSection({ refine, onPressRestaurant, onViewAll }: RefineSectionPr
   );
 }
 
+type ChampionCardProps = {
+  champions: HomeCardData[];
+};
+
+function ChampionCard({ champions }: ChampionCardProps) {
+  const { index, direction, goPrev, goNext } = useCarouselIndex(champions.length);
+  const { onLayout, translateX } = useSlideAnimation(index, direction);
+  const hasMultiple = champions.length > 1;
+  const champion = champions[index];
+
+  if (!champion) return null;
+
+  return (
+    <View className="mx-4 mt-md overflow-hidden rounded-xl bg-white shadow-md shadow-black/10">
+      <View className="relative aspect-[4/3] overflow-hidden" onLayout={onLayout}>
+        {champion.photo ? (
+          <Animated.View
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, transform: [{ translateX }] }}
+          >
+            <Image source={{ uri: champion.photo }} className="h-full w-full" />
+          </Animated.View>
+        ) : (
+          <PhotoPlaceholder iconSize={24} />
+        )}
+        <View className="absolute left-3.5 top-3.5 rounded-full bg-[#fef3c7] px-2.5 py-1">
+          <Text className="text-[12px] font-bold text-[#b45309]">Champion</Text>
+        </View>
+        {hasMultiple ? (
+          <>
+            <Pressable
+              onPress={goPrev}
+              className="absolute left-2.5 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
+            >
+              <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} color="#fff" />
+            </Pressable>
+            <Pressable
+              onPress={goNext}
+              className="absolute right-2.5 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
+            >
+              <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={18} color="#fff" />
+            </Pressable>
+          </>
+        ) : null}
+      </View>
+      {hasMultiple ? (
+        <View className="mt-2.5 flex-row items-center justify-center gap-1.5">
+          {champions.map((c, dotIndex) => (
+            <View
+              key={c.id}
+              className={`h-1.5 rounded-full ${dotIndex === index ? 'w-4 bg-[#6366f1]' : 'w-1.5 bg-[#e5e7eb]'}`}
+            />
+          ))}
+        </View>
+      ) : null}
+      <View className="p-3.5">
+        <Text className="text-lg font-bold text-ink">{champion.name}</Text>
+        {champion.rating !== null ? (
+          <Text className="mt-xs text-xs text-[#6b7280]">
+            ★ {champion.rating}
+            {champion.reviewCount !== null ? ` · ${champion.reviewCount} reviews` : ''}
+          </Text>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
   const router = useRouter();
   const [searchText, setSearchText] = useState('');
   const debouncedSearchText = useDebouncedValue(searchText);
-  const { isLoading, isError, refetch, primaryLabel, champion, champions, trending, lastSection, refine1, refine2 } =
+  const { isLoading, isError, refetch, primaryLabel, champions, trending, lastSection, refine1, refine2 } =
     useTypeDetail(dimension, id, debouncedSearchText);
 
   const goToRestaurant = (restaurant: HomeCardData) => {
@@ -180,22 +248,7 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         <Text className="px-4 pt-lg text-2xl font-bold text-ink">{primaryLabel}</Text>
 
-        {champion ? (
-          <View className="mx-4 mt-md overflow-hidden rounded-xl bg-white shadow-md shadow-black/10">
-            <View className="relative aspect-[4/3]">
-              <Image source={{ uri: champion.photo }} className="h-full w-full" />
-              <View className="absolute left-3.5 top-3.5 rounded-full bg-[#fef3c7] px-2.5 py-1">
-                <Text className="text-[12px] font-bold text-[#b45309]">Champion</Text>
-              </View>
-            </View>
-            <View className="p-3.5">
-              <Text className="text-lg font-bold text-ink">{champion.name}</Text>
-              <Text className="mt-xs text-xs text-[#6b7280]">
-                ★ {champion.rating} · {champion.reviewCount} reviews
-              </Text>
-            </View>
-          </View>
-        ) : null}
+        {champions.length ? <ChampionCard champions={champions} /> : null}
 
         <SectionHeader
           icon={{ set: 'MaterialCommunityIcons', name: 'crown-outline' }}

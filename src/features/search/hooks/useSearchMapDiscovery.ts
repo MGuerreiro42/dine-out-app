@@ -21,12 +21,20 @@ function toMapResult(
   occasionLabel: string,
   ambientLabel: string,
 ): MapResultData {
+  const tags = [ambientLabel, occasionLabel].filter((label): label is string => Boolean(label));
+  const tagline = [
+    ambientLabel && `${ambientLabel} atmosphere`,
+    occasionLabel && `for ${occasionLabel.toLowerCase()}`,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return {
     ...restaurant,
     cuisineLabel,
     distance: `${(1 + (restaurant.id % 5) * 0.3).toFixed(1)} km`,
-    tagline: `${ambientLabel} atmosphere for ${occasionLabel.toLowerCase()}`,
-    tags: [ambientLabel, occasionLabel],
+    tagline,
+    tags,
     isOpenNow: restaurant.id % 4 !== 0,
     hasDelivery: restaurant.id % 3 !== 0,
     outdoorSeating: restaurant.ambient === 'cozy' || restaurant.ambient === 'relaxed',
@@ -36,8 +44,14 @@ function toMapResult(
   };
 }
 
-export function useSearchMapDiscovery(searchQuery?: string) {
-  const restaurantsQuery = useRestaurantsQuery(searchQuery);
+const CATEGORY_LIMIT = 100;
+
+export function useSearchMapDiscovery(searchQuery?: string, filters?: { cuisine?: string; occasion?: string }) {
+  const isNarrowed = Boolean(searchQuery?.trim() || filters?.cuisine || filters?.occasion);
+  const restaurantsQuery = useRestaurantsQuery(
+    searchQuery,
+    isNarrowed ? { ...filters, limit: CATEGORY_LIMIT } : filters,
+  );
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
   const { data: restaurants = [] } = restaurantsQuery;
   const { data: taxonomies } = taxonomiesQuery;
@@ -55,6 +69,7 @@ export function useSearchMapDiscovery(searchQuery?: string) {
 
   return {
     isLoading: restaurantsQuery.isLoading || taxonomiesQuery.isLoading,
+    isFetching: restaurantsQuery.isFetching || taxonomiesQuery.isFetching,
     isError: restaurantsQuery.isError || taxonomiesQuery.isError,
     refetch: () => {
       restaurantsQuery.refetch();

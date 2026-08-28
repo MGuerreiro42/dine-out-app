@@ -198,6 +198,7 @@ Thirteen tables, fourteen including `RestaurantClaim` (§9). No `RestaurantPhoto
 | | occasion, ambient | string, nullable | Product-authored. Null until an ownership claim sets them (§9) |
 | | tags | string[] | Product-authored |
 | | whatsapp, instagramHandle | string, nullable | Product-authored |
+| | photoUrl | string, non-nullable | Ingestion-assigned stock photo, randomly drawn once from the restaurant's cuisine bucket's photo pool — not live/per-restaurant Google photography. Fixed at first ingestion, never reassigned on re-ingestion. Backfilled across all 41,205 rows and confirmed `NOT NULL`. `dine-out-backend-overture`'s `specs/restaurants.md` FR-028–FR-031 |
 | | createdAt, updatedAt | timestamp | |
 | `MenuItem` | id, restaurantId | serial PK, FK → Restaurant | |
 | | name, price | string, string (display) | |
@@ -272,6 +273,7 @@ Resolved by this document: content authorship for `occasion`/`tags`/`menu` — r
 | Date | Change |
 |------|--------|
 | 2026-08-18 | Created. Resolves `DATA_MODEL.md`'s Google-caching compliance gap (cache-aside → live pass-through). Confirms NestJS/Postgres/Prisma/REST. Specifies auth token strategy, API surface, request lifecycle, database schema, restaurant-claim system. Design only, not built. |
+| 2026-08-27 | §8: added `Restaurant.photoUrl` (nullable stock-photo fallback, ingestion-assigned once per row from its cuisine bucket's pool, `dine-out-backend-overture`'s `specs/restaurants.md` FR-028–FR-031). |
 | 2026-08-18 | Rewritten for tone: removed narrative framing, "X, not Y" constructions, explanatory asides. |
 | 2026-08-18 | §8 schema reconciled against a standalone data-modeling review: added `OrderItem` (order line items, price-snapshotted) and `PaymentTransaction` (charge attempts, idempotency-keyed) to close the gap where `Order` referenced `MenuItem` price live and had no payment-retry safety. Added `MenuItem.category`/`isAvailable`, resolved `Order.status`/`Reservation.status` enum values. Indexing, integrity, and scalability rationale for these additions is not reproduced here — kept out-of-repo pending the entities' owning spec, consistent with `DATA_MODEL.md`'s scope rule. |
 | 2026-08-25 | Restaurant catalog re-sourced from Overture Maps Places (CDLA Permissive 2.0) instead of a live Google Places pass-through, unblocking `RestaurantsModule` without the still-blocked Google API key (§1/§2/§3/§4/§8). Google Places becomes a documented, deferred future enrichment layer (§10), not removed. `Restaurant`'s schema (§8) gains `source`/`sourceId`/`category`/`confidence`/`sourceAttributes`/`lastSyncedAt`/`displayName`/`formattedAddress`; `googlePlaceId` becomes nullable; `coordsCachedAt` removed (no TTL under Overture's license); `occasion`/`ambient` become nullable. Photo route dropped from this pass (§6). Full design: `dine-out-backend`'s `specs/restaurants.md`. |
@@ -280,3 +282,4 @@ Resolved by this document: content authorship for `occasion`/`tags`/`menu` — r
 | 2026-08-25 | User resolved both open items from the entry above (§10): `category` filtering (§6) stays exact-match only, not broadened to `categoryAlternates` (FR-021); no `brand` query param this round (FR-022). |
 | 2026-08-26 | `Restaurant`'s schema (§8) gains `cuisineId`, and `GET /restaurants` (§6) gains a `cuisine` query param — a new indexed, ingestion-computed column mapping `category`'s 122 raw Overture values onto 11 real cuisine buckets, replacing `GET /taxonomies`'s 5 arbitrary ones. `brazilian_restaurant` (~9.4% of the catalog) becomes its own top-level bucket rather than folding into a broader "Latin American" grouping. Specced in `dine-out-backend`'s `specs/restaurants.md` (FR-023–FR-027), not yet migrated; three open product decisions listed in §10. |
 | 2026-08-26 | User resolved the three open items from the entry above (§10). |
+| 2026-08-27 | §8: `photoUrl` marked non-nullable — backend backfill and `NOT NULL` migration confirmed against the live 41,205-row catalog. |

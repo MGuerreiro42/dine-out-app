@@ -11,26 +11,25 @@ import {
   View,
 } from 'react-native';
 
-import { Icon, type IconSpec } from '@/components/ui';
+import { EmptyState, Icon, type IconSpec } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { LocationHeader, MapResultCard } from '@/features/search/components';
 import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hooks';
 import type { MapResultData } from '@/features/search/hooks';
+import { compareByRating } from '@/features/search/lib/ratingSort';
 
 type TaxonomyDimension = 'cuisine' | 'occasion' | 'ambient';
-type ActiveFilters = Partial<Record<TaxonomyDimension, string>> & { priceLevel?: string };
+type ActiveFilters = Partial<Record<TaxonomyDimension, string>>;
 
-type SortKey = 'top_rated' | 'trending' | 'price_asc' | 'price_desc';
+type SortKey = 'top_rated' | 'trending';
 
-type FilterMenuView = 'root' | 'cuisine' | 'occasion' | 'ambient' | 'price' | 'features';
+type FilterMenuView = 'root' | 'cuisine' | 'occasion' | 'ambient' | 'features';
 
 type FeatureKey = 'vegetarian' | 'groups' | 'kids' | 'outdoor';
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'top_rated', label: 'Top Rated' },
   { key: 'trending', label: 'Trending' },
-  { key: 'price_asc', label: 'Price: Low to High' },
-  { key: 'price_desc', label: 'Price: High to Low' },
 ];
 
 const FILTER_CATEGORIES: { icon: IconSpec; label: string; dimension: FilterMenuView | 'delivery' }[] = [
@@ -38,11 +37,8 @@ const FILTER_CATEGORIES: { icon: IconSpec; label: string; dimension: FilterMenuV
   { icon: { set: 'Ionicons', name: 'wine-outline' }, label: 'Ambient', dimension: 'ambient' },
   { icon: { set: 'Ionicons', name: 'sparkles-outline' }, label: 'Occasion', dimension: 'occasion' },
   { icon: { set: 'Ionicons', name: 'star-outline' }, label: 'Features', dimension: 'features' },
-  { icon: { set: 'Ionicons', name: 'cash-outline' }, label: 'Price', dimension: 'price' },
   { icon: { set: 'MaterialCommunityIcons', name: 'moped-outline' }, label: 'Delivery', dimension: 'delivery' },
 ];
-
-const PRICE_OPTIONS = ['$', '$$', '$$$', '$$$$'];
 
 const FEATURE_OPTIONS: { key: FeatureKey; label: string; matches: (restaurant: MapResultData) => boolean }[] = [
   { key: 'vegetarian', label: 'Vegetariano', matches: (restaurant) => restaurant.servesVegetarianFood },
@@ -55,7 +51,6 @@ const FILTER_MENU_TITLES: Record<Exclude<FilterMenuView, 'root'>, string> = {
   cuisine: 'Cuisine',
   occasion: 'Occasion',
   ambient: 'Ambient',
-  price: 'Price',
   features: 'Features',
 };
 
@@ -63,13 +58,9 @@ const sortResults = (results: MapResultData[], sortBy: SortKey) =>
   [...results].sort((a, b) => {
     switch (sortBy) {
       case 'top_rated':
-        return Number(b.rating) - Number(a.rating);
+        return compareByRating(a.rating, b.rating);
       case 'trending':
         return a.id - b.id;
-      case 'price_asc':
-        return a.priceLevel.length - b.priceLevel.length;
-      case 'price_desc':
-        return b.priceLevel.length - a.priceLevel.length;
       default:
         return 0;
     }
@@ -80,13 +71,16 @@ export default function SearchScreen() {
   const params = useLocalSearchParams<{ cuisine?: string; occasion?: string; ambient?: string; delivery?: string }>();
   const [searchText, setSearchText] = useState('');
   const debouncedSearchText = useDebouncedValue(searchText);
-  const { isLoading, isError, refetch, results } = useSearchMapDiscovery(debouncedSearchText);
-  const { data: taxonomies } = useDiscoveryTaxonomiesQuery();
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     cuisine: params.cuisine,
     occasion: params.occasion,
     ambient: params.ambient,
   });
+  const { isLoading, isFetching, isError, refetch, results } = useSearchMapDiscovery(debouncedSearchText, {
+    cuisine: activeFilters.cuisine,
+    occasion: activeFilters.occasion,
+  });
+  const { data: taxonomies } = useDiscoveryTaxonomiesQuery();
   const [deliveryOnly, setDeliveryOnly] = useState(params.delivery === '1');
   const [activeFeatures, setActiveFeatures] = useState<FeatureKey[]>([]);
   const [sortBy, setSortBy] = useState<SortKey>('top_rated');
@@ -142,10 +136,7 @@ export default function SearchScreen() {
 
   const filteredResults = results.filter(
     (restaurant) =>
-      (!activeFilters.cuisine || restaurant.cuisine === activeFilters.cuisine) &&
-      (!activeFilters.occasion || restaurant.occasion === activeFilters.occasion) &&
       (!activeFilters.ambient || restaurant.ambient === activeFilters.ambient) &&
-      (!activeFilters.priceLevel || restaurant.priceLevel === activeFilters.priceLevel) &&
       (!deliveryOnly || restaurant.hasDelivery) &&
       activeFeatures.every((key) => FEATURE_OPTIONS.find((option) => option.key === key)?.matches(restaurant)),
   );
@@ -163,15 +154,6 @@ export default function SearchScreen() {
       ? [{ key: dimension, label, onClear: () => setActiveFilters((current) => ({ ...current, [dimension]: undefined })) }]
       : [];
   });
-  const priceChips = activeFilters.priceLevel
-    ? [
-        {
-          key: 'priceLevel',
-          label: activeFilters.priceLevel,
-          onClear: () => setActiveFilters((current) => ({ ...current, priceLevel: undefined })),
-        },
-      ]
-    : [];
   const deliveryChips = deliveryOnly
     ? [{ key: 'delivery', label: 'Delivery', onClear: () => setDeliveryOnly(false) }]
     : [];
@@ -183,7 +165,7 @@ export default function SearchScreen() {
       onClear: () => setActiveFeatures((current) => current.filter((candidate) => candidate !== key)),
     };
   });
-  const filterChips = [...taxonomyChips, ...priceChips, ...deliveryChips, ...featureChips];
+  const filterChips = [...taxonomyChips, ...deliveryChips, ...featureChips];
 
   return (
     <View className="flex-1 bg-white">
@@ -212,7 +194,14 @@ export default function SearchScreen() {
       <LocationHeader />
 
       <View className="flex-row items-center justify-between px-4 pb-1 pt-4">
-        <Text className="text-sm text-[#6b7280]">{filteredResults.length} results</Text>
+        {isFetching ? (
+          <View className="flex-row items-center gap-1.5">
+            <ActivityIndicator size="small" />
+            <Text className="text-sm text-[#6b7280]">Updating...</Text>
+          </View>
+        ) : (
+          <Text className="text-sm text-[#6b7280]">{filteredResults.length} results</Text>
+        )}
         <Pressable ref={sortTriggerRef} onPress={openSortMenu} className="flex-row items-center gap-1">
           <Text className="text-[15px] font-semibold text-[#4f46e5]">Sort: {sortLabel}</Text>
           <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={14} color="#4f46e5" />
@@ -241,11 +230,19 @@ export default function SearchScreen() {
         ))}
       </View>
 
-      <ScrollView contentContainerStyle={{ gap: 16, padding: 16 }} showsVerticalScrollIndicator={false}>
-        {sortResults(filteredResults, sortBy).map((restaurant) => (
-          <MapResultCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />
-        ))}
-      </ScrollView>
+      {filteredResults.length === 0 ? (
+        <EmptyState
+          icon={{ set: 'Ionicons', name: 'search-outline' }}
+          title="No restaurants found"
+          subtitle="Try a different search or clear a filter."
+        />
+      ) : (
+        <ScrollView contentContainerStyle={{ gap: 16, padding: 16 }} showsVerticalScrollIndicator={false}>
+          {sortResults(filteredResults, sortBy).map((restaurant) => (
+            <MapResultCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />
+          ))}
+        </ScrollView>
+      )}
 
       <Modal visible={openMenu === 'sort'} transparent animationType="fade" onRequestClose={() => setOpenMenu(null)}>
         <Pressable className="flex-1" onPress={() => setOpenMenu(null)}>
@@ -338,28 +335,6 @@ export default function SearchScreen() {
                       >
                         <Text className={`text-sm ${isActive ? 'font-bold text-[#4f46e5]' : 'text-[#1f2937]'}`}>
                           {option.label}
-                        </Text>
-                        {isActive ? (
-                          <Icon spec={{ set: 'Ionicons', name: 'checkmark' }} size={16} color="#4f46e5" />
-                        ) : null}
-                      </Pressable>
-                    );
-                  })}
-
-                {filterMenuView === 'price' &&
-                  PRICE_OPTIONS.map((price) => {
-                    const isActive = activeFilters.priceLevel === price;
-                    return (
-                      <Pressable
-                        key={price}
-                        onPress={() => {
-                          setActiveFilters((current) => ({ ...current, priceLevel: price }));
-                          setFilterMenuView('root');
-                        }}
-                        className="flex-row items-center justify-between px-4 py-2.5"
-                      >
-                        <Text className={`text-sm ${isActive ? 'font-bold text-[#4f46e5]' : 'text-[#1f2937]'}`}>
-                          {price}
                         </Text>
                         {isActive ? (
                           <Icon spec={{ set: 'Ionicons', name: 'checkmark' }} size={16} color="#4f46e5" />

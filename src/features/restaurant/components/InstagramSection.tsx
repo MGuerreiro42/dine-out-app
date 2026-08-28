@@ -1,14 +1,17 @@
-import { Alert, Image, Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 
 type InstagramSectionProps = {
-  handle: string;
-  photos: string[];
+  handle: string | null;
 };
 
-export function InstagramSection({ handle, photos }: InstagramSectionProps) {
+export function InstagramSection({ handle }: InstagramSectionProps) {
+  if (!handle) {
+    return null;
+  }
+
   return (
     <View className="border-t border-gray-100 px-4 py-5">
-      <View className="mb-3 flex-row items-center justify-between">
+      <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
           <View className="h-8 w-8 rounded-full bg-[#c1348a]" />
           <Text className="text-sm font-bold text-ink">{handle}</Text>
@@ -19,12 +22,6 @@ export function InstagramSection({ handle, photos }: InstagramSectionProps) {
         >
           <Text className="text-xs font-light text-white">OPEN ON INSTAGRAM</Text>
         </Pressable>
-      </View>
-
-      <View className="flex-row flex-wrap gap-1">
-        {photos.map((photo) => (
-          <Image key={photo} source={{ uri: photo }} className="aspect-square" style={{ width: '32.6%' }} />
-        ))}
       </View>
     </View>
   );

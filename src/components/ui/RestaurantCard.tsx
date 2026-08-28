@@ -4,6 +4,7 @@ import type { Restaurant } from '@/types';
 import { useFavoritesStore } from '@/stores/favorites';
 
 import { Icon } from './Icon';
+import { PhotoPlaceholder } from './PhotoPlaceholder';
 import { RatingBadge } from './RatingBadge';
 
 type RestaurantCardProps = {
@@ -22,7 +23,11 @@ export function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
       className="w-[150px] overflow-hidden rounded-xl bg-white shadow-md shadow-black/10"
     >
       <View className="relative">
-        <Image source={{ uri: restaurant.photo }} className="h-[110px] w-[150px]" />
+        {restaurant.photo ? (
+          <Image source={{ uri: restaurant.photo }} className="h-[110px] w-[150px]" />
+        ) : (
+          <PhotoPlaceholder className="h-[110px] w-[150px]" iconSize={22} />
+        )}
         {isOpenNow ? (
           <View className="absolute left-1.5 top-1.5 rounded-full bg-[#dcfce7] px-1.5 py-0.5">
             <Text className="text-[11px] font-light text-[#16a34a]">Open</Text>

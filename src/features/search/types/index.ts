@@ -5,7 +5,7 @@ import { IconSpecSchema } from '@/components/ui/Icon';
 export const CuisineSchema = z.object({
   id: z.string(),
   label: z.string(),
-  photo: z.string(),
+  photos: z.array(z.string()),
 });
 export type Cuisine = z.infer<typeof CuisineSchema>;
 

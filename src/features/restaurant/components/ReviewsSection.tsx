@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 
-import { BottomSheet, StarRating } from '@/components/ui';
+import { BottomSheet, Icon, StarRating } from '@/components/ui';
 import type { Review } from '@/features/restaurant/types';
 
 import { ReviewsSheetContent } from './ReviewsSheetContent';
@@ -10,9 +10,9 @@ import { ReviewsSheetContent } from './ReviewsSheetContent';
 const PREVIEW_COUNT = 3;
 
 type ReviewsSectionProps = {
-  rating: string;
+  rating: string | null;
   reviews: Review[];
-  reviewCount: number;
+  reviewCount: number | null;
 };
 
 export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionProps) {
@@ -20,7 +20,24 @@ export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionP
   const preview = reviews.slice(0, PREVIEW_COUNT);
 
   if (preview.length === 0) {
-    return null;
+    return (
+      <View className="border-t border-gray-100 px-4 py-5">
+        <Text className="mb-3 text-base font-bold text-ink">What Our Customers Think</Text>
+
+        <View className="items-center gap-2 px-4 py-2">
+          <Icon spec={{ set: 'Ionicons', name: 'chatbubble-ellipses-outline' }} size={32} color="#8a8580" />
+          <Text className="text-center text-sm font-bold text-ink">No reviews yet</Text>
+          <Text className="text-center text-xs text-muted">Be the first to share what you thought.</Text>
+        </View>
+
+        <Pressable
+          onPress={() => Alert.alert('Coming soon', "Adding your own review isn't built yet.")}
+          className="mt-3 items-center rounded-full border border-[#e5e7eb] py-3"
+        >
+          <Text className="text-[15px] font-light text-[#4f46e5]">Add a review</Text>
+        </Pressable>
+      </View>
+    );
   }
 
   return (
@@ -29,7 +46,7 @@ export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionP
         <Text className="text-base font-bold text-ink">What Our Customers Think</Text>
         <View className="flex-row items-center gap-1">
           <Ionicons name="star" size={13} color="#fbbf24" />
-          <Text className="text-[15px] font-bold text-ink">{rating}</Text>
+          <Text className="text-[15px] font-bold text-ink">{rating ?? '—'}</Text>
         </View>
       </View>
 
@@ -57,7 +74,7 @@ export function ReviewsSection({ rating, reviews, reviewCount }: ReviewsSectionP
         onPress={() => setSheetOpen(true)}
         className="mt-3 items-center rounded-full border border-[#e5e7eb] py-3"
       >
-        <Text className="text-[15px] font-light text-[#4f46e5]">View all {reviewCount} reviews</Text>
+        <Text className="text-[15px] font-light text-[#4f46e5]">View all {reviewCount ?? 0} reviews</Text>
       </Pressable>
 
       <BottomSheet visible={sheetOpen} onClose={() => setSheetOpen(false)}>

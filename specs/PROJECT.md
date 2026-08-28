@@ -1,6 +1,6 @@
 # dine-out-app — Project Specification
 
-**Status**: Navigable prototype (no backend) · **Last updated**: 2026-08-18
+**Status**: Restaurant data wired to a real backend (`dine-out-backend-overture`); auth/user profile still mocked · **Last updated**: 2026-08-26
 
 <!--
 Plays the role of GitHub spec-kit's constitution.md (github.com/github/spec-kit) — the principles
@@ -10,7 +10,7 @@ deviate, but must declare it explicitly and justify it.
 
 ## Vision
 
-An app for discovering bars and restaurants. Current phase: a navigable prototype to present to business partners, no backend — all data comes from local mocks structured so they can later become a real API without changing components.
+An app for discovering bars and restaurants. Restaurant/taxonomy data now reads from a real backend (`dine-out-backend-overture`, NestJS + Overture Maps data); the current-user/auth domain still comes from local mocks, structured so it can follow the same seam later.
 
 ## Architecture Principles
 
@@ -32,7 +32,7 @@ An app for discovering bars and restaurants. Current phase: a navigable prototyp
 | Server state | TanStack Query | Mock→API seam without rewriting components. `staleTime` 5min, `retry` 1 (a static mock's failures are deterministic, not transient — raise once a real backend exists) |
 | Client state | Zustand | Only for genuinely global state (principle #3) |
 | Contracts | Zod | `.parse()` on every response catches contract drift instead of silently passing bad data downstream |
-| API mocking | Static repository (`src/mocks/repository.ts`) | Plain async functions the query hooks call directly — no `fetch`, no request interception. Was MSW until 2026-08-05 (see decision log); MSW is expected to return once a real backend exists, to test *its* real HTTP contract |
+| Data access | Repository (`src/mocks/repository.ts`) | Plain async functions the query hooks call directly — no request interception. `getNearbyPlaces`/`searchPlaces`/`getPlaceDetails`/`getDiscoveryTaxonomies` call the real backend via `src/lib/apiClient.ts`; `getCurrentUser` still returns fixture data (see 2026-08-26 decision log entry) |
 | Testing | Jest (`jest-expo` preset) + React Testing Library | Chosen over Vitest: `vitest-native` is beta with unconfirmed NativeWind/Expo Router support; `jest-expo` is Expo's documented path |
 | Maps | `react-native-maps` | More performant/scalable than `expo-maps`; trade-off: doesn't run in Expo Go, needs a dev build |
 | Import alias | `@/*` → `src/*` | Native to the SDK 57 template via `tsconfig.paths` |
@@ -50,7 +50,7 @@ app/                        # Expo Router routes — thin, delegates to features
   login.tsx                  # PlaceholderScreen route — real content is auth.md's US1
 src/
   components/
-    ui/                      # generic primitives (RestaurantCard, BottomSheet, Chip, HorizontalRail, RatingBadge, Icon, StarRating, PlaceholderScreen, PhotoCarousel)
+    ui/                      # generic primitives (RestaurantCard, BottomSheet, Chip, HorizontalRail, RatingBadge, Icon, StarRating, PlaceholderScreen, PhotoCarousel, PhotoPlaceholder)
     layout/                  # app frame (SearchBar, SideMenu)
   features/
     search/                  # Home + category/type discovery + search list
@@ -60,7 +60,7 @@ src/
     auth/                      # login/signup form
   mocks/                     # fixture data + repository.ts (plain async functions the query hooks call)
   stores/                    # global state (favorites.ts, auth.ts, location.ts — see decision log)
-  lib/                       # queryClient.ts, googlePlaces/ (wire-contract schemas/mappers, see decision log)
+  lib/                       # queryClient.ts, apiClient.ts (fetch wrapper), api/ (wire-contract schemas/mappers for dine-out-backend-overture, see decision log)
   types/                     # entities shared across features (Restaurant, UserProfile — Zod + inferred type)
   theme/, hooks/, utils/     # placeholders, not yet specified
 specs/                       # this directory — project and feature specs
@@ -71,8 +71,8 @@ jest.config.js
 
 | Feature | Spec | Status |
 |---|---|---|
-| `search` | `specs/search.md` | Home (US1), Search list (US2, map removed), Category page (US3, superseded by dimension-agnostic Type Detail/Overview), Categories Overview (US5), Occasion page (US6) implemented; address/geolocation (US4) and Features/Price filters (FR-030/031) designed, not started |
-| `restaurant` | `specs/restaurant.md` | US1–US7 implemented (mock data) |
+| `search` | `specs/search.md` | Home (US1), Search list (US2, map removed), Category page (US3, superseded by dimension-agnostic Type Detail/Overview), address/geolocation with address search and map-pick (US4), Categories Overview (US5), Occasion page (US6) implemented, now against real restaurant data; Features filters designed, not started; Price filter/sort removed 2026-08-26 (no price data in the real backend) |
+| `restaurant` | `specs/restaurant.md` | US1–US7 implemented; wired to real backend 2026-08-26 — rating/price/reviews/amenities/opening-hours/description have no backend equivalent yet and render as correctly-empty states (see PROJECT.md decision log) |
 | `favorites` | `specs/favorites.md` | Global store (`stores/favorites.ts`) implemented; User Story 2 (Profile rail) not implemented |
 | `profile` | `specs/profile.md` | US1+US2 implemented (mock data); US3-US6 not started |
 | `auth` | `specs/auth.md` | US1, US3, US4 implemented; US2 true-by-construction; form validation (FR-010) and guest-default flip (FR-011) designed, not implemented |
@@ -97,13 +97,16 @@ jest.config.js
 - **Shared `src/components/ui/PlaceholderScreen.tsx`** (back-header + "Em breve") backs 5 routes (4 profile sub-routes, login) pending their owning User Stories.
 - **`profile.md`'s "Sair da conta" calls the same real `stores/auth.ts` `logout()` the Sidebar uses** — one logout action regardless of entry point.
 - **Bottom tab bar**: `app/(tabs)/_layout.tsx` has 4 real tabs — Home, Search, Categories, Profile. `search` hosts the Search & Map screen; `category` hosts Categories Overview.
-- **The mocked restaurant data contract mirrors Google Places API (New)**, not an arbitrary custom shape — `src/lib/googlePlaces/` (`schema.ts`/`client.ts`/`mappers.ts`): Nearby Search (New) for the list, Place Details (New) for the detail screen, the real two-hop photo flow (`photos[].name` → `GET .../photos/{name}/media`).
+- **(Superseded 2026-08-26, see below)** The mocked restaurant data contract mirrored Google Places API (New), not an arbitrary custom shape — `src/lib/googlePlaces/` (`schema.ts`/`client.ts`/`mappers.ts`): Nearby Search (New) for the list, Place Details (New) for the detail screen, the real two-hop photo flow (`photos[].name` → `GET .../photos/{name}/media`).
   - Wire contract and internal domain types (`RestaurantSchema`, `RestaurantDetailSchema`) stay separate — normalization happens once, inside the query hooks. Google's `id` is opaque; the mock's wire `id` is a stringified number, converted to a real `number` at normalization.
   - `occasion`/`ambient`/`menu`/`tags`/`highlights`/`thingsToKnow`/`whatsapp`/`instagramHandle` have no Google equivalent — custom fields, not mapped onto Google's amenity fields.
   - Out of scope: real geo-radius filtering, `X-Goog-FieldMask`/`X-Goog-Api-Key` header simulation.
   - Extended with real Google fields as specs required them: `regularOpeningHours`, `internationalPhoneNumber`, curated boolean amenity fields (`restaurant.md` US3); `reviews[]`, `userRatingCount`→`reviewCount` (US4); `location`→`latitude`/`longitude` (`search.md` US2).
 - **Search bars are real, debounced filters.** Google's Nearby Search (New) has no free-text query support — a separate `places:searchText` mock endpoint mirrors the real API split rather than bolting text search onto `searchNearby`. First uses of `useDebouncedValue` and TanStack Query's `placeholderData: keepPreviousData`.
-- **MSW's network-level mocking replaced with a static in-process repository** (2026-08-05). Hermes lacks `MessageEvent`/`Event`/`EventTarget`/`BroadcastChannel`, which `msw/native` references internally — `setupServer(...).listen()` failed silently, including in EAS release builds. `src/mocks/repository.ts` holds plain async functions the query hooks call directly; `src/lib/apiClient.ts` deleted. A repository function's signature, not a URL, is the contract a real backend replaces. MSW is expected to return once a real backend exists, to test its actual HTTP contract.
+- **MSW's network-level mocking replaced with a static in-process repository** (2026-08-05). Hermes lacks `MessageEvent`/`Event`/`EventTarget`/`BroadcastChannel`, which `msw/native` references internally — `setupServer(...).listen()` failed silently, including in EAS release builds. `src/mocks/repository.ts` holds plain async functions the query hooks call directly; `src/lib/apiClient.ts` deleted at the time. A repository function's signature, not a URL, is the contract a real backend replaces.
+- **`src/lib/googlePlaces/` retired, `src/lib/apiClient.ts` revived** (2026-08-26) — `RestaurantsModule` in `dine-out-backend-overture` shipped (41k+ real São Paulo restaurants sourced from Overture Maps), so the mocked Google-Places-shaped contract was replaced with `src/lib/api/` (`schema.ts`/`mappers.ts`), mirroring the real `RestaurantSummary`/`RestaurantDetail`/`DiscoveryTaxonomies` responses instead of an aspirational Google shape. `mapPrimaryTypeToCuisine`/`mapPriceLevel` deleted — `cuisineId` now arrives pre-computed from the backend. `src/mocks/repository.ts`'s `getNearbyPlaces`/`searchPlaces`/`getPlaceDetails`/`getDiscoveryTaxonomies` call `apiGet()` against `GET /restaurants`, `GET /restaurants/:id`, `GET /taxonomies`; `getCurrentUser` is untouched (still fixture data — `AuthModule` is a separate, later concern). `getNearbyPlaces` reads the search anchor from `src/stores/location.ts` (`useLocationStore.getState()`), reusing the existing geolocation store rather than adding a second one.
+  - **The real backend carries no `rating`/`userRatingCount`/`priceLevel`/photos at all** (Overture doesn't have them) — `Restaurant.rating`/`priceLevel`/`reviewCount`/`photo` became nullable rather than dropped, so `RatingBadge`/`StarRating`/photo-bearing cards degrade to a real empty/hidden state (new shared `PhotoPlaceholder.tsx`, modeled on `FavoritesRail`'s icon+muted-text empty state) instead of `.toFixed()`/`.length`-on-null crashes or `"undefined · undefined"` text. The Search screen's Price filter and Price sort options were removed outright (not left inert) — they could never match anything against permanently-null data. `AmenitiesSection`/`AmenitiesSheetContent`/`OpeningHoursSheetContent` and the detail screen's description block were deleted — Google's amenity-flag/opening-hours/editorial-summary concepts have no backend field to ever nullable-ize, unlike rating/price/photo.
+  - **CORS gap found, not worked around**: `dine-out-backend-overture`'s `src/main.ts` never calls `app.enableCors()` — a browser client (`expo start --web`) gets `blocked by CORS policy` on every request; native builds are unaffected (no browser CORS enforcement). Confirmed via `curl -H "Origin: ..."` (no `Access-Control-Allow-Origin` header, OPTIONS preflight 404s). Flagged for the backend, not patched from the client.
 - **The navigation Sidebar reuses `BottomSheet.tsx`'s `Modal` technique**, not a new shared primitive — `SideMenu.tsx` builds its own left-anchored overlay (`Modal transparent` + backdrop + stop-propagation content). Plain fade animation, no drawer library.
 - **The Sidebar's `«` collapse icon links to a dangling anchor** in the design canvas (no `#sidebar-collapsed-frame` exists) — treated as a second close-affordance identical to `✕`, no separate collapsed state.
 - **First real use of `react-native-gesture-handler`/`react-native-reanimated`** beyond the mandatory root wrapper. Reanimated 4's Worklets Babel plugin is auto-included by `babel-preset-expo` since SDK 50 — no config change needed.
