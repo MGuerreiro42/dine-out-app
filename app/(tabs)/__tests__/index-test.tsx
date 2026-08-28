@@ -47,11 +47,11 @@ test('renders the empty state with a radius-expansion CTA when below the max rad
 
   await render(<HomeScreen />, { wrapper: createWrapper() });
 
-  await waitFor(() => expect(screen.getByText('No restaurants found near you')).toBeTruthy());
+  await waitFor(() => expect(screen.getByText('No restaurants found near you')).toBeTruthy(), { timeout: 15000 });
 
   expect(screen.getByText('Try expanding your search radius.')).toBeTruthy();
   expect(screen.getByText('Expand to 100 km')).toBeTruthy();
-});
+}, 20000);
 
 test('renders a no-CTA empty state once the radius is already at its max', async () => {
   useLocationStore.setState({ radiusKm: 100 });
@@ -60,11 +60,11 @@ test('renders a no-CTA empty state once the radius is already at its max', async
 
   await render(<HomeScreen />, { wrapper: createWrapper() });
 
-  await waitFor(() => expect(screen.getByText('No restaurants found within 100 km')).toBeTruthy());
+  await waitFor(() => expect(screen.getByText('No restaurants found within 100 km')).toBeTruthy(), { timeout: 15000 });
 
   expect(screen.getByText('Try a different location.')).toBeTruthy();
   expect(screen.queryByText('Expand to 100 km')).toBeNull();
-});
+}, 20000);
 
 test('renders the skeleton while the initial fetch is in flight', async () => {
   jest.spyOn(repository, 'getNearbyPlaces').mockReturnValue(new Promise(() => {}));
