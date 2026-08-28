@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 
-import { Icon, type IconSpec } from '@/components/ui';
+import { EmptyState, Icon, type IconSpec } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { LocationHeader, MapResultCard } from '@/features/search/components';
 import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hooks';
@@ -222,11 +222,19 @@ export default function SearchScreen() {
         ))}
       </View>
 
-      <ScrollView contentContainerStyle={{ gap: 16, padding: 16 }} showsVerticalScrollIndicator={false}>
-        {sortResults(filteredResults, sortBy).map((restaurant) => (
-          <MapResultCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />
-        ))}
-      </ScrollView>
+      {filteredResults.length === 0 ? (
+        <EmptyState
+          icon={{ set: 'Ionicons', name: 'search-outline' }}
+          title="No restaurants found"
+          subtitle="Try a different search or clear a filter."
+        />
+      ) : (
+        <ScrollView contentContainerStyle={{ gap: 16, padding: 16 }} showsVerticalScrollIndicator={false}>
+          {sortResults(filteredResults, sortBy).map((restaurant) => (
+            <MapResultCard key={restaurant.id} restaurant={restaurant} onPress={goToRestaurant} />
+          ))}
+        </ScrollView>
+      )}
 
       <Modal visible={openMenu === 'sort'} transparent animationType="fade" onRequestClose={() => setOpenMenu(null)}>
         <Pressable className="flex-1" onPress={() => setOpenMenu(null)}>

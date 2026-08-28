@@ -128,7 +128,9 @@ function ChampionCard({ champions }: ChampionCardProps) {
     <View className="mx-4 mt-md overflow-hidden rounded-xl bg-white shadow-md shadow-black/10">
       <View className="relative aspect-[4/3] overflow-hidden" onLayout={onLayout}>
         {champion.photo ? (
-          <Animated.View className="h-full w-full" style={{ transform: [{ translateX }] }}>
+          <Animated.View
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, transform: [{ translateX }] }}
+          >
             <Image source={{ uri: champion.photo }} className="h-full w-full" />
           </Animated.View>
         ) : (

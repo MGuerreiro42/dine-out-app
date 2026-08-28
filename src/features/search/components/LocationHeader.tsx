@@ -8,7 +8,7 @@ import { AddressSearchInput } from '@/features/search/components/AddressSearchIn
 import { CurrentLocationCard } from '@/features/search/components/CurrentLocationCard';
 import { useLocationStore } from '@/stores/location';
 
-const RADIUS_OPTIONS_KM = [5, 10, 50, 100];
+export const RADIUS_OPTIONS_KM = [5, 10, 50, 100];
 
 export function LocationHeader() {
   const router = useRouter();

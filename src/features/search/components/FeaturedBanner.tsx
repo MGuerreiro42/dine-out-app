@@ -21,7 +21,9 @@ export function FeaturedBanner({ restaurants, taglineFor }: FeaturedBannerProps)
     <View>
       <View className="mx-4 mt-1.5 aspect-[16/7] overflow-hidden rounded-2xl" onLayout={onLayout}>
         {restaurant.photo ? (
-          <Animated.View className="h-full w-full" style={{ transform: [{ translateX }] }}>
+          <Animated.View
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, transform: [{ translateX }] }}
+          >
             <Image source={{ uri: restaurant.photo }} className="h-full w-full" />
           </Animated.View>
         ) : (
