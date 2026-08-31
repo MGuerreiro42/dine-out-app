@@ -17,6 +17,7 @@ import { LocationHeader, MapResultCard } from '@/features/search/components';
 import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hooks';
 import type { MapResultData } from '@/features/search/hooks';
 import { compareByRating } from '@/features/search/lib/ratingSort';
+import { colors, iconSize } from '@/theme';
 
 type TaxonomyDimension = 'cuisine' | 'occasion' | 'ambient';
 type ActiveFilters = Partial<Record<TaxonomyDimension, string>>;
@@ -123,9 +124,9 @@ export default function SearchScreen() {
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
+      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
         <Text className="text-center text-sm text-muted">Couldn't load search.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
+        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
           <Text className="text-sm font-bold text-white">Try again</Text>
         </Pressable>
       </View>
@@ -169,63 +170,63 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row items-center gap-2.5 px-4 pt-4">
+      <View className="flex-row items-center gap-sm2 px-md pt-md">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          className="h-10 w-10 items-center justify-center rounded-full bg-[#f3f4f6]"
+          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} color="#1f2937" />
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.ink} />
         </Pressable>
-        <View className="flex-1 flex-row items-center gap-2 rounded-full bg-[#f3f4f6] px-4 py-3">
-          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={16} color="#9ca3af" />
+        <View className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2">
+          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkFaint} />
           <TextInput
             value={searchText}
             onChangeText={setSearchText}
             placeholder="Search restaurants..."
-            placeholderTextColor="#9ca3af"
-            className="flex-1 text-sm text-[#111827]"
+            placeholderTextColor={colors.inkFaint}
+            className="flex-1 text-sm text-ink"
           />
         </View>
-        <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-[#f3f4f6]">
-          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={18} color="#1f2937" />
+        <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-sand">
+          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={iconSize.ui} color={colors.ink} />
         </Pressable>
       </View>
 
       <LocationHeader />
 
-      <View className="flex-row items-center justify-between px-4 pb-1 pt-4">
+      <View className="flex-row items-center justify-between px-md pb-xs pt-md">
         {isFetching ? (
-          <View className="flex-row items-center gap-1.5">
+          <View className="flex-row items-center gap-sm">
             <ActivityIndicator size="small" />
-            <Text className="text-sm text-[#6b7280]">Updating...</Text>
+            <Text className="text-sm text-muted">Updating...</Text>
           </View>
         ) : (
-          <Text className="text-sm text-[#6b7280]">{filteredResults.length} results</Text>
+          <Text className="text-sm text-muted">{filteredResults.length} results</Text>
         )}
-        <Pressable ref={sortTriggerRef} onPress={openSortMenu} className="flex-row items-center gap-1">
-          <Text className="text-[15px] font-semibold text-[#4f46e5]">Sort: {sortLabel}</Text>
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={14} color="#4f46e5" />
+        <Pressable ref={sortTriggerRef} onPress={openSortMenu} className="flex-row items-center gap-xs">
+          <Text className="text-body font-semibold text-accent">Sort: {sortLabel}</Text>
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={iconSize.inline} color={colors.accent} />
         </Pressable>
       </View>
 
-      <View className="mx-4 mt-2 flex-row flex-wrap items-center gap-2">
+      <View className="mx-md mt-sm flex-row flex-wrap items-center gap-sm">
         <Pressable
           ref={filtersTriggerRef}
           onPress={openFiltersMenu}
-          className="flex-row items-center gap-1.5 self-start rounded-full border border-[#e5e7eb] px-3.5 py-2"
+          className="flex-row items-center gap-sm self-start rounded-full border border-sand-border px-md py-sm"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'options-outline' }} size={14} color="#1f2937" />
-          <Text className="text-[15px] font-light text-[#1f2937]">Filters</Text>
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={14} color="#1f2937" />
+          <Icon spec={{ set: 'Ionicons', name: 'options-outline' }} size={iconSize.inline} color={colors.ink} />
+          <Text className="text-body font-light text-ink">Filters</Text>
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={iconSize.inline} color={colors.ink} />
         </Pressable>
         {filterChips.map((chip) => (
           <Pressable
             key={chip.key}
             onPress={chip.onClear}
-            className="flex-row items-center gap-1.5 self-start rounded-full bg-[#eef2ff] px-3.5 py-2"
+            className="flex-row items-center gap-sm self-start rounded-full bg-accent-tint px-md py-sm"
           >
-            <Text className="text-[15px] font-light text-[#4338ca]">{chip.label}</Text>
-            <Icon spec={{ set: 'Ionicons', name: 'close' }} size={14} color="#4338ca" />
+            <Text className="text-body font-light text-accent">{chip.label}</Text>
+            <Icon spec={{ set: 'Ionicons', name: 'close' }} size={iconSize.inline} color={colors.accent} />
           </Pressable>
         ))}
       </View>
@@ -247,7 +248,7 @@ export default function SearchScreen() {
       <Modal visible={openMenu === 'sort'} transparent animationType="fade" onRequestClose={() => setOpenMenu(null)}>
         <Pressable className="flex-1" onPress={() => setOpenMenu(null)}>
           <View
-            className="absolute w-48 rounded-2xl bg-white py-2 shadow-lg"
+            className="absolute w-48 rounded-2xl bg-white py-sm shadow-lg"
             style={{ top: sortAnchor.top, right: sortAnchor.right }}
           >
             {SORT_OPTIONS.map((option) => (
@@ -257,10 +258,10 @@ export default function SearchScreen() {
                   setSortBy(option.key);
                   setOpenMenu(null);
                 }}
-                className="px-4 py-2.5"
+                className="px-md py-sm2"
               >
                 <Text
-                  className={`text-sm ${option.key === sortBy ? 'font-bold text-[#4f46e5]' : 'text-[#1f2937]'}`}
+                  className={`text-sm ${option.key === sortBy ? 'font-bold text-accent' : 'text-ink'}`}
                 >
                   {option.label}
                 </Text>
@@ -273,7 +274,7 @@ export default function SearchScreen() {
       <Modal visible={openMenu === 'filters'} transparent animationType="fade" onRequestClose={closeFiltersMenu}>
         <Pressable className="flex-1" onPress={closeFiltersMenu}>
           <View
-            className="absolute w-56 rounded-2xl bg-white py-2 shadow-lg"
+            className="absolute w-56 rounded-2xl bg-white py-sm shadow-lg"
             style={{ top: filtersAnchor.top, left: filtersAnchor.left }}
           >
             {filterMenuView === 'root' ? (
@@ -282,39 +283,39 @@ export default function SearchScreen() {
                   <Pressable
                     key={category.label}
                     onPress={() => setDeliveryOnly((current) => !current)}
-                    className="flex-row items-center justify-between gap-2.5 px-4 py-2.5"
+                    className="flex-row items-center justify-between gap-sm2 px-md py-sm2"
                   >
-                    <View className="flex-row items-center gap-2.5">
-                      <Icon spec={category.icon} size={16} color="#1f2937" />
-                      <Text className="text-sm text-[#1f2937]">{category.label}</Text>
+                    <View className="flex-row items-center gap-sm2">
+                      <Icon spec={category.icon} size={iconSize.inline} color={colors.ink} />
+                      <Text className="text-sm text-ink">{category.label}</Text>
                     </View>
                     <Icon
                       spec={{ set: 'Ionicons', name: deliveryOnly ? 'checkbox' : 'square-outline' }}
-                      size={18}
-                      color={deliveryOnly ? '#4f46e5' : '#9ca3af'}
+                      size={iconSize.ui}
+                      color={deliveryOnly ? colors.accent : colors.inkFaint}
                     />
                   </Pressable>
                 ) : (
                   <Pressable
                     key={category.label}
                     onPress={() => setFilterMenuView(category.dimension as FilterMenuView)}
-                    className="flex-row items-center gap-2.5 px-4 py-2.5"
+                    className="flex-row items-center gap-sm2 px-md py-sm2"
                   >
-                    <Icon spec={category.icon} size={16} color="#1f2937" />
-                    <Text className="text-sm text-[#1f2937]">{category.label}</Text>
+                    <Icon spec={category.icon} size={iconSize.inline} color={colors.ink} />
+                    <Text className="text-sm text-ink">{category.label}</Text>
                   </Pressable>
                 ),
               )
             ) : (
               <>
-                <View className="flex-row items-center gap-2 border-b border-[#f3f4f6] px-4 pb-2.5">
+                <View className="flex-row items-center gap-sm border-b border-sand-border px-md pb-sm2">
                   <Pressable
                     onPress={() => setFilterMenuView('root')}
                     className="h-6 w-6 items-center justify-center"
                   >
-                    <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={16} color="#1f2937" />
+                    <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.inline} color={colors.ink} />
                   </Pressable>
-                  <Text className="text-sm font-bold text-[#1f2937]">{FILTER_MENU_TITLES[filterMenuView]}</Text>
+                  <Text className="text-sm font-bold text-ink">{FILTER_MENU_TITLES[filterMenuView]}</Text>
                 </View>
 
                 {(filterMenuView === 'cuisine' || filterMenuView === 'occasion' || filterMenuView === 'ambient') &&
@@ -331,13 +332,13 @@ export default function SearchScreen() {
                           setActiveFilters((current) => ({ ...current, [filterMenuView]: option.id }));
                           setFilterMenuView('root');
                         }}
-                        className="flex-row items-center justify-between px-4 py-2.5"
+                        className="flex-row items-center justify-between px-md py-sm2"
                       >
-                        <Text className={`text-sm ${isActive ? 'font-bold text-[#4f46e5]' : 'text-[#1f2937]'}`}>
+                        <Text className={`text-sm ${isActive ? 'font-bold text-accent' : 'text-ink'}`}>
                           {option.label}
                         </Text>
                         {isActive ? (
-                          <Icon spec={{ set: 'Ionicons', name: 'checkmark' }} size={16} color="#4f46e5" />
+                          <Icon spec={{ set: 'Ionicons', name: 'checkmark' }} size={iconSize.inline} color={colors.accent} />
                         ) : null}
                       </Pressable>
                     );
@@ -357,24 +358,24 @@ export default function SearchScreen() {
                                 : [...current, option.key],
                             )
                           }
-                          className="flex-row items-center justify-between px-4 py-2.5"
+                          className="flex-row items-center justify-between px-md py-sm2"
                         >
-                          <Text className={`text-sm ${isActive ? 'font-bold text-[#4f46e5]' : 'text-[#1f2937]'}`}>
+                          <Text className={`text-sm ${isActive ? 'font-bold text-accent' : 'text-ink'}`}>
                             {option.label}
                           </Text>
                           <Icon
                             spec={{ set: 'Ionicons', name: isActive ? 'checkbox' : 'square-outline' }}
-                            size={18}
-                            color={isActive ? '#4f46e5' : '#9ca3af'}
+                            size={iconSize.ui}
+                            color={isActive ? colors.accent : colors.inkFaint}
                           />
                         </Pressable>
                       );
                     })}
                     <Pressable
                       onPress={() => setFilterMenuView('root')}
-                      className="mt-1 border-t border-[#f3f4f6] px-4 py-2.5"
+                      className="mt-xs border-t border-sand-border px-md py-sm2"
                     >
-                      <Text className="text-center text-sm font-bold text-[#4f46e5]">Done</Text>
+                      <Text className="text-center text-sm font-bold text-accent">Done</Text>
                     </Pressable>
                   </>
                 )}

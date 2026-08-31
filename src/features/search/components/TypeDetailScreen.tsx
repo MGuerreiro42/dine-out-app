@@ -15,6 +15,7 @@ import {
 } from '@/features/search/lib/taxonomyIcons';
 import type { Occasion } from '@/features/search/types';
 import { useCarouselIndex, useSlideAnimation } from '@/hooks';
+import { colors, iconSize } from '@/theme';
 
 type TypeDetailScreenProps = {
   dimension: TaxonomyDimension;
@@ -44,13 +45,13 @@ type SectionHeaderProps = {
 
 function SectionHeader({ icon, title, onViewAll }: SectionHeaderProps) {
   return (
-    <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
-      <View className="flex-row items-center gap-1.5">
-        <Icon spec={icon} size={16} color="#4f46e5" />
-        <Text className="text-[17px] font-bold text-[#111827]">{title}</Text>
+    <View className="flex-row items-center justify-between px-md pb-sm pt-lg">
+      <View className="flex-row items-center gap-sm">
+        <Icon spec={icon} size={iconSize.inline} color={colors.accent} />
+        <Text className="text-lg font-bold text-ink">{title}</Text>
       </View>
       <Pressable onPress={onViewAll}>
-        <Text className="text-xs font-normal text-[#4f46e5]">View all</Text>
+        <Text className="text-xs font-normal text-accent">View all</Text>
       </Pressable>
     </View>
   );
@@ -89,17 +90,17 @@ function RefineSection({ refine, onPressRestaurant, onViewAll }: RefineSectionPr
         contentContainerStyle={{ gap: 16, paddingHorizontal: 16, paddingVertical: 4 }}
       >
         {refine.options.map((option) => (
-          <Pressable key={option.id} onPress={() => refine.setActive(option.id)} className="items-center gap-1.5">
+          <Pressable key={option.id} onPress={() => refine.setActive(option.id)} className="items-center gap-sm">
             <View
-              className={`h-11 w-11 items-center justify-center rounded-full ${option.isActive ? 'bg-[#eef2ff]' : 'bg-[#f3f4f6]'}`}
+              className={`h-11 w-11 items-center justify-center rounded-full ${option.isActive ? 'bg-accent-tint' : 'bg-sand'}`}
             >
               <Icon
                 spec={refineOptionIcon(refine.dimension, option)}
-                size={18}
-                color={option.isActive ? '#4f46e5' : '#1f2937'}
+                size={iconSize.ui}
+                color={option.isActive ? colors.accent : colors.ink}
               />
             </View>
-            <Text className={`text-[13px] font-bold ${option.isActive ? 'text-[#111827]' : 'text-[#6b7280]'}`}>
+            <Text className={`text-caption font-bold ${option.isActive ? 'text-ink' : 'text-muted'}`}>
               {option.label}
             </Text>
           </Pressable>
@@ -125,7 +126,7 @@ function ChampionCard({ champions }: ChampionCardProps) {
   if (!champion) return null;
 
   return (
-    <View className="mx-4 mt-md overflow-hidden rounded-xl bg-white shadow-md shadow-black/10">
+    <View className="mx-md mt-md overflow-hidden rounded-lg bg-white shadow-md shadow-black/10">
       <View className="relative aspect-[4/3] overflow-hidden" onLayout={onLayout}>
         {champion.photo ? (
           <Animated.View
@@ -134,42 +135,42 @@ function ChampionCard({ champions }: ChampionCardProps) {
             <Image source={{ uri: champion.photo }} className="h-full w-full" />
           </Animated.View>
         ) : (
-          <PhotoPlaceholder iconSize={24} />
+          <PhotoPlaceholder iconSize={iconSize.header} />
         )}
-        <View className="absolute left-3.5 top-3.5 rounded-full bg-[#fef3c7] px-2.5 py-1">
-          <Text className="text-[12px] font-bold text-[#b45309]">Champion</Text>
+        <View className="absolute left-md top-md rounded-full bg-[#fef3c7] px-sm2 py-xs">
+          <Text className="text-caption font-bold text-[#b45309]">Champion</Text>
         </View>
         {hasMultiple ? (
           <>
             <Pressable
               onPress={goPrev}
-              className="absolute left-2.5 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
+              className="absolute left-sm2 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
             >
-              <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} color="#fff" />
+              <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.white} />
             </Pressable>
             <Pressable
               onPress={goNext}
-              className="absolute right-2.5 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
+              className="absolute right-sm2 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
             >
-              <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={18} color="#fff" />
+              <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={iconSize.ui} color={colors.white} />
             </Pressable>
           </>
         ) : null}
       </View>
       {hasMultiple ? (
-        <View className="mt-2.5 flex-row items-center justify-center gap-1.5">
+        <View className="mt-sm2 flex-row items-center justify-center gap-sm">
           {champions.map((c, dotIndex) => (
             <View
               key={c.id}
-              className={`h-1.5 rounded-full ${dotIndex === index ? 'w-4 bg-[#6366f1]' : 'w-1.5 bg-[#e5e7eb]'}`}
+              className={`h-1.5 rounded-full ${dotIndex === index ? 'w-4 bg-accent-pressed' : 'w-1.5 bg-sand-border'}`}
             />
           ))}
         </View>
       ) : null}
-      <View className="p-3.5">
+      <View className="p-md">
         <Text className="text-lg font-bold text-ink">{champion.name}</Text>
         {champion.rating !== null ? (
-          <Text className="mt-xs text-xs text-[#6b7280]">
+          <Text className="mt-xs text-xs text-muted">
             ★ {champion.rating}
             {champion.reviewCount !== null ? ` · ${champion.reviewCount} reviews` : ''}
           </Text>
@@ -204,9 +205,9 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
+      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
         <Text className="text-center text-sm text-muted">Couldn't load this page.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
+        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
           <Text className="text-sm font-bold text-white">Try again</Text>
         </Pressable>
       </View>
@@ -220,33 +221,33 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row items-center gap-2.5 px-4 pt-4">
+      <View className="flex-row items-center gap-sm2 px-md pt-md">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          className="h-10 w-10 items-center justify-center rounded-full bg-[#f3f4f6]"
+          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} color="#1f2937" />
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.ink} />
         </Pressable>
-        <View className="flex-1 flex-row items-center gap-2 rounded-full bg-[#f3f4f6] px-4 py-3">
-          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={16} color="#9ca3af" />
+        <View className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2">
+          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkSubtle} />
           <TextInput
             value={searchText}
             onChangeText={setSearchText}
             placeholder="Search restaurants..."
-            placeholderTextColor="#9ca3af"
-            className="flex-1 text-sm text-[#111827]"
+            placeholderTextColor={colors.inkSubtle}
+            className="flex-1 text-sm text-ink"
           />
         </View>
         <Pressable
           onPress={() => router.push('/profile')}
-          className="h-10 w-10 items-center justify-center rounded-full bg-[#f3f4f6]"
+          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={18} color="#1f2937" />
+          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={iconSize.ui} color={colors.ink} />
         </Pressable>
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
-        <Text className="px-4 pt-lg text-2xl font-bold text-ink">{primaryLabel}</Text>
+        <Text className="px-md pt-lg text-2xl font-bold text-ink">{primaryLabel}</Text>
 
         {champions.length ? <ChampionCard champions={champions} /> : null}
 

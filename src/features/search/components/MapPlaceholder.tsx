@@ -32,7 +32,7 @@ function MapBackdrop() {
   return (
     <View className="absolute inset-0 overflow-hidden bg-[#e9e4da]">
       {BLOCKS.map((block) => (
-        <View key={`${block.top}-${block.left}`} className="absolute rounded-sm bg-[#ded7c9]" style={block} />
+        <View key={`${block.top}-${block.left}`} className="absolute rounded-[2px] bg-[#ded7c9]" style={block} />
       ))}
       {STREET_ROWS.map((top) => (
         <View key={top} className="absolute left-0 right-0 h-1.5 bg-[#d4cdbe]" style={{ top }} />
@@ -50,9 +50,9 @@ type MapPlaceholderProps = {
 
 export function MapPlaceholder({ message }: MapPlaceholderProps) {
   return (
-    <View className="flex-1 items-center justify-center px-8">
+    <View className="flex-1 items-center justify-center px-xl">
       <MapBackdrop />
-      <View className="rounded-2xl bg-white/90 px-5 py-4 shadow-lg">
+      <View className="rounded-lg bg-white/90 px-md2 py-md shadow-lg">
         <Text className="text-center text-sm font-bold text-muted">{message}</Text>
       </View>
     </View>

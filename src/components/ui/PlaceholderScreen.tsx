@@ -13,16 +13,16 @@ export function PlaceholderScreen({ title, fallbackRoute }: PlaceholderScreenPro
 
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row items-center gap-2.5 px-4 pb-2 pt-4">
+      <View className="flex-row items-center gap-sm2 px-md pb-sm pt-md">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace(fallbackRoute as Href))}
-          className="h-10 w-10 items-center justify-center rounded-xl bg-sand"
+          className="h-10 w-10 items-center justify-center rounded-sm bg-sand"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={20} />
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} />
         </Pressable>
         <Text className="text-lg font-bold text-ink">{title}</Text>
       </View>
-      <View className="flex-1 items-center justify-center px-8">
+      <View className="flex-1 items-center justify-center px-xl">
         <Text className="text-center text-sm text-muted">Coming soon.</Text>
       </View>
     </View>

@@ -28,7 +28,7 @@ export function SearchMapView({ restaurants, onSelectRestaurant }: SearchMapView
           lngLat={[restaurant.longitude, restaurant.latitude]}
           onPress={() => onSelectRestaurant(restaurant)}
         >
-          <View className="h-6 w-6 rounded-full border-2 border-white bg-[#208AEF]" />
+          <View className="h-6 w-6 rounded-full border-2 border-white bg-locate" />
         </Marker>
       ))}
     </MapLibreMap>

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 
+import { colors, iconSize } from '@/theme';
+
 import { Icon } from './Icon';
 import { PhotoPlaceholder } from './PhotoPlaceholder';
 
@@ -17,32 +19,32 @@ export function PhotoCarousel({ photos }: PhotoCarouselProps) {
   const goNext = () => setIndex((current) => (current + 1) % photos.length);
 
   return (
-    <View className="aspect-[4/3] w-full overflow-hidden bg-gray-200">
+    <View className="aspect-[4/3] w-full overflow-hidden bg-sand">
       {hasPhotos ? (
         <Image source={{ uri: photos[index] }} className="h-full w-full" />
       ) : (
-        <PhotoPlaceholder iconSize={28} label="No photos available" />
+        <PhotoPlaceholder iconSize={iconSize.empty} label="No photos available" />
       )}
 
       {hasMultiple ? (
         <>
           <Pressable
             onPress={goPrev}
-            className="absolute left-2.5 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
+            className="absolute left-sm2 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
           >
-            <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} color="#fff" />
+            <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.white} />
           </Pressable>
           <Pressable
             onPress={goNext}
-            className="absolute right-2.5 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
+            className="absolute right-sm2 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
           >
-            <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={18} color="#fff" />
+            <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={iconSize.ui} color={colors.white} />
           </Pressable>
-          <View className="absolute bottom-3.5 right-3.5 flex-row items-center gap-1 rounded-full bg-black/55 px-3 py-1.5">
-            <Icon spec={{ set: 'Ionicons', name: 'images-outline' }} size={13} color="#fff" />
+          <View className="absolute bottom-md right-md flex-row items-center gap-xs rounded-full bg-black/55 px-sm2 py-sm">
+            <Icon spec={{ set: 'Ionicons', name: 'images-outline' }} size={iconSize.micro} color={colors.white} />
             <Text className="text-xs font-semibold text-white">More photos</Text>
           </View>
-          <View className="absolute bottom-3.5 left-3.5 flex-row items-center gap-1">
+          <View className="absolute bottom-md left-md flex-row items-center gap-xs">
             {photos.map((_photo, photoIndex) => (
               <View
                 // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length row of dots mirroring the photos array's own stable order.
