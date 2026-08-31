@@ -6,6 +6,7 @@ import React from 'react';
 import { useFavoriteRestaurantsQuery } from '@/features/favorites/api/useFavoriteRestaurantsQuery';
 import type { RestaurantSummary } from '@/lib/api';
 import * as repository from '@/mocks/repository';
+import { useAuthStore } from '@/stores/auth';
 import { useFavoritesStore } from '@/stores/favorites';
 
 const RESTAURANTS: RestaurantSummary[] = [
@@ -37,13 +38,17 @@ function createWrapper() {
 }
 
 afterEach(() => {
-  // Reset the shared global store so favoriting in one test can't leak into
-  // the next — this store is a module singleton, not created per-render.
+  // Reset the shared global stores so favoriting/auth state in one test can't
+  // leak into the next — these are module singletons, not created per-render.
   useFavoritesStore.setState({ favoriteIds: new Set() });
+  useAuthStore.setState({ isLoggedIn: false });
   jest.restoreAllMocks();
 });
 
 test('reacts to favoriteIds changes without an extra mock/network call', async () => {
+  useAuthStore.setState({ isLoggedIn: true });
+  jest.spyOn(repository, 'addFavorite').mockResolvedValue(undefined);
+  jest.spyOn(repository, 'removeFavorite').mockResolvedValue(undefined);
   const getNearbyPlacesSpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
 
   const { result } = await renderHook(() => useFavoriteRestaurantsQuery(), { wrapper: createWrapper() });

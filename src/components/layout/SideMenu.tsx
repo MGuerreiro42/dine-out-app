@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 
 import { Icon, type IconSpec } from '@/components/ui';
-import { CURRENT_USER } from '@/mocks/currentUser';
+import { colors, iconSize } from '@/theme';
 import { useAuthStore } from '@/stores/auth';
 
 const NAV_ITEMS: { label: string; icon: IconSpec; route: string }[] = [
@@ -23,6 +23,7 @@ const NAV_ITEMS: { label: string; icon: IconSpec; route: string }[] = [
 export function SideMenu() {
   const router = useRouter();
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const [open, setOpen] = useState(false);
 
@@ -36,64 +37,64 @@ export function SideMenu() {
     <>
       <Pressable
         onPress={() => setOpen(true)}
-        className="h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#f3f4f6]"
+        className="h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-sand-light"
       >
-        <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={18} color="#1f2937" />
+        <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} color={colors.ink} />
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={close}>
         <Pressable onPress={close} className="flex-1 flex-row bg-black/35">
-          <Pressable onPress={(e) => e.stopPropagation()} className="h-full w-[82%] bg-white p-5">
-            <View className="mb-4 flex-row items-center justify-between">
+          <Pressable onPress={(e) => e.stopPropagation()} className="h-full w-[82%] bg-white p-md2">
+            <View className="mb-md flex-row items-center justify-between">
               <Pressable
                 onPress={close}
                 className="h-8 w-8 items-center justify-center rounded-full bg-sand"
               >
-                <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={16} />
+                <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.inline} />
               </Pressable>
               <Pressable
                 onPress={close}
                 className="h-8 w-8 items-center justify-center rounded-full bg-sand"
               >
-                <Icon spec={{ set: 'Ionicons', name: 'close' }} size={16} />
+                <Icon spec={{ set: 'Ionicons', name: 'close' }} size={iconSize.inline} />
               </Pressable>
             </View>
 
-            {isLoggedIn ? (
-              <Pressable onPress={() => goTo('/profile')} className="mb-6 flex-row items-center gap-3">
-                <View className="h-12 w-12 items-center justify-center rounded-full bg-[#eef2ff]">
-                  <Text className="text-base font-bold text-[#4f46e5]">{CURRENT_USER.initial}</Text>
+            {isLoggedIn && user ? (
+              <Pressable onPress={() => goTo('/profile')} className="mb-lg flex-row items-center gap-sm2">
+                <View className="h-12 w-12 items-center justify-center rounded-full bg-accent-tint">
+                  <Text className="text-base font-bold text-accent">{user.name.charAt(0).toUpperCase()}</Text>
                 </View>
                 <View>
-                  <Text className="text-sm font-bold text-ink">{CURRENT_USER.name}</Text>
-                  <Text className="text-[13px] text-muted">View profile</Text>
+                  <Text className="text-sm font-bold text-ink">{user.name}</Text>
+                  <Text className="text-caption text-muted">View profile</Text>
                 </View>
               </Pressable>
             ) : (
               <Pressable
                 onPress={() => goTo('/login')}
-                className="mb-6 items-center rounded-xl bg-ink py-3.5"
+                className="mb-lg items-center rounded-lg bg-ink py-md"
               >
-                <Text className="text-[15px] font-bold text-white">Log in or sign up</Text>
+                <Text className="text-body font-bold text-white">Log in or sign up</Text>
               </Pressable>
             )}
 
-            <View className="gap-0.5">
+            <View className="gap-xs">
               {NAV_ITEMS.map((item) => (
                 <Pressable
                   key={item.label}
                   onPress={() => goTo(item.route)}
-                  className="flex-row items-center gap-3.5 border-b border-sand py-3.5"
+                  className="flex-row items-center gap-md border-b border-sand py-md"
                 >
-                  <Icon spec={item.icon} size={18} />
+                  <Icon spec={item.icon} />
                   <Text className="text-sm font-bold text-ink">{item.label}</Text>
                 </Pressable>
               ))}
             </View>
 
             {isLoggedIn ? (
-              <Pressable onPress={logout} className="mt-auto py-3.5">
-                <Text className="text-sm font-bold text-[#b23b3b]">Log out</Text>
+              <Pressable onPress={logout} className="mt-auto py-md">
+                <Text className="text-sm font-bold text-danger">Log out</Text>
               </Pressable>
             ) : null}
           </Pressable>

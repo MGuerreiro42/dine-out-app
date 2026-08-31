@@ -19,10 +19,12 @@ export const ThingToKnowSchema = z.object({
 export type ThingToKnow = z.infer<typeof ThingToKnowSchema>;
 
 export const ReviewSchema = z.object({
-  name: z.string(),
-  time: z.string(),
+  id: z.number(),
+  userId: z.number(),
+  userName: z.string(),
   rating: z.number(),
   text: z.string(),
+  createdAt: z.string(),
 });
 export type Review = z.infer<typeof ReviewSchema>;
 

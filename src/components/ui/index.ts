@@ -10,3 +10,4 @@ export * from './RatingBadge';
 export * from './RestaurantCard';
 export * from './Skeleton';
 export * from './StarRating';
+export * from './StarRatingInput';

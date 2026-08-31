@@ -1,5 +1,23 @@
 import { z } from 'zod';
 
+export const AuthUserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+});
+export type AuthUser = z.infer<typeof AuthUserSchema>;
+
+export const AuthTokensSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+});
+export type AuthTokens = z.infer<typeof AuthTokensSchema>;
+
+export const AuthResponseSchema = AuthTokensSchema.extend({
+  user: AuthUserSchema,
+});
+export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+
 export const RestaurantSummarySchema = z.object({
   id: z.number(),
   displayName: z.string(),
@@ -39,6 +57,15 @@ export const HighlightSchema = z.object({
   description: z.string(),
 });
 
+export const ReviewSchema = z.object({
+  id: z.number(),
+  userId: z.number(),
+  userName: z.string(),
+  rating: z.number(),
+  text: z.string(),
+  createdAt: z.string(),
+});
+
 export const RestaurantDetailSchema = RestaurantSummarySchema.extend({
   menuItems: z.array(MenuItemSchema),
   thingsToKnow: z.array(ThingToKnowSchema),
@@ -53,5 +80,10 @@ export const RestaurantDetailSchema = RestaurantSummarySchema.extend({
   country: z.string().nullable(),
   brandName: z.string().nullable(),
   brandWikidataId: z.string().nullable(),
+  // Capped at the 20 most recent server-side (dine-out-backend's specs/reviews.md) —
+  // reviewCount is the true, uncapped total, so it can exceed reviews.length.
+  reviews: z.array(ReviewSchema),
+  averageRating: z.number().nullable(),
+  reviewCount: z.number(),
 });
 export type RestaurantDetail = z.infer<typeof RestaurantDetailSchema>;

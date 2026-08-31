@@ -19,6 +19,12 @@ export function useRestaurantDetailQuery(id: number) {
 
       const detail: RestaurantDetail = {
         ...base,
+        // Overrides base's always-null rating/reviewCount (mapSummaryToRestaurant has no
+        // wire source for them) — real on this detail-only path, per dine-out-backend's
+        // specs/reviews.md live-computed aggregate. List/card views stay null (out of
+        // scope this round).
+        rating: wire.averageRating !== null ? wire.averageRating.toFixed(1) : null,
+        reviewCount: wire.reviewCount,
         photos: wire.photoUrl ? [wire.photoUrl] : [],
         tags: wire.tags,
         category: wire.category,
@@ -32,7 +38,7 @@ export function useRestaurantDetailQuery(id: number) {
         socialLinks: wire.socialLinks,
         categoryAlternates: wire.categoryAlternates,
         brandName: wire.brandName,
-        reviews: [],
+        reviews: wire.reviews,
         highlights: wire.highlights,
       };
 
