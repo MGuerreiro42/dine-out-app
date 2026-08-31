@@ -13,6 +13,7 @@ import {
 } from '@/features/search/components';
 import { useHomeDiscovery } from '@/features/search/hooks';
 import { useLocationStore } from '@/stores/location';
+import { colors, iconSize } from '@/theme';
 import type { Restaurant } from '@/types';
 
 const MAX_RADIUS_KM = Math.max(...RADIUS_OPTIONS_KM);
@@ -42,13 +43,13 @@ export default function HomeScreen() {
   };
 
   const searchBarHeader = (
-    <View className="flex-row items-center gap-2.5 px-4 pt-4">
+    <View className="flex-row items-center gap-sm2 px-md pt-md">
       <Pressable
         onPress={() => router.push('/search')}
-        className="flex-1 flex-row items-center gap-2 rounded-full bg-[#f3f4f6] px-4 py-3"
+        className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2"
       >
-        <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={16} color="#9ca3af" />
-        <Text className="text-sm text-[#9ca3af]">Search restaurants...</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkFaint} />
+        <Text className="text-sm text-muted">Search restaurants...</Text>
       </Pressable>
       <SideMenu />
     </View>
@@ -65,9 +66,9 @@ export default function HomeScreen() {
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
+      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
         <Text className="text-center text-sm text-muted">Couldn't load Home.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
+        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
           <Text className="text-sm font-bold text-white">Try again</Text>
         </Pressable>
       </View>
@@ -81,7 +82,7 @@ export default function HomeScreen() {
       <LocationHeader />
 
       {restaurants.length === 0 && isFetching ? (
-        <View className="flex-1 items-center justify-center gap-2 px-8">
+        <View className="flex-1 items-center justify-center gap-sm px-xl">
           <ActivityIndicator />
           <Text className="text-center text-sm text-muted">Searching a wider area...</Text>
         </View>
@@ -102,13 +103,13 @@ export default function HomeScreen() {
         <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
           {featured.length ? <FeaturedBanner restaurants={featured} taglineFor={taglineFor} /> : null}
 
-          <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
-            <View className="flex-row items-center gap-1.5">
-              <Icon spec={{ set: 'Ionicons', name: 'restaurant-outline' }} size={16} color="#4f46e5" />
-              <Text className="text-[17px] font-bold text-[#111827]">Choose your Cuisine</Text>
+          <View className="flex-row items-center justify-between px-md pb-sm pt-lg">
+            <View className="flex-row items-center gap-sm">
+              <Icon spec={{ set: 'Ionicons', name: 'restaurant-outline' }} size={iconSize.inline} color={colors.accent} />
+              <Text className="text-lg font-bold text-ink">Choose your Cuisine</Text>
             </View>
             <Pressable onPress={() => router.push('/type-overview/cuisine')}>
-              <Text className="text-xs font-normal text-[#4f46e5]">View all cuisines</Text>
+              <Text className="text-xs font-normal text-accent">View all cuisines</Text>
             </Pressable>
           </View>
           <CuisineSelector cuisines={cuisines} onSelect={setActiveCuisine} />
@@ -123,17 +124,17 @@ export default function HomeScreen() {
 
           {spotlights.map((spotlight, index) => (
             <View key={spotlight.cuisineId}>
-              <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
-                <View className="flex-row items-center gap-1.5">
+              <View className="flex-row items-center justify-between px-md pb-sm pt-lg">
+                <View className="flex-row items-center gap-sm">
                   <Icon
                     spec={{ set: 'Ionicons', name: index === 0 ? 'flame-outline' : 'trending-up-outline' }}
-                    size={16}
-                    color="#4f46e5"
+                    size={iconSize.inline}
+                    color={colors.accent}
                   />
-                  <Text className="text-[17px] font-bold text-[#111827]">{spotlight.title}</Text>
+                  <Text className="text-lg font-bold text-ink">{spotlight.title}</Text>
                 </View>
                 <Pressable onPress={() => router.push(`/type/cuisine/${spotlight.cuisineId}`)}>
-                  <Text className="text-xs font-normal text-[#4f46e5]">View more</Text>
+                  <Text className="text-xs font-normal text-accent">View more</Text>
                 </Pressable>
               </View>
               <RestaurantSection
@@ -145,13 +146,13 @@ export default function HomeScreen() {
             </View>
           ))}
 
-          <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
-            <View className="flex-row items-center gap-1.5">
-              <Icon spec={{ set: 'Ionicons', name: 'bag-outline' }} size={16} color="#4f46e5" />
-              <Text className="text-[17px] font-bold text-[#111827]">Best Deliveries & Takeaways</Text>
+          <View className="flex-row items-center justify-between px-md pb-sm pt-lg">
+            <View className="flex-row items-center gap-sm">
+              <Icon spec={{ set: 'Ionicons', name: 'bag-outline' }} size={iconSize.inline} color={colors.accent} />
+              <Text className="text-lg font-bold text-ink">Best Deliveries & Takeaways</Text>
             </View>
             <Pressable onPress={() => router.push({ pathname: '/search', params: { delivery: '1' } })}>
-              <Text className="text-xs font-normal text-[#4f46e5]">View all</Text>
+              <Text className="text-xs font-normal text-accent">View all</Text>
             </Pressable>
           </View>
           <RestaurantSection

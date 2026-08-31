@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import type { ColorValue } from 'react-native';
 
 import { Icon, type IconSpec } from '@/components/ui';
+import { colors } from '@/theme';
 
 const TAB_ICONS: Record<string, IconSpec> = {
   index: { set: 'Ionicons', name: 'home-outline' },
@@ -11,7 +12,7 @@ const TAB_ICONS: Record<string, IconSpec> = {
 };
 
 function TabIcon({ name, color }: { name: keyof typeof TAB_ICONS; color: ColorValue }) {
-  return <Icon spec={TAB_ICONS[name]} size={20} color={color as string} />;
+  return <Icon spec={TAB_ICONS[name]} color={color as string} />;
 }
 
 export default function TabsLayout() {
@@ -19,9 +20,9 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#161311',
-        tabBarInactiveTintColor: '#8a8580',
-        tabBarStyle: { borderTopColor: '#eee' },
+        tabBarActiveTintColor: colors.ink,
+        tabBarInactiveTintColor: colors.inkFaint,
+        tabBarStyle: { borderTopColor: colors.sandBorder },
         tabBarLabelStyle: { fontSize: 10, fontWeight: 'bold' },
       }}
     >

@@ -2,6 +2,7 @@ import { Alert, Pressable, View } from 'react-native';
 
 import { Icon } from '@/components/ui';
 import { useFavoritesStore } from '@/stores/favorites';
+import { colors, iconSize } from '@/theme';
 
 const ICON_BUTTON_CLASS = 'h-9 w-9 items-center justify-center rounded-full bg-white/90';
 
@@ -14,18 +15,18 @@ export function DetailHeaderActions({ restaurantId }: DetailHeaderActionsProps) 
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
 
   return (
-    <View className="absolute right-3.5 top-3.5 gap-2">
+    <View className="absolute right-md top-md gap-sm">
       <Pressable
         onPress={() => Alert.alert('Demo', 'Share this restaurant')}
         className={ICON_BUTTON_CLASS}
       >
-        <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={16} color="#374151" />
+        <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={iconSize.header} color={colors.inkMuted} />
       </Pressable>
       <Pressable onPress={() => toggleFavorite(restaurantId)} className={ICON_BUTTON_CLASS}>
         <Icon
           spec={{ set: 'Ionicons', name: 'heart-outline' }}
-          size={16}
-          color={isFavorite ? '#e11d48' : '#374151'}
+          size={iconSize.header}
+          color={isFavorite ? colors.danger : colors.inkMuted}
         />
       </Pressable>
     </View>

@@ -12,7 +12,7 @@ const SECTION_KEYS = Array.from({ length: SECTION_COUNT }, (_, index) => `sectio
 
 function SkeletonChipRow() {
   return (
-    <View className="mt-6 flex-row gap-3.5 px-4">
+    <View className="mt-lg flex-row gap-md px-md">
       {CHIP_KEYS.map((key) => (
         <Skeleton key={key} className="h-11 w-11 rounded-full" />
       ))}
@@ -22,11 +22,11 @@ function SkeletonChipRow() {
 
 function SkeletonSection() {
   return (
-    <View className="mt-6 gap-3 px-4">
+    <View className="mt-lg gap-sm2 px-md">
       <Skeleton className="h-4 w-40 rounded" />
-      <View className="flex-row gap-3">
+      <View className="flex-row gap-sm2">
         {CARD_KEYS.map((key) => (
-          <Skeleton key={key} className="aspect-[4/3] w-[130px] rounded-xl" />
+          <Skeleton key={key} className="aspect-[4/3] w-[130px] rounded-lg" />
         ))}
       </View>
     </View>
@@ -36,7 +36,7 @@ function SkeletonSection() {
 export function HomeSkeleton() {
   return (
     <View className="flex-1">
-      <Skeleton className="mx-4 mt-1.5 aspect-[16/7] rounded-2xl" />
+      <Skeleton className="mx-md mt-sm aspect-[16/7] rounded-lg" />
       <SkeletonChipRow />
       {SECTION_KEYS.map((key) => (
         <SkeletonSection key={key} />

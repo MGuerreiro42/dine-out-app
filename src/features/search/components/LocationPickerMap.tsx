@@ -25,7 +25,7 @@ export const LocationPickerMap = forwardRef<MapRef, LocationPickerMapProps>(func
         />
       </MapLibreMap>
       <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
-        <View className="h-4 w-4 -translate-y-4 rounded-full border-2 border-white bg-[#208AEF]" />
+        <View className="h-4 w-4 -translate-y-4 rounded-full border-2 border-white bg-locate" />
       </View>
     </View>
   );

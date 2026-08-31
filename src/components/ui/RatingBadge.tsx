@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from 'react-native';
 
+import { colors, iconSize } from '@/theme';
+
 type RatingBadgeProps = {
   rating: string | null;
   priceLevel: string | null;
@@ -14,8 +16,8 @@ export function RatingBadge({ rating, priceLevel }: RatingBadgeProps) {
   const label = [rating, priceLevel].filter((value): value is string => value !== null).join(' · ');
 
   return (
-    <View className="flex-row items-center gap-1">
-      <Ionicons name="star" size={11} color="#8a8580" />
+    <View className="flex-row items-center gap-xs">
+      <Ionicons name="star" size={iconSize.micro} color={colors.inkFaint} />
       <Text className="text-xs text-muted">{label}</Text>
     </View>
   );

@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { BottomSheet, Icon, type IconSpec } from '@/components/ui';
 import { getSocialLinkIcon, getSocialLinkLabel, getWebsiteLabel } from '@/features/restaurant/lib/labels';
+import { colors, iconSize } from '@/theme';
 
 import { RedirectOptionsSheetContent } from './RedirectOptionsSheetContent';
 
@@ -35,13 +36,13 @@ export function InfoActionsRow({ phones, whatsapp, instagramHandle, websites, so
   }
 
   return (
-    <View className="px-4 pb-4">
+    <View className="px-md pb-md">
       <Pressable
         onPress={() => setSheetOpen(true)}
-        className="flex-row items-center justify-center gap-1.5 rounded-2xl bg-[#f3f4f6] p-3.5"
+        className="flex-row items-center justify-center gap-sm rounded-lg bg-sand-light p-md"
       >
-        <Icon spec={{ set: 'Ionicons', name: 'call-outline' }} size={16} color="#1f2937" />
-        <Text className="text-[15px] font-bold text-[#1f2937]">Contact & socials</Text>
+        <Icon spec={{ set: 'Ionicons', name: 'call-outline' }} size={iconSize.inline} color={colors.ink} />
+        <Text className="text-body font-bold text-ink">Contact & socials</Text>
       </Pressable>
 
       <BottomSheet visible={sheetOpen} onClose={() => setSheetOpen(false)}>

@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { BottomSheet, Icon, type IconSpec } from '@/components/ui';
 import type { MenuItem } from '@/features/restaurant/types';
+import { colors, iconSize } from '@/theme';
 
 import { MenuSheetContent } from './MenuSheetContent';
 import { RedirectOptionsSheetContent } from './RedirectOptionsSheetContent';
@@ -25,15 +26,15 @@ export function ActionGrid({ menu }: ActionGridProps) {
   const [openAction, setOpenAction] = useState<ActionKey | null>(null);
 
   return (
-    <View className="flex-row gap-2.5 px-4 py-4">
+    <View className="flex-row gap-sm2 px-md py-md">
       {ACTIONS.map((action) => (
         <Pressable
           key={action.key}
           onPress={() => setOpenAction(action.key)}
-          className="flex-1 items-center gap-1.5 rounded-2xl border border-[#e0e7ff] bg-white py-3"
+          className="flex-1 items-center gap-sm rounded-lg border border-accent-tint bg-white py-sm2"
         >
-          <Icon spec={action.icon} size={20} color="#4f46e5" />
-          <Text className="text-xs font-bold text-[#4f46e5]">{action.label}</Text>
+          <Icon spec={action.icon} size={iconSize.ui} color={colors.accent} />
+          <Text className="text-xs font-bold text-accent">{action.label}</Text>
         </Pressable>
       ))}
 

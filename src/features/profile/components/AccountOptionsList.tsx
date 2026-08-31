@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { Icon } from '@/components/ui';
+import { colors, iconSize } from '@/theme';
 import type { AccountOption } from '@/features/profile/types';
 
 type AccountOptionsListProps = {
@@ -10,18 +11,18 @@ type AccountOptionsListProps = {
 
 export function AccountOptionsList({ options, onPress }: AccountOptionsListProps) {
   return (
-    <View className="px-4 pt-2">
-      <Text className="pb-1 text-base font-bold text-ink">Conta</Text>
+    <View className="px-md pt-sm">
+      <Text className="pb-xs text-base font-bold text-ink">Conta</Text>
       {options.map((option) => (
         <Pressable
           key={option.id}
           onPress={() => onPress(option.id)}
-          className="flex-row items-center justify-between border-b border-sand py-3.5"
+          className="flex-row items-center justify-between border-b border-sand py-md"
         >
-          <Text className={`text-sm font-bold ${option.danger ? 'text-[#b23b3b]' : 'text-ink'}`}>
+          <Text className={`text-sm font-bold ${option.danger ? 'text-danger' : 'text-ink'}`}>
             {option.label}
           </Text>
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={16} color="#d1d5db" />
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={iconSize.inline} color={colors.inkSubtle} />
         </Pressable>
       ))}
     </View>
