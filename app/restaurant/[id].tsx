@@ -15,7 +15,9 @@ import {
 } from '@/features/restaurant/components';
 import { useRestaurantDetailQuery } from '@/features/restaurant/api';
 import { humanizeCategory } from '@/features/restaurant/lib/labels';
+import { ReviewFormSheetContent } from '@/features/reviews/components';
 import { useRestaurantsQuery } from '@/features/search/api';
+import { colors, iconSize } from '@/theme';
 
 export default function RestaurantDetailScreen() {
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function RestaurantDetailScreen() {
   const { data: restaurant, isLoading, isError, refetch } = useRestaurantDetailQuery(Number(id));
   const { data: allRestaurants } = useRestaurantsQuery();
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
+  const [reviewFormOpen, setReviewFormOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -34,9 +37,9 @@ export default function RestaurantDetailScreen() {
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
+      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
         <Text className="text-center text-sm text-muted">Couldn't load restaurant.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
+        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
           <Text className="text-sm font-bold text-white">Try again</Text>
         </Pressable>
       </View>
@@ -63,81 +66,81 @@ export default function RestaurantDetailScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row items-center gap-2.5 px-4 pt-4">
+      <View className="flex-row items-center gap-sm2 px-md pt-md">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          className="h-10 w-10 items-center justify-center rounded-full bg-[#f3f4f6]"
+          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={18} color="#1f2937" />
+          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.ink} />
         </Pressable>
-        <View className="flex-1 flex-row items-center gap-2 rounded-full bg-[#f3f4f6] px-4 py-3">
-          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={16} color="#9ca3af" />
+        <View className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2">
+          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkFaint} />
           <TextInput
             editable={false}
             placeholder="Search restaurants..."
-            placeholderTextColor="#9ca3af"
-            className="flex-1 text-sm text-[#111827]"
+            placeholderTextColor={colors.inkFaint}
+            className="flex-1 text-sm text-ink"
           />
         </View>
         <Pressable
           onPress={() => router.push('/profile')}
-          className="h-10 w-10 items-center justify-center rounded-full bg-[#f3f4f6]"
+          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={18} color="#1f2937" />
+          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={iconSize.ui} color={colors.ink} />
         </Pressable>
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
-        <View className="mt-3.5">
+        <View className="mt-md">
           <PhotoCarousel photos={restaurant.photos} />
           <DetailHeaderActions restaurantId={restaurant.id} />
         </View>
 
-        <View className="px-4 pt-4">
+        <View className="px-md pt-md">
           <Text className="text-2xl font-bold text-ink">{restaurant.name}</Text>
 
           {restaurant.brandName ? (
-            <View className="mt-1 flex-row items-center gap-1">
-              <Icon spec={{ set: 'Ionicons', name: 'storefront-outline' }} size={13} color="#8a8580" />
+            <View className="mt-xs flex-row items-center gap-xs">
+              <Icon spec={{ set: 'Ionicons', name: 'storefront-outline' }} size={iconSize.micro} color={colors.inkFaint} />
               <Text className="text-xs text-muted">Part of {restaurant.brandName}</Text>
             </View>
           ) : null}
 
-          <View className="mt-2.5 flex-row flex-wrap gap-2">
+          <View className="mt-sm2 flex-row flex-wrap gap-sm">
             {restaurant.tags.map((tag) => (
-              <View key={tag} className="rounded-full bg-[#e0e7ff] px-3 py-1.5">
-                <Text className="text-xs font-light text-[#4338ca]">{tag}</Text>
+              <View key={tag} className="rounded-full bg-accent-tint px-sm2 py-sm">
+                <Text className="text-xs font-light text-accent">{tag}</Text>
               </View>
             ))}
           </View>
 
-          <View className="mt-1.5 flex-row flex-wrap gap-1.5">
+          <View className="mt-sm flex-row flex-wrap gap-sm">
             {categoryChips.map((category) => (
-              <View key={category} className="rounded-full border border-[#e5e7eb] px-2.5 py-1">
-                <Text className="text-[11px] font-light text-muted">{humanizeCategory(category)}</Text>
+              <View key={category} className="rounded-full border border-sand-border px-sm2 py-xs">
+                <Text className="text-caption font-light text-muted">{humanizeCategory(category)}</Text>
               </View>
             ))}
           </View>
         </View>
 
         {hasInfoRow ? (
-          <View className="mt-3.5 flex-row flex-wrap items-center gap-x-1.5 gap-y-1 border-b border-gray-100 px-4 pb-4">
+          <View className="mt-md flex-row flex-wrap items-center gap-x-sm gap-y-xs border-b border-sand-border px-md pb-md">
             {hasRating ? (
               <>
-                <Icon spec={{ set: 'Ionicons', name: 'star' }} size={14} color="#fbbf24" />
-                <Text className="text-[15px] font-bold text-ink">
+                <Icon spec={{ set: 'Ionicons', name: 'star' }} size={iconSize.inline} color={colors.rating} />
+                <Text className="text-body font-bold text-ink">
                   {restaurant.rating}
                   {restaurant.reviewCount !== null ? ` (${restaurant.reviewCount})` : ''}
                 </Text>
               </>
             ) : null}
-            {hasRating && hasPrice ? <Text className="text-[15px] text-muted">·</Text> : null}
-            {hasPrice ? <Text className="text-[15px] font-bold text-ink">{restaurant.priceLevel}</Text> : null}
-            {(hasRating || hasPrice) && hasAddress ? <Text className="text-[15px] text-muted">·</Text> : null}
+            {hasRating && hasPrice ? <Text className="text-body text-muted">·</Text> : null}
+            {hasPrice ? <Text className="text-body font-bold text-ink">{restaurant.priceLevel}</Text> : null}
+            {(hasRating || hasPrice) && hasAddress ? <Text className="text-body text-muted">·</Text> : null}
             {hasAddress ? (
-              <Pressable onPress={() => setAddressSheetOpen(true)} className="flex-row items-center gap-1">
-                <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={14} color="#fbbf24" />
-                <Text className="text-[15px] text-ink">{restaurant.addressShort}</Text>
+              <Pressable onPress={() => setAddressSheetOpen(true)} className="flex-row items-center gap-xs">
+                <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.inline} color={colors.rating} />
+                <Text className="text-body text-ink">{restaurant.addressShort}</Text>
               </Pressable>
             ) : null}
           </View>
@@ -153,7 +156,12 @@ export default function RestaurantDetailScreen() {
           socialLinks={restaurant.socialLinks}
         />
 
-        <ReviewsSection rating={restaurant.rating} reviews={restaurant.reviews} reviewCount={restaurant.reviewCount} />
+        <ReviewsSection
+          rating={restaurant.rating}
+          reviews={restaurant.reviews}
+          reviewCount={restaurant.reviewCount}
+          onAddReview={() => setReviewFormOpen(true)}
+        />
 
         <HighlightsRow highlights={restaurant.highlights} />
 
@@ -170,6 +178,10 @@ export default function RestaurantDetailScreen() {
           title="Address"
           options={[{ icon: { set: 'Ionicons', name: 'map-outline' }, label: 'Open in Google Maps' }]}
         />
+      </BottomSheet>
+
+      <BottomSheet visible={reviewFormOpen} onClose={() => setReviewFormOpen(false)}>
+        <ReviewFormSheetContent restaurantId={restaurant.id} onSuccess={() => setReviewFormOpen(false)} />
       </BottomSheet>
     </View>
   );

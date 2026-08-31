@@ -2,7 +2,7 @@
 
 **Feature**: `restaurant` — folder `src/features/restaurant/`
 **Created**: 2026-07-23
-**Status**: Implemented — User Stories 1–7, now against real `dine-out-backend-overture` data. Description, amenities, opening hours, and reviews sections have no backend field yet and render as correctly-empty/hidden — see 2026-08-26 Changelog entry and `PROJECT.md`'s decision log
+**Status**: Implemented — User Stories 1–7, now against real `dine-out-backend-overture` data. Description, amenities, opening hours, and price still have no backend field and render as correctly-empty/hidden — see 2026-08-26 Changelog entry and `PROJECT.md`'s decision log. Reviews and rating are real again as of 2026-08-31, first-party this time (`reviews.md`), not Google-sourced.
 **Design reference**: `App Flow.dc.html`, frame "2 · Restaurant Detail"
 
 ## Summary
@@ -71,7 +71,7 @@ A user checks social proof — what other people say, and the standout qualities
 1. **Given** the detail screen, **when** it renders, **then** the overall rating and one preview review (reviewer, time, star rating, text) show.
 2. **Given** the review preview, **when** the user taps "view all N reviews," **then** a sheet opens listing every review.
 3. **Given** the detail screen, **when** it renders, **then** a row of highlight badges shows without requiring interaction.
-4. **Given** a restaurant with zero reviews, **when** the screen renders, **then** the reviews section shows a visible empty state (icon, "No reviews yet," muted subtext) and a non-functional "Add a review" control that shows a "Coming soon" alert on tap.
+4. **Given** a restaurant with zero reviews, **when** the screen renders, **then** the reviews section shows a visible empty state (icon, "No reviews yet," muted subtext) and an "Add a review" control that opens the review submission sheet (mechanism owned by `reviews.md`); logged-out, it prompts to log in instead, matching User Story 7's favorite-icon guard.
 
 ---
 
@@ -144,7 +144,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **FR-015**: The system MUST display a "Similar Places" rail; tapping an entry MUST navigate to that restaurant's own detail screen, replacing the current screen (`router.replace`).
 - **FR-016**: The user MUST be able to toggle a restaurant's favorited state from the detail screen, reading and writing the shared favorites store defined in `favorites.md`.
 - **FR-017**: The system MUST display contact options (every phone number, WhatsApp, Instagram, every website, every social link) in a dedicated sheet, each simulating a redirect. Social links show a human platform label (e.g. "Facebook"), not the raw URL.
-- **FR-020**: The system MUST display a visible empty state (icon + "No reviews yet" + a non-functional "Add a review" control) when a restaurant has zero reviews, in place of hiding the section.
+- **FR-020**: The system MUST display a visible empty state (icon + "No reviews yet" + an "Add a review" control that opens the review submission sheet) when a restaurant has zero reviews, in place of hiding the section. Also present, not conditional on the empty state, in the populated view (US4, scenario 2's "view all N reviews" trigger sits alongside it) — submission itself is `reviews.md`'s contract.
 - **FR-021**: The system MUST display the restaurant's own category and any alternate categories as a humanized chip row (`snake_case` → `Title Case`), visually distinct from owner-authored tags.
 - **FR-022**: The system MUST display a "Part of {brandName}" badge near the restaurant name when the restaurant has a non-null `brandName`.
 - **FR-018**: The system MUST display a tappable address that opens a sheet offering to open the location in a maps app.
@@ -154,7 +154,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 
 - **RestaurantDetail**: extends the base `Restaurant` shape with `photos` (gallery), `description`, `tags`, `category`, `categoryAlternates`, `brandName`, `addressShort`, `reviewCount`, `amenities`, `highlights`, `thingsToKnow`, `instagramHandle`, `reviews`, `openingHours`, `phones`, `whatsapp`, `websites`, `socialLinks`.
 - **MenuItem**: name, price (display string, not a structured currency amount).
-- **Review**: reviewer name, relative time, star rating, text.
+- **Review**: a first-party review — reviewer's account name, star rating, text, submission timestamp. Contract owned by `reviews.md`; this spec only displays it.
 - **Amenity**: an icon + label pair.
 - **ThingToKnow**: a title + text pair.
 - **OpeningHours**: a day + hours-range pair, one per day of the week.
@@ -171,7 +171,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **Feature folder**: `src/features/restaurant/{api,components,hooks,types}`. No `stores/` — the one piece of cross-screen state this feature touches (favorited) is global, owned by `favorites.md`.
 - **Shared `src/components/ui/` component**: `PhotoCarousel` (gallery with next/previous + counter).
 - **US3 components** (`features/restaurant/components/`): `InfoActionsRow` (Contact & socials button, reuses `RedirectOptionsSheetContent` for the sheet listing every phone/WhatsApp/Instagram/website/social-link row), `ThingsToKnowSection` (always visible, no sheet).
-- **US4 components**: `ReviewsSection` (rating header, preview review, "view all N reviews" trigger; renders a visible empty state + non-functional "Add a review" control when `reviews.length === 0`) + `ReviewsSheetContent`, `HighlightsRow` (always visible, no sheet).
+- **US4 components**: `ReviewsSection` (rating header, preview review, "view all N reviews" trigger, an `onAddReview` callback prop for the "Add a review" trigger — guards logged-out taps itself via `useAuthStore`, same `Alert` pattern as `favorites.md`'s toggle; renders a visible empty state when `reviews.length === 0`) + `ReviewsSheetContent`, `HighlightsRow` (always visible, no sheet). `ReviewsSection` does not import `reviews.md`'s submission form directly — same "features never import each other" rule as US6 below; `app/restaurant/[id].tsx` owns the sheet and passes `onAddReview` down.
 - **US5 component**: `InstagramSection` — handle, Follow/Following toggle (local `useState`), 3-column photo grid.
 - **Reuses from `src/components/ui/`**: `RestaurantCard`, `HorizontalRail` (Similar Places rail), `BottomSheet` (every quick-action and info sheet), `RatingBadge`.
 - **US6**: `app/restaurant/[id].tsx` reuses `useRestaurantsQuery` (from `features/search/api`) and filters client-side by cuisine, excluding the current id, capped at 3 — route-level composition, not a feature-to-feature import. `SimilarPlacesSection` returns `null` if zero candidates.
@@ -180,7 +180,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **Types**: `RestaurantDetail`, `MenuItem`, `Review`, `Amenity`, `ThingToKnow`, `OpeningHours` in `src/features/restaurant/types/`. `RestaurantDetail` extends the shared `Restaurant` from `src/types/restaurant.ts`.
 - **Mocks**: `src/mocks/restaurantDetails.ts`, keyed by place id, composed from `src/mocks/restaurants.ts`'s 30 base places plus detail-only fields. `useRestaurantDetailQuery(id)` calls the Google Places API (New) Place Details contract, resolves photo references through the same two-hop flow as the list, normalizes to `RestaurantDetailSchema`.
 - **US3 wire contract**: `regularOpeningHours.weekdayDescriptions`, `internationalPhoneNumber`, curated Google boolean amenity fields, mapped to `Amenity` icon+label pairs via a presentation-only lookup table. `whatsapp`/`instagramHandle`/`thingsToKnow` stay custom.
-- **US4 wire contract**: Google's `reviews[]` maps 1:1 to `Review`. `highlights` stays custom.
+- **US4 wire contract**: `reviews[]`/`averageRating`/`reviewCount` come from `dine-out-backend`'s first-party `Review` model (`reviews.md`, capped at the 20 most recent), not Google. `highlights` stays custom.
 - **US5**: Instagram has no Google Places equivalent — `instagramPhotos` (plain URLs) is fully custom.
 - **Category/contact labeling**: `src/features/restaurant/lib/labels.ts` — `humanizeCategory` (`snake_case` → `Title Case`, mirrors the backend's own `humanizeCategory()` in `dine-out-backend-overture/src/restaurants/taxonomies.data.ts`), `getSocialLinkLabel`/`getSocialLinkIcon` (hostname → platform name/icon, `facebook.com`/`instagram.com` mapped explicitly, else bare hostname), `getWebsiteLabel` (bare hostname).
 - **New dependencies**: `zod`. `PhotoCarousel` uses a plain `ScrollView` and local state, no third-party carousel library.
@@ -190,7 +190,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - Real menu ordering / checkout flow — Menu is read-only, Takeaway/Delivery are simulated redirects.
 - A real reservation system — Reserve is a single simulated confirmation.
 - Real Instagram API/OAuth integration.
-- Writing or submitting new reviews.
+- Writing or submitting new reviews — mechanism owned by `reviews.md`; this spec owns only the display surfaces (`ReviewsSection`, `ReviewsSheetContent`) and the trigger that opens the submission sheet, mirroring how `favorites.md` owns the favorite toggle's actual mechanism while this spec owns the like icon (User Story 7).
 - Real distance-to-user calculation (depends on `src/stores/location.ts`, not yet implemented).
 - A map preview on this screen (`search.md`).
 
@@ -222,3 +222,4 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 | 2026-08-26 | `ReviewsSection` now renders a visible empty state ("No reviews yet" + non-functional "Add a review" control) instead of returning `null` for zero reviews (FR-020). Surfaced previously-fetched-but-unused wire fields: `phones[]` (was `phones[0]` only), `websites[]`, `socialLinks[]` added to `InfoActionsRow`'s contact sheet with hostname-derived social labels (FR-017); `category`/`categoryAlternates` rendered as a humanized chip row distinct from owner-authored `tags` (FR-021); `brandName` rendered as a "Part of {brandName}" badge (FR-022). New `src/features/restaurant/lib/labels.ts`. No new API calls — same `getPlaceDetails` response, just threaded further into `RestaurantDetailSchema`/`useRestaurantDetailQuery`. |
 | 2026-08-26 | `InfoActionsRow` briefly moved to an inline (no-sheet) contact list; reverted the same day after checking the design canvas (`App Flow.dc.html`'s `screenshots/02-detail.png`) — "Contact & socials" is a single tappable button opening a sheet in the actual design, sitting alongside an "Opening Hours" button (the latter stays unbuilt, no data source exists). FR-017 restored to the sheet-based wording; `phones[]`/`websites[]`/`socialLinks[]` still populate that sheet's list, per the entry above. |
 | 2026-08-27 | `photos` no longer hardcoded to `[]`: `useRestaurantDetailQuery.ts` now threads the wire's `photoUrl` into `photos: [wire.photoUrl]` (`dine-out-backend-overture`'s `Restaurant.photoUrl`, FR-028–FR-031 there). `PhotoCarousel` needed zero code changes — its truthy/falsy branch on `photos.length` already handled this correctly. Verified live against the real backend: `PhotoCarousel` renders an actual stock photo instead of "No photos available" for restaurants that previously showed the empty state. |
+| 2026-08-31 | US4's `Review`/rating/reviews are real again, first-party this time (not Google): `useRestaurantDetailQuery.ts` threads `wire.reviews`/`wire.averageRating`/`wire.reviewCount` (`dine-out-backend`'s new `specs/reviews.md`) instead of the hardcoded `reviews: []`. FR-020's "Add a review" control is functional — opens the submission form specced in `reviews.md` (mechanism there; this spec keeps only the display + an `onAddReview` trigger prop, threaded from `app/restaurant/[id].tsx`). `ReviewsSection`/`ReviewsSheetContent` updated from the old `{name, time}` shape to `{userName, createdAt}`. Verified live. |

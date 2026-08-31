@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+
+type SubmitError = { field: 'email' | 'password'; message: string };
 
 type AuthFormProps = {
   isSignup: boolean;
   onToggleMode: () => void;
-  onSubmit: () => void;
+  onSubmit: (values: { name?: string; email: string; password: string }) => void;
+  submitError?: SubmitError | null;
+  isSubmitting?: boolean;
 };
 
 type FormErrors = {
@@ -15,11 +19,17 @@ type FormErrors = {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
+export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubmitting }: AuthFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useEffect(() => {
+    if (submitError) {
+      setErrors((prev) => ({ ...prev, [submitError.field]: submitError.message }));
+    }
+  }, [submitError]);
 
   const title = isSignup ? 'Create account' : 'Log in';
   const subtitle = isSignup
@@ -44,6 +54,10 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
   };
 
   const handleSubmit = () => {
+    if (isSubmitting) {
+      return;
+    }
+
     const nextErrors: FormErrors = {};
 
     if (isSignup && name.trim().length === 0) {
@@ -58,8 +72,8 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
 
     if (password.length === 0) {
       nextErrors.password = 'Enter your password.';
-    } else if (password.length < 6) {
-      nextErrors.password = 'Password must be at least 6 characters.';
+    } else if (password.length < 8) {
+      nextErrors.password = 'Password must be at least 8 characters.';
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -67,25 +81,25 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
       return;
     }
 
-    onSubmit();
+    onSubmit({ name: isSignup ? name.trim() : undefined, email, password });
   };
 
   return (
-    <View className="px-7 pb-7 pt-5">
-      <View className="mb-[18px] h-1.5 w-11 rounded-full bg-accent" />
-      <Text className="mb-1.5 text-2xl font-bold text-ink">{title}</Text>
-      <Text className="mb-6 text-[15px] text-muted">{subtitle}</Text>
+    <View className="px-xl pb-xl pt-md2">
+      <View className="mb-md2 h-1.5 w-11 rounded-full bg-accent" />
+      <Text className="mb-sm text-2xl font-bold text-ink">{title}</Text>
+      <Text className="mb-lg text-body text-muted">{subtitle}</Text>
 
-      <View className="gap-3">
+      <View className="gap-sm2">
         {isSignup ? (
           <View>
             <TextInput
               placeholder="Full name"
               value={name}
               onChangeText={handleNameChange}
-              className={`rounded-xl border px-4 py-3.5 text-sm ${errors.name ? 'border-[#b23b3b]' : 'border-sand'}`}
+              className={`rounded-sm border px-md py-md text-sm ${errors.name ? 'border-danger' : 'border-sand'}`}
             />
-            {errors.name ? <Text className="mt-1 text-xs text-[#b23b3b]">{errors.name}</Text> : null}
+            {errors.name ? <Text className="mt-xs text-xs text-danger">{errors.name}</Text> : null}
           </View>
         ) : null}
         <View>
@@ -95,9 +109,9 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
             autoCapitalize="none"
             value={email}
             onChangeText={handleEmailChange}
-            className={`rounded-xl border px-4 py-3.5 text-sm ${errors.email ? 'border-[#b23b3b]' : 'border-sand'}`}
+            className={`rounded-sm border px-md py-md text-sm ${errors.email ? 'border-danger' : 'border-sand'}`}
           />
-          {errors.email ? <Text className="mt-1 text-xs text-[#b23b3b]">{errors.email}</Text> : null}
+          {errors.email ? <Text className="mt-xs text-xs text-danger">{errors.email}</Text> : null}
         </View>
         <View>
           <TextInput
@@ -105,45 +119,49 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
             secureTextEntry
             value={password}
             onChangeText={handlePasswordChange}
-            className={`rounded-xl border px-4 py-3.5 text-sm ${errors.password ? 'border-[#b23b3b]' : 'border-sand'}`}
+            className={`rounded-sm border px-md py-md text-sm ${errors.password ? 'border-danger' : 'border-sand'}`}
           />
-          {errors.password ? <Text className="mt-1 text-xs text-[#b23b3b]">{errors.password}</Text> : null}
+          {errors.password ? <Text className="mt-xs text-xs text-danger">{errors.password}</Text> : null}
         </View>
       </View>
 
       {isSignup ? null : (
-        <Pressable onPress={() => Alert.alert('Demo', 'Reset password')} className="pt-2.5">
+        <Pressable onPress={() => Alert.alert('Demo', 'Reset password')} className="pt-sm2">
           <Text className="text-xs font-bold text-ink underline">Forgot your password?</Text>
         </Pressable>
       )}
 
-      <Pressable onPress={handleSubmit} className="mt-5 items-center rounded-xl bg-ink py-3.5">
+      <Pressable
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+        className={`mt-md2 items-center rounded-lg bg-ink py-md ${isSubmitting ? 'opacity-60' : ''}`}
+      >
         <Text className="text-sm font-bold text-white">{title}</Text>
       </Pressable>
 
-      <View className="my-[22px] flex-row items-center gap-2.5">
-        <View className="h-px flex-1 bg-gray-100" />
-        <Text className="text-[13px] text-muted">or continue with</Text>
-        <View className="h-px flex-1 bg-gray-100" />
+      <View className="my-lg flex-row items-center gap-sm2">
+        <View className="h-px flex-1 bg-sand-border" />
+        <Text className="text-caption text-muted">or continue with</Text>
+        <View className="h-px flex-1 bg-sand-border" />
       </View>
 
-      <View className="flex-row gap-2.5">
+      <View className="flex-row gap-sm2">
         <Pressable
           onPress={() => Alert.alert('Demo', 'Log in with Google')}
-          className="flex-1 items-center rounded-xl border border-sand py-3"
+          className="flex-1 items-center rounded-lg border border-sand py-sm2"
         >
-          <Text className="text-[15px] font-bold text-ink">Google</Text>
+          <Text className="text-body font-bold text-ink">Google</Text>
         </Pressable>
         <Pressable
           onPress={() => Alert.alert('Demo', 'Log in with Apple')}
-          className="flex-1 items-center rounded-xl border border-sand py-3"
+          className="flex-1 items-center rounded-lg border border-sand py-sm2"
         >
-          <Text className="text-[15px] font-bold text-ink">Apple</Text>
+          <Text className="text-body font-bold text-ink">Apple</Text>
         </Pressable>
       </View>
 
-      <Pressable onPress={onToggleMode} className="pt-[22px]">
-        <Text className="text-center text-[15px] text-[#3a3530]">
+      <Pressable onPress={onToggleMode} className="pt-lg">
+        <Text className="text-center text-body text-ink">
           {switchText} <Text className="font-bold underline">{switchAction}</Text>
         </Text>
       </Pressable>
