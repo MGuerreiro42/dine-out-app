@@ -19,7 +19,7 @@ export function LoggedOutPrompt({
   return (
     <View>
       <View className="px-md py-md2">
-        <Pressable onPress={onLogin} className="items-center rounded-lg bg-ink py-md">
+        <Pressable onPress={onLogin} className="items-center rounded-lg bg-accent py-md">
           <Text className="text-sm font-bold text-white">Log in or sign up</Text>
         </Pressable>
         <Text className="mt-md text-center text-xs text-muted">
@@ -33,18 +33,37 @@ export function LoggedOutPrompt({
           onPress={onExploreRestaurants}
           className="flex-row items-center justify-between border-b border-sand py-md"
         >
-          <Text className="text-sm font-bold text-ink">Explore restaurants</Text>
+          <View className="flex-row items-center gap-sm2">
+            <View className="h-9 w-9 items-center justify-center rounded-lg bg-sand">
+              <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.accent} />
+            </View>
+            <Text className="text-sm font-bold text-ink">Explore restaurants</Text>
+          </View>
           <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={iconSize.inline} color={colors.inkSubtle} />
         </Pressable>
         <Pressable
           onPress={onSearchOnMap}
           className="flex-row items-center justify-between border-b border-sand py-md"
         >
-          <Text className="text-sm font-bold text-ink">Search on the map</Text>
+          <View className="flex-row items-center gap-sm2">
+            <View className="h-9 w-9 items-center justify-center rounded-lg bg-sand">
+              <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.inline} color={colors.accent} />
+            </View>
+            <Text className="text-sm font-bold text-ink">Search on the map</Text>
+          </View>
           <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={iconSize.inline} color={colors.inkSubtle} />
         </Pressable>
-        <Pressable onPress={onNotificationPreferences} className="py-md">
-          <Text className="text-sm font-bold text-ink">Notification preferences</Text>
+        <Pressable onPress={onNotificationPreferences} className="flex-row items-center justify-between py-md">
+          <View className="flex-row items-center gap-sm2">
+            <View className="h-9 w-9 items-center justify-center rounded-lg bg-sand">
+              <Icon
+                spec={{ set: 'Ionicons', name: 'notifications-outline' }}
+                size={iconSize.inline}
+                color={colors.accent}
+              />
+            </View>
+            <Text className="text-sm font-bold text-ink">Notification preferences</Text>
+          </View>
         </Pressable>
       </View>
     </View>

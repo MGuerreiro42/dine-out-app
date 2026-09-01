@@ -27,16 +27,21 @@ export function ActionGrid({ menu }: ActionGridProps) {
 
   return (
     <View className="flex-row gap-sm2 px-md py-md">
-      {ACTIONS.map((action) => (
-        <Pressable
-          key={action.key}
-          onPress={() => setOpenAction(action.key)}
-          className="flex-1 items-center gap-sm rounded-lg border border-accent-tint bg-white py-sm2"
-        >
-          <Icon spec={action.icon} size={iconSize.ui} color={colors.accent} />
-          <Text className="text-xs font-bold text-accent">{action.label}</Text>
-        </Pressable>
-      ))}
+      {ACTIONS.map((action) => {
+        const isLead = action.key === 'menu';
+        return (
+          <Pressable
+            key={action.key}
+            onPress={() => setOpenAction(action.key)}
+            className={`flex-1 items-center gap-sm rounded-lg border py-sm2 ${
+              isLead ? 'border-accent bg-accent' : 'border-accent-tint bg-white'
+            }`}
+          >
+            <Icon spec={action.icon} size={iconSize.ui} color={isLead ? colors.white : colors.accent} />
+            <Text className={`text-xs font-bold ${isLead ? 'text-white' : 'text-accent'}`}>{action.label}</Text>
+          </Pressable>
+        );
+      })}
 
       <BottomSheet visible={openAction !== null} onClose={() => setOpenAction(null)}>
         {openAction === 'menu' ? <MenuSheetContent menu={menu} /> : null}

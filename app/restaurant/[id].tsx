@@ -17,6 +17,8 @@ import { useRestaurantDetailQuery } from '@/features/restaurant/api';
 import { humanizeCategory } from '@/features/restaurant/lib/labels';
 import { ReviewFormSheetContent } from '@/features/reviews/components';
 import { useRestaurantsQuery } from '@/features/search/api';
+import { formatDistanceKm, haversineKm } from '@/lib/geo';
+import { useLocationStore } from '@/stores/location';
 import { colors, iconSize } from '@/theme';
 
 export default function RestaurantDetailScreen() {
@@ -24,6 +26,8 @@ export default function RestaurantDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: restaurant, isLoading, isError, refetch } = useRestaurantDetailQuery(Number(id));
   const { data: allRestaurants } = useRestaurantsQuery();
+  const fromLatitude = useLocationStore((s) => s.latitude);
+  const fromLongitude = useLocationStore((s) => s.longitude);
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
   const [reviewFormOpen, setReviewFormOpen] = useState(false);
 
@@ -62,7 +66,11 @@ export default function RestaurantDetailScreen() {
   const hasPrice = restaurant.priceLevel !== null;
   const hasAddress = restaurant.addressShort !== null;
   const hasInfoRow = hasRating || hasPrice || hasAddress;
-  const categoryChips = Array.from(new Set([restaurant.category, ...restaurant.categoryAlternates]));
+  const alternateChips = restaurant.categoryAlternates.filter((category) => category !== restaurant.category);
+  const distanceLabel = formatDistanceKm(
+    haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude),
+  );
+  const breadcrumb = restaurant.categoryHierarchy.map(humanizeCategory);
 
   return (
     <View className="flex-1 bg-white">
@@ -106,6 +114,15 @@ export default function RestaurantDetailScreen() {
             </View>
           ) : null}
 
+          <View className="mt-sm2 flex-row items-center gap-xs self-start rounded-lg bg-sand px-sm2 py-xs">
+            <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.micro} color={colors.ink} />
+            <Text className="text-xs font-bold text-ink">{distanceLabel} from you</Text>
+          </View>
+
+          {breadcrumb.length > 0 ? (
+            <Text className="mt-sm2 text-xs text-muted">{breadcrumb.join(' › ')}</Text>
+          ) : null}
+
           <View className="mt-sm2 flex-row flex-wrap gap-sm">
             {restaurant.tags.map((tag) => (
               <View key={tag} className="rounded-full bg-accent-tint px-sm2 py-sm">
@@ -115,7 +132,10 @@ export default function RestaurantDetailScreen() {
           </View>
 
           <View className="mt-sm flex-row flex-wrap gap-sm">
-            {categoryChips.map((category) => (
+            <View className="rounded-full border border-accent px-sm2 py-xs">
+              <Text className="text-caption font-bold text-accent">{humanizeCategory(restaurant.category)}</Text>
+            </View>
+            {alternateChips.map((category) => (
               <View key={category} className="rounded-full border border-sand-border px-sm2 py-xs">
                 <Text className="text-caption font-light text-muted">{humanizeCategory(category)}</Text>
               </View>

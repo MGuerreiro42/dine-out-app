@@ -53,7 +53,7 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('threads phones, websites, socialLinks, categoryAlternates and brandName through to the domain type', async () => {
+test('threads phones, websites, socialLinks, categoryAlternates, categoryHierarchy and brandName through to the domain type', async () => {
   jest.spyOn(repository, 'getPlaceDetails').mockResolvedValueOnce(WIRE_DETAIL);
 
   const { result } = await renderHook(() => useRestaurantDetailQuery(28379), { wrapper: createWrapper() });
@@ -65,6 +65,7 @@ test('threads phones, websites, socialLinks, categoryAlternates and brandName th
     websites: ['http://www.habibs.com.br'],
     socialLinks: ['https://www.facebook.com/293209384107819'],
     categoryAlternates: ['restaurant', 'diner'],
+    categoryHierarchy: ['food_and_drink', 'casual_eatery', 'fast_food_restaurant'],
     category: 'fast_food_restaurant',
     brandName: "Habib's",
     photos: ['https://images.unsplash.com/photo-fast-food?w=1200&q=80'],

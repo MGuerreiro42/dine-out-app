@@ -1,4 +1,4 @@
-import { Alert, Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 
 import { Icon, PhotoPlaceholder } from '@/components/ui';
 import type { HomeCardData } from '@/features/search/hooks';
@@ -25,12 +25,11 @@ export function HomeRestaurantCard({ restaurant, onPress }: HomeRestaurantCardPr
         ) : (
           <PhotoPlaceholder className="aspect-[4/3] w-full" iconSize={iconSize.ui} />
         )}
-        {restaurant.isOpenNow ? (
-          <View className="absolute left-sm top-sm rounded-full bg-success-tint px-sm py-xs">
-            <Text className="text-caption font-light text-success">Open</Text>
-          </View>
-        ) : null}
-        <View className="absolute right-sm top-sm flex-row gap-xs">
+        <View className="absolute left-sm top-sm flex-row items-center gap-xs rounded-lg bg-black/70 px-sm py-xs">
+          <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.micro} color={colors.white} />
+          <Text className="text-caption font-bold text-white">{restaurant.distanceLabel}</Text>
+        </View>
+        <View className="absolute right-sm top-sm">
           <Pressable
             onPress={() => toggleFavorite(restaurant.id)}
             className={`h-6 w-6 items-center justify-center rounded-full ${isFavorite ? 'bg-danger-tint' : 'bg-white/90'}`}
@@ -41,12 +40,6 @@ export function HomeRestaurantCard({ restaurant, onPress }: HomeRestaurantCardPr
               color={isFavorite ? colors.danger : colors.inkMuted}
             />
           </Pressable>
-          <Pressable
-            onPress={() => Alert.alert('Share', 'Coming soon.')}
-            className="h-6 w-6 items-center justify-center rounded-full bg-white/90"
-          >
-            <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={iconSize.micro} color={colors.inkMuted} />
-          </Pressable>
         </View>
       </View>
 
@@ -54,11 +47,11 @@ export function HomeRestaurantCard({ restaurant, onPress }: HomeRestaurantCardPr
         <Text className="text-xs font-bold text-ink" numberOfLines={1}>
           {restaurant.name}
         </Text>
-        {restaurant.rating !== null || restaurant.priceLevel !== null ? (
+        {restaurant.websites.length > 0 ? (
           <View className="mt-xs flex-row items-center gap-xs">
-            <Icon spec={{ set: 'Ionicons', name: 'star' }} size={iconSize.micro} color={colors.rating} />
+            <Icon spec={{ set: 'Ionicons', name: 'globe-outline' }} size={iconSize.micro} color={colors.inkFaint} />
             <Text className="text-caption text-muted" numberOfLines={1}>
-              {[restaurant.rating, restaurant.priceLevel].filter((value): value is string => value !== null).join(' · ')}
+              Site
             </Text>
           </View>
         ) : null}

@@ -48,6 +48,7 @@ export const RestaurantDetailSchema = RestaurantSchema.extend({
   websites: z.array(z.string()),
   socialLinks: z.array(z.string()),
   categoryAlternates: z.array(z.string()),
+  categoryHierarchy: z.array(z.string()),
   brandName: z.string().nullable(),
   reviews: z.array(ReviewSchema),
   highlights: z.array(HighlightSchema),

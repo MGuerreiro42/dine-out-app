@@ -12,6 +12,8 @@ export const RestaurantSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
   reviewCount: z.number().nullable(),
+  brandName: z.string().nullable(),
+  websites: z.array(z.string()),
 });
 
 export type Restaurant = z.infer<typeof RestaurantSchema>;

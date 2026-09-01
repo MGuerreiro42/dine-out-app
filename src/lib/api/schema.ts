@@ -32,6 +32,8 @@ export const RestaurantSummarySchema = z.object({
   tags: z.array(z.string()),
   whatsapp: z.string().nullable(),
   instagramHandle: z.string().nullable(),
+  brandName: z.string().nullable(),
+  websites: z.array(z.string()),
 });
 export type RestaurantSummary = z.infer<typeof RestaurantSummarySchema>;
 
@@ -71,14 +73,12 @@ export const RestaurantDetailSchema = RestaurantSummarySchema.extend({
   thingsToKnow: z.array(ThingToKnowSchema),
   highlights: z.array(HighlightSchema),
   phones: z.array(z.string()),
-  websites: z.array(z.string()),
   socialLinks: z.array(z.string()),
   categoryAlternates: z.array(z.string()),
   categoryHierarchy: z.array(z.string()),
   postalCode: z.string().nullable(),
   region: z.string().nullable(),
   country: z.string().nullable(),
-  brandName: z.string().nullable(),
   brandWikidataId: z.string().nullable(),
   // Capped at the 20 most recent server-side (dine-out-backend's specs/reviews.md) —
   // reviewCount is the true, uncapped total, so it can exceed reviews.length.

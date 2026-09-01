@@ -4,14 +4,15 @@ import { useDiscoveryTaxonomiesQuery } from '@/features/search/api/useDiscoveryT
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
 import { pickSpotlights, type Spotlight } from '@/features/search/lib/pickSpotlights';
 import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
+import { formatDistanceKm, haversineKm } from '@/lib/geo';
 import { useLocationStore } from '@/stores/location';
 import type { Restaurant } from '@/types';
 
 export type HomeCardData = Restaurant & {
   cuisineLabel: string;
   tags: string[];
-  isOpenNow: boolean;
   hasDelivery: boolean;
+  distanceLabel: string;
 };
 
 export function deriveHomeCard(
@@ -19,6 +20,8 @@ export function deriveHomeCard(
   cuisines: Cuisine[],
   occasions: Occasion[],
   ambients: Ambient[],
+  fromLatitude: number,
+  fromLongitude: number,
 ): HomeCardData {
   return {
     ...restaurant,
@@ -27,8 +30,10 @@ export function deriveHomeCard(
       ambients.find((a) => a.id === restaurant.ambient)?.label,
       occasions.find((o) => o.id === restaurant.occasion)?.label,
     ].filter((label): label is string => Boolean(label)),
-    isOpenNow: restaurant.id % 4 !== 0,
     hasDelivery: restaurant.id % 3 !== 0,
+    distanceLabel: formatDistanceKm(
+      haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude),
+    ),
   };
 }
 
@@ -53,7 +58,8 @@ export function useHomeDiscovery() {
 
   const cuisineList = restaurants.filter((r) => r.cuisine === currentCuisine);
 
-  const toHomeCard = (restaurant: Restaurant) => deriveHomeCard(restaurant, cuisines, occasions, ambients);
+  const toHomeCard = (restaurant: Restaurant) =>
+    deriveHomeCard(restaurant, cuisines, occasions, ambients, latitude, longitude);
 
   const featured = restaurants.slice(0, 5).map(toHomeCard);
   const taglineFor = (restaurant: HomeCardData) => {
@@ -94,6 +100,17 @@ export function useHomeDiscovery() {
     restaurants: restaurants.filter((r) => r.cuisine === pick.cuisineId).map(toHomeCard),
   }));
 
+  // One card per brand, keeping the first (nearest, per the backend's distance sort)
+  // location of each chain rather than repeating the same brand for every branch nearby.
+  const seenBrands = new Set<string>();
+  const brandRestaurants = restaurants
+    .filter((r) => {
+      if (!r.brandName || seenBrands.has(r.brandName)) return false;
+      seenBrands.add(r.brandName);
+      return true;
+    })
+    .map(toHomeCard);
+
   return {
     isLoading: restaurantsQuery.isLoading || taxonomiesQuery.isLoading,
     isFetching: restaurantsQuery.isFetching,
@@ -105,8 +122,10 @@ export function useHomeDiscovery() {
     restaurants: restaurants.map(toHomeCard),
     cuisines: cuisines.map((c) => ({ ...c, isActive: c.id === currentCuisine })),
     cuisineList: (cuisineList.length ? cuisineList : restaurants.slice(0, 3)).map(toHomeCard),
+    occasions,
     spotlights,
     featured,
+    brandRestaurants,
     taglineFor,
     setActiveCuisine,
   };

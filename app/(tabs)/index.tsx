@@ -2,8 +2,9 @@ import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { SideMenu } from '@/components/layout';
-import { EmptyState, Icon } from '@/components/ui';
+import { Chip, EmptyState, Icon } from '@/components/ui';
 import {
+  BrandRail,
   CuisineSelector,
   FeaturedBanner,
   HomeSkeleton,
@@ -28,8 +29,10 @@ export default function HomeScreen() {
     restaurants,
     cuisines,
     cuisineList,
+    occasions,
     spotlights,
     featured,
+    brandRestaurants,
     taglineFor,
     setActiveCuisine,
   } = useHomeDiscovery();
@@ -121,6 +124,40 @@ export default function HomeScreen() {
               if (activeCuisine) router.push(`/type/cuisine/${activeCuisine.id}`);
             }}
           />
+
+          {brandRestaurants.length > 0 ? (
+            <View>
+              <View className="flex-row items-center justify-between px-md pb-sm pt-lg">
+                <View className="flex-row items-center gap-sm">
+                  <Text className="text-lg font-bold text-ink">Brands you know</Text>
+                </View>
+              </View>
+              <BrandRail restaurants={brandRestaurants} onSelectRestaurant={goToRestaurant} />
+            </View>
+          ) : null}
+
+          {occasions.length > 0 ? (
+            <View>
+              <View className="flex-row items-center justify-between px-md pb-sm pt-lg">
+                <View className="flex-row items-center gap-sm">
+                  <Text className="text-lg font-bold text-ink">Explore by type</Text>
+                </View>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}
+              >
+                {occasions.map((occasion) => (
+                  <Chip
+                    key={occasion.id}
+                    label={occasion.label}
+                    onPress={() => router.push(`/type/occasion/${occasion.id}`)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+          ) : null}
 
           {spotlights.map((spotlight, index) => (
             <View key={spotlight.cuisineId}>

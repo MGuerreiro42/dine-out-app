@@ -15,6 +15,8 @@ function makeRestaurant(id: number, cuisine: string): Restaurant {
     latitude: 0,
     longitude: 0,
     reviewCount: null,
+    brandName: null,
+    websites: [],
   };
 }
 

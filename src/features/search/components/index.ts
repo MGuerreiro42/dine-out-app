@@ -1,3 +1,4 @@
+export * from './BrandRail';
 export * from './CuisineSelector';
 export * from './FeaturedBanner';
 export * from './HomeRestaurantCard';

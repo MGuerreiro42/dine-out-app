@@ -24,6 +24,8 @@ const RESTAURANTS: RestaurantSummary[] = [
     tags: [],
     whatsapp: null,
     instagramHandle: null,
+    brandName: null,
+    websites: [],
   },
 ];
 

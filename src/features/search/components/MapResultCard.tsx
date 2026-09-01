@@ -22,11 +22,10 @@ export function MapResultCard({ restaurant, onPress }: MapResultCardProps) {
         ) : (
           <PhotoPlaceholder className="h-[110px] w-[130px]" iconSize={iconSize.ui} />
         )}
-        {restaurant.isOpenNow ? (
-          <View className="absolute left-sm top-sm rounded-full bg-success-tint px-sm py-xs">
-            <Text className="text-caption font-light text-success">Open</Text>
-          </View>
-        ) : null}
+        <View className="absolute left-sm top-sm flex-row items-center gap-xs rounded-lg bg-black/70 px-sm py-xs">
+          <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.micro} color={colors.white} />
+          <Text className="text-caption font-bold text-white">{restaurant.distance}</Text>
+        </View>
         <View className="absolute right-sm top-sm flex-row gap-xs">
           <Pressable
             onPress={() => toggleFavorite(restaurant.id)}
