@@ -7,6 +7,7 @@ export * from './LocationHeader';
 export * from './MapResultCard';
 export * from './MapResultsSheet';
 export * from './MapSearchBar';
+export * from './NearbySection';
 export * from './RestaurantSection';
 export * from './SearchMapView';
 export * from './TypeDetailScreen';
