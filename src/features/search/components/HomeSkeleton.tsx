@@ -20,7 +20,7 @@ function SkeletonChipRow() {
   );
 }
 
-function SkeletonSection() {
+export function SkeletonSection() {
   return (
     <View className="mt-lg gap-sm2 px-md">
       <Skeleton className="h-4 w-40 rounded" />

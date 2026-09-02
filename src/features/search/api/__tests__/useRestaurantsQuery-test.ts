@@ -116,6 +116,18 @@ test('forwards cuisine/occasion/category/limit filters to getNearbyPlaces and ke
   });
 });
 
+test('does not fetch when enabled is false', async () => {
+  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+
+  const { result } = await renderHook(() => useRestaurantsQuery(undefined, { cuisine: 'brazilian', enabled: false }), {
+    wrapper: createWrapper(),
+  });
+
+  expect(result.current.isLoading).toBe(false);
+  expect(result.current.fetchStatus).toBe('idle');
+  expect(nearbySpy).not.toHaveBeenCalled();
+});
+
 test('does not share a cache entry between differently filtered queries', async () => {
   jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS).mockResolvedValueOnce([RESTAURANTS[0]]);
 
