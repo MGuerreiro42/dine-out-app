@@ -147,6 +147,38 @@ test('fetches the pool, the active cuisine, and each spotlight independently, al
   }
 });
 
+test('shows a loading state while switching to a different cuisine chip, not a silent swap', async () => {
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
+
+  let resolveItalian: (value: RestaurantSummary[]) => void = () => {};
+  jest.spyOn(repository, 'getNearbyPlaces').mockImplementation(async (params) => {
+    if (params?.cuisine === 'italian') {
+      return new Promise((resolve) => {
+        resolveItalian = resolve;
+      });
+    }
+    return params?.cuisine ? ANCHOR_A_RESULTS.filter((r) => r.cuisineId === params.cuisine) : ANCHOR_A_RESULTS;
+  });
+
+  const { result } = await renderHook(() => useHomeDiscovery(), { wrapper: createWrapper() });
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+  await act(async () => {
+    result.current.setActiveCuisine('italian');
+  });
+
+  // `keepPreviousData` keeps the query "successful" (isLoading stays false) while the
+  // new cuisine's request is in flight, which previously left `cuisineListLoading`
+  // false the whole time — a chip tap that visibly did nothing until data silently
+  // swapped in. It must flip true here instead.
+  await waitFor(() => expect(result.current.cuisineListLoading).toBe(true));
+
+  await act(async () => {
+    resolveItalian([]);
+  });
+  await waitFor(() => expect(result.current.cuisineListLoading).toBe(false));
+});
+
 test('defaults to "All" — a synthetic first chip, no per-cuisine request, pool shown interleaved', async () => {
   jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
   const nearbySpy = mockNearbyByAnchor(ANCHOR_A_RESULTS, ANCHOR_A_RESULTS);

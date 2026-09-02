@@ -162,7 +162,14 @@ export function useHomeDiscovery() {
           ? cuisineListData
           : restaurants.slice(0, 3)
     ).map(toHomeCard),
-    cuisineListLoading: currentCuisine === null ? false : cuisineListQuery.isLoading,
+    // Switching cuisine chips changes the query key, but `keepPreviousData` means
+    // `isLoading` stays false and the previous cuisine's cards keep showing (only
+    // `isPlaceholderData` flips) — without also checking that, the tap looked like it
+    // did nothing until the new cuisine's data silently swapped in.
+    cuisineListLoading:
+      currentCuisine === null
+        ? false
+        : cuisineListQuery.isLoading || (cuisineListQuery.isFetching && cuisineListQuery.isPlaceholderData),
     occasions,
     spotlights,
     featured,
