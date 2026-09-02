@@ -51,10 +51,12 @@ const TAXONOMIES: DiscoveryTaxonomies = {
   categorySubtypes: {},
 };
 
-// 'italian' is `cuisines[0]`, so it's the default active chip and gets excluded from
-// spotlight eligibility — anchor A includes it (to exercise that exclusion) plus two
-// other cuisines so both remaining slots are filled deterministically.
-const ANCHOR_A_RESULTS = [makeSummary(1, 'italian'), makeSummary(2, 'japanese'), makeSummary(3, 'mexican')];
+// 'italian' is a real taxonomy entry (selectable explicitly in other tests) but has no
+// matching restaurant in the pool, so it's ineligible for a spotlight regardless of
+// which cuisine is active — 'japanese'/'mexican' are the only eligible pair, keeping
+// the "All" (no exclusion) default deterministic without relying on active-cuisine
+// exclusion.
+const ANCHOR_A_RESULTS = [makeSummary(2, 'japanese'), makeSummary(3, 'mexican')];
 const ANCHOR_B_RESULTS = [makeSummary(4, 'japanese')];
 
 // Each Home section (pool, active cuisine, each spotlight) now fires its own
@@ -127,8 +129,13 @@ test('fetches the pool, the active cuisine, and each spotlight independently, al
   const { result } = await renderHook(() => useHomeDiscovery(), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isLoading).toBe(false));
-  await waitFor(() => expect(result.current.cuisineListLoading).toBe(false));
   await waitFor(() => expect(result.current.spotlights.every((s) => !s.isLoading)).toBe(true));
+
+  // Picking a real cuisine (not the "All" default) fires its own dedicated request.
+  await act(async () => {
+    result.current.setActiveCuisine('italian');
+  });
+  await waitFor(() => expect(result.current.cuisineListLoading).toBe(false));
 
   const cuisinesRequested = new Set(nearbySpy.mock.calls.map(([params]) => params?.cuisine ?? null));
   // The pool (no cuisine filter), the active cuisine ('italian'), and both spotlight
@@ -138,4 +145,63 @@ test('fetches the pool, the active cuisine, and each spotlight independently, al
   for (const [params] of nearbySpy.mock.calls) {
     expect(params?.limit).toBe(HOME_SECTION_LIMIT);
   }
+});
+
+test('shows a loading state while switching to a different cuisine chip, not a silent swap', async () => {
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
+
+  let resolveItalian: (value: RestaurantSummary[]) => void = () => {};
+  jest.spyOn(repository, 'getNearbyPlaces').mockImplementation(async (params) => {
+    if (params?.cuisine === 'italian') {
+      return new Promise((resolve) => {
+        resolveItalian = resolve;
+      });
+    }
+    return params?.cuisine ? ANCHOR_A_RESULTS.filter((r) => r.cuisineId === params.cuisine) : ANCHOR_A_RESULTS;
+  });
+
+  const { result } = await renderHook(() => useHomeDiscovery(), { wrapper: createWrapper() });
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+  await act(async () => {
+    result.current.setActiveCuisine('italian');
+  });
+
+  // `keepPreviousData` keeps the query "successful" (isLoading stays false) while the
+  // new cuisine's request is in flight, which previously left `cuisineListLoading`
+  // false the whole time — a chip tap that visibly did nothing until data silently
+  // swapped in. It must flip true here instead.
+  await waitFor(() => expect(result.current.cuisineListLoading).toBe(true));
+
+  await act(async () => {
+    resolveItalian([]);
+  });
+  await waitFor(() => expect(result.current.cuisineListLoading).toBe(false));
+});
+
+test('defaults to "All" — a synthetic first chip, no per-cuisine request, pool shown interleaved', async () => {
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
+  const nearbySpy = mockNearbyByAnchor(ANCHOR_A_RESULTS, ANCHOR_A_RESULTS);
+
+  const { result } = await renderHook(() => useHomeDiscovery(), { wrapper: createWrapper() });
+
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+  expect(result.current.cuisines[0]).toMatchObject({ id: 'all', isActive: true });
+  expect(result.current.cuisines.slice(1).every((c) => !c.isActive)).toBe(true);
+  expect(result.current.cuisineListLoading).toBe(false);
+  expect(result.current.cuisineList.map((r) => r.id).sort()).toEqual([2, 3]);
+
+  await waitFor(() => expect(result.current.spotlights.every((s) => !s.isLoading)).toBe(true));
+
+  // "All" excludes no cuisine, so both eligible cuisines ('japanese', 'mexican') get
+  // picked as spotlights and fire their own independent requests — that's expected.
+  // What must NOT happen is a *third*, dedicated cuisine-list request: with "All"
+  // active, cuisineListQuery stays disabled and the pool is reused (interleaved)
+  // instead. 'italian' has no matching restaurant, so it's never spotlight-eligible
+  // either, keeping this fully deterministic.
+  const cuisinesRequested = nearbySpy.mock.calls.map(([params]) => params?.cuisine ?? null);
+  expect(cuisinesRequested).not.toContain('italian');
+  expect(new Set(cuisinesRequested)).toEqual(new Set([null, 'japanese', 'mexican']));
+  expect(cuisinesRequested).toHaveLength(3);
 });
