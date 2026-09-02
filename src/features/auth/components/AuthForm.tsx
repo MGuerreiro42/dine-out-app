@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from "react";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 
-import { Icon } from '@/components/ui';
-import { colors, iconSize } from '@/theme';
+import { Icon } from "@/components/ui";
+import { colors, iconSize } from "@/theme";
 
-type SubmitError = { field: 'email' | 'password'; message: string };
+type SubmitError = { field: "email" | "password"; message: string };
 
 type AuthFormProps = {
   isSignup: boolean;
@@ -23,9 +23,10 @@ type FormErrors = {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubmitting }: AuthFormProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
@@ -34,12 +35,12 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
     }
   }, [submitError]);
 
-  const title = isSignup ? 'Create account' : 'Log in';
+  const title = isSignup ? "Create account" : "Log in";
   const subtitle = isSignup
-    ? 'Create your account to book, favorite and track orders.'
-    : 'Log in to access your reservations, orders and favorites.';
-  const switchText = isSignup ? 'Already have an account?' : "Don't have an account yet?";
-  const switchAction = isSignup ? 'Log in' : 'Create account';
+    ? "Create your account to book, favorite and track orders."
+    : "Log in to access your reservations, orders and favorites.";
+  const switchText = isSignup ? "Already have an account?" : "Don't have an account yet?";
+  const switchAction = isSignup ? "Log in" : "Create account";
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -64,19 +65,19 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
     const nextErrors: FormErrors = {};
 
     if (isSignup && name.trim().length === 0) {
-      nextErrors.name = 'Enter your full name.';
+      nextErrors.name = "Enter your full name.";
     }
 
     if (email.length === 0) {
-      nextErrors.email = 'Enter your email.';
+      nextErrors.email = "Enter your email.";
     } else if (!EMAIL_REGEX.test(email)) {
-      nextErrors.email = 'Invalid email.';
+      nextErrors.email = "Invalid email.";
     }
 
     if (password.length === 0) {
-      nextErrors.password = 'Enter your password.';
+      nextErrors.password = "Enter your password.";
     } else if (password.length < 8) {
-      nextErrors.password = 'Password must be at least 8 characters.';
+      nextErrors.password = "Password must be at least 8 characters.";
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -102,7 +103,7 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
               placeholderTextColor={colors.inkFaint}
               value={name}
               onChangeText={handleNameChange}
-              className={`rounded-sm border px-md py-md text-sm text-ink ${errors.name ? 'border-danger bg-danger-tint' : 'border-sand-border bg-sand'}`}
+              className={`rounded-sm border px-md py-md text-sm text-ink ${errors.name ? "border-danger bg-danger-tint" : "border-sand-border bg-sand"}`}
             />
             {errors.name ? <Text className="mt-xs text-xs text-danger">{errors.name}</Text> : null}
           </View>
@@ -116,26 +117,37 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
             autoCapitalize="none"
             value={email}
             onChangeText={handleEmailChange}
-            className={`rounded-sm border px-md py-md text-sm text-ink ${errors.email ? 'border-danger bg-danger-tint' : 'border-sand-border bg-sand'}`}
+            className={`rounded-sm border px-md py-md text-sm text-ink ${errors.email ? "border-danger bg-danger-tint" : "border-sand-border bg-sand"}`}
           />
           {errors.email ? <Text className="mt-xs text-xs text-danger">{errors.email}</Text> : null}
         </View>
         <View>
           <Text className="mb-xs text-xs font-bold text-ink">Password</Text>
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor={colors.inkFaint}
-            secureTextEntry
-            value={password}
-            onChangeText={handlePasswordChange}
-            className={`rounded-sm border px-md py-md text-sm text-ink ${errors.password ? 'border-danger bg-danger-tint' : 'border-sand-border bg-sand'}`}
-          />
+          <View
+            className={`flex-row items-center rounded-sm border pl-md pr-sm2 ${errors.password ? "border-danger bg-danger-tint" : "border-sand-border bg-sand"}`}
+          >
+            <TextInput
+              placeholder="Password"
+              placeholderTextColor={colors.inkFaint}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={handlePasswordChange}
+              className="flex-1 py-md text-sm text-ink"
+            />
+            <Pressable onPress={() => setShowPassword((v) => !v)} hitSlop={8}>
+              <Icon
+                spec={{ set: "Ionicons", name: showPassword ? "eye-off-outline" : "eye-outline" }}
+                size={iconSize.inline}
+                color={colors.inkFaint}
+              />
+            </Pressable>
+          </View>
           {errors.password ? <Text className="mt-xs text-xs text-danger">{errors.password}</Text> : null}
         </View>
       </View>
 
       {isSignup ? null : (
-        <Pressable onPress={() => Alert.alert('Demo', 'Reset password')} className="pt-sm2">
+        <Pressable onPress={() => Alert.alert("Demo", "Reset password")} className="pt-sm2">
           <Text className="text-xs font-bold text-ink underline">Forgot your password?</Text>
         </Pressable>
       )}
@@ -143,7 +155,7 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
       <Pressable
         onPress={handleSubmit}
         disabled={isSubmitting}
-        className={`mt-md2 items-center rounded-lg bg-ink py-md ${isSubmitting ? 'opacity-60' : ''}`}
+        className={`mt-md2 items-center rounded-lg bg-ink py-md ${isSubmitting ? "opacity-60" : ""}`}
       >
         <Text className="text-sm font-bold text-white">{title}</Text>
       </Pressable>
@@ -156,17 +168,17 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
 
       <View className="flex-row gap-sm2">
         <Pressable
-          onPress={() => Alert.alert('Demo', 'Log in with Google')}
+          onPress={() => Alert.alert("Demo", "Log in with Google")}
           className="flex-1 flex-row items-center justify-center gap-sm rounded-lg border border-sand-border py-sm2"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'logo-google' }} size={iconSize.inline} color={colors.ink} />
+          <Icon spec={{ set: "Ionicons", name: "logo-google" }} size={iconSize.inline} color={colors.ink} />
           <Text className="text-body font-bold text-ink">Google</Text>
         </Pressable>
         <Pressable
-          onPress={() => Alert.alert('Demo', 'Log in with Apple')}
+          onPress={() => Alert.alert("Demo", "Log in with Apple")}
           className="flex-1 flex-row items-center justify-center gap-sm rounded-lg border border-sand-border py-sm2"
         >
-          <Icon spec={{ set: 'Ionicons', name: 'logo-apple' }} size={iconSize.inline} color={colors.ink} />
+          <Icon spec={{ set: "Ionicons", name: "logo-apple" }} size={iconSize.inline} color={colors.ink} />
           <Text className="text-body font-bold text-ink">Apple</Text>
         </Pressable>
       </View>

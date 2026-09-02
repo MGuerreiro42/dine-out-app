@@ -1,9 +1,7 @@
-import { Text, View } from 'react-native';
+import { Text, View } from "react-native";
 
 type ProfileStatsProps = {
   favCount: number;
-  orderCount: number;
-  reservationCount: number;
 };
 
 function Stat({ value, label }: { value: number; label: string }) {
@@ -15,12 +13,10 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
-export function ProfileStats({ favCount, orderCount, reservationCount }: ProfileStatsProps) {
+export function ProfileStats({ favCount }: ProfileStatsProps) {
   return (
     <View className="flex-row justify-around border-b border-sand-border px-md py-md">
       <Stat value={favCount} label="Favorites" />
-      <Stat value={orderCount} label="Orders" />
-      <Stat value={reservationCount} label="Reservations" />
     </View>
   );
 }
