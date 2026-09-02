@@ -34,6 +34,8 @@ function makeSummary(id: number, cuisineId: string): RestaurantSummary {
     tags: [],
     whatsapp: null,
     instagramHandle: null,
+    brandName: null,
+    websites: [],
   };
 }
 

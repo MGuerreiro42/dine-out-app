@@ -14,5 +14,7 @@ export function mapSummaryToRestaurant(summary: RestaurantSummary): Restaurant {
     latitude: summary.latitude,
     longitude: summary.longitude,
     reviewCount: null,
+    brandName: summary.brandName,
+    websites: summary.websites,
   };
 }

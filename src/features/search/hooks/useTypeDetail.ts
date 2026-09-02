@@ -6,6 +6,7 @@ import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
 import type { Restaurant } from '@/types';
 
 import { compareByRating } from '@/features/search/lib/ratingSort';
+import { useLocationStore } from '@/stores/location';
 
 import { deriveHomeCard } from './useHomeDiscovery';
 
@@ -38,6 +39,8 @@ export function useTypeDetail(dimension: TaxonomyDimension, id: string | undefin
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
   const { data: restaurants = [] } = restaurantsQuery;
   const { data: taxonomies } = taxonomiesQuery;
+  const latitude = useLocationStore((s) => s.latitude);
+  const longitude = useLocationStore((s) => s.longitude);
 
   const cuisines = taxonomies?.cuisines ?? [];
   const occasions = taxonomies?.occasions ?? [];
@@ -48,7 +51,8 @@ export function useTypeDetail(dimension: TaxonomyDimension, id: string | undefin
     ambient: ambients,
   };
 
-  const toCard = (restaurant: Restaurant) => deriveHomeCard(restaurant, cuisines, occasions, ambients);
+  const toCard = (restaurant: Restaurant) =>
+    deriveHomeCard(restaurant, cuisines, occasions, ambients, latitude, longitude);
 
   const primaryLabel = (id ? taxonomyByDimension[dimension].find((item) => item.id === id)?.label : '') ?? '';
   const primaryList = id ? restaurants.filter((r) => r[dimension] === id) : [];

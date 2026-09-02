@@ -32,6 +32,8 @@ const RESTAURANTS: RestaurantSummary[] = [
     tags: [],
     whatsapp: null,
     instagramHandle: null,
+    brandName: null,
+    websites: [],
   },
   {
     id: 2,
@@ -47,6 +49,8 @@ const RESTAURANTS: RestaurantSummary[] = [
     tags: [],
     whatsapp: null,
     instagramHandle: null,
+    brandName: null,
+    websites: [],
   },
 ];
 

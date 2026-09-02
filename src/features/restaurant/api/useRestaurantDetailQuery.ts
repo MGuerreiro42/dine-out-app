@@ -37,6 +37,7 @@ export function useRestaurantDetailQuery(id: number) {
         websites: wire.websites,
         socialLinks: wire.socialLinks,
         categoryAlternates: wire.categoryAlternates,
+        categoryHierarchy: wire.categoryHierarchy,
         brandName: wire.brandName,
         reviews: wire.reviews,
         highlights: wire.highlights,

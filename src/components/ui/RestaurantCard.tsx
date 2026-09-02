@@ -1,7 +1,9 @@
 import { Alert, Image, Pressable, Text, View } from 'react-native';
 
 import type { Restaurant } from '@/types';
+import { haversineKm, formatDistanceKm } from '@/lib/geo';
 import { useFavoritesStore } from '@/stores/favorites';
+import { useLocationStore } from '@/stores/location';
 import { colors, iconSize } from '@/theme';
 
 import { Icon } from './Icon';
@@ -16,7 +18,11 @@ type RestaurantCardProps = {
 export function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
   const isFavorite = useFavoritesStore((s) => s.isFavorite(restaurant.id));
   const toggleFavorite = useFavoritesStore((s) => s.toggleFavorite);
-  const isOpenNow = restaurant.id % 4 !== 0;
+  const fromLatitude = useLocationStore((s) => s.latitude);
+  const fromLongitude = useLocationStore((s) => s.longitude);
+  const distanceLabel = formatDistanceKm(
+    haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude),
+  );
 
   return (
     <Pressable
@@ -29,11 +35,10 @@ export function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
         ) : (
           <PhotoPlaceholder className="h-[110px] w-[150px]" />
         )}
-        {isOpenNow ? (
-          <View className="absolute left-sm top-sm rounded-full bg-success-tint px-sm py-xs">
-            <Text className="text-caption font-light text-success">Open</Text>
-          </View>
-        ) : null}
+        <View className="absolute left-sm top-sm flex-row items-center gap-xs rounded-lg bg-black/70 px-sm py-xs">
+          <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.micro} color={colors.white} />
+          <Text className="text-caption font-bold text-white">{distanceLabel}</Text>
+        </View>
         <View className="absolute right-sm top-sm flex-row gap-xs">
           <Pressable
             onPress={() => toggleFavorite(restaurant.id)}
