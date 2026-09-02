@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api/useDiscoveryTaxonomiesQuery';
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
+import { interleaveByCuisine } from '@/features/search/lib/interleaveByCuisine';
 import { pickSpotlights, type Spotlight } from '@/features/search/lib/pickSpotlights';
 import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
 import { formatDistanceKm, haversineKm } from '@/lib/geo';
@@ -53,13 +54,17 @@ export function useHomeDiscovery() {
   const longitude = useLocationStore((s) => s.longitude);
   const radiusKm = useLocationStore((s) => s.radiusKm);
 
-  const [activeCuisine, setActiveCuisine] = useState<string | null>(null);
+  const [activeCuisine, setActiveCuisineState] = useState<string | null>(null);
+  // The chip list's synthetic "all" id maps back to the real `null` ("All") state —
+  // callers never need to know `null` is how "All" is represented internally.
+  const setActiveCuisine = (id: string) => setActiveCuisineState(id === 'all' ? null : id);
 
   const cuisines = taxonomies?.cuisines ?? [];
   const occasions = taxonomies?.occasions ?? [];
   const ambients = taxonomies?.ambients ?? [];
 
-  const currentCuisine = activeCuisine ?? cuisines[0]?.id ?? null;
+  // null = "All" — the default, shown before the user taps a specific cuisine chip.
+  const currentCuisine = activeCuisine;
 
   const cuisineListQuery = useRestaurantsQuery(undefined, {
     cuisine: currentCuisine ?? undefined,
@@ -146,9 +151,18 @@ export function useHomeDiscovery() {
       taxonomiesQuery.refetch();
     },
     restaurants: restaurants.map(toHomeCard),
-    cuisines: cuisines.map((c) => ({ ...c, isActive: c.id === currentCuisine })),
-    cuisineList: (cuisineListData.length ? cuisineListData : restaurants.slice(0, 3)).map(toHomeCard),
-    cuisineListLoading: cuisineListQuery.isLoading,
+    cuisines: [
+      { id: 'all', label: 'All', photos: [], isActive: currentCuisine === null },
+      ...cuisines.map((c) => ({ ...c, isActive: c.id === currentCuisine })),
+    ],
+    cuisineList: (
+      currentCuisine === null
+        ? interleaveByCuisine(restaurants)
+        : cuisineListData.length
+          ? cuisineListData
+          : restaurants.slice(0, 3)
+    ).map(toHomeCard),
+    cuisineListLoading: currentCuisine === null ? false : cuisineListQuery.isLoading,
     occasions,
     spotlights,
     featured,

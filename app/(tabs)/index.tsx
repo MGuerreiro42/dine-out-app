@@ -131,7 +131,11 @@ export default function HomeScreen() {
               onSelectRestaurant={goToRestaurant}
               viewMoreLabel="View more"
               onViewMore={() => {
-                if (activeCuisine) router.push(`/type/cuisine/${activeCuisine.id}`);
+                if (activeCuisine && activeCuisine.id !== 'all') {
+                  router.push(`/type/cuisine/${activeCuisine.id}`);
+                } else {
+                  router.push('/search');
+                }
               }}
             />
           )}
