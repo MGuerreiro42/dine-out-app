@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Animated, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
-import { HorizontalRail, Icon, PhotoPlaceholder, type IconSpec } from '@/components/ui';
+import { BottomSheet, Chip, HorizontalRail, Icon, PhotoPlaceholder, type IconSpec } from '@/components/ui';
 import { HomeRestaurantCard } from '@/features/search/components/HomeRestaurantCard';
 import { useDebouncedValue } from '@/features/search/hooks/useDebouncedValue';
 import type { HomeCardData } from '@/features/search/hooks/useHomeDiscovery';
@@ -113,6 +113,36 @@ function RefineSection({ refine, onPressRestaurant, onViewAll }: RefineSectionPr
   );
 }
 
+type SubtypeRowProps = {
+  subtypes: ReturnType<typeof useTypeDetail>['subtypes'];
+};
+
+function SubtypeRow({ subtypes }: SubtypeRowProps) {
+  const [openLabel, setOpenLabel] = useState<string | null>(null);
+
+  if (subtypes.length === 0) return null;
+
+  return (
+    <View>
+      <SectionHeader icon={{ set: 'Ionicons', name: 'pricetags-outline' }} title="Browse by Type" />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}
+      >
+        {subtypes.map((subtype) => (
+          <Chip key={subtype.label} label={subtype.label} onPress={() => setOpenLabel(subtype.label)} />
+        ))}
+      </ScrollView>
+
+      <BottomSheet visible={openLabel !== null} onClose={() => setOpenLabel(null)}>
+        <Text className="text-lg font-bold text-ink">{openLabel}</Text>
+        <Text className="mt-sm text-sm text-muted">Filtering by {openLabel} is coming soon.</Text>
+      </BottomSheet>
+    </View>
+  );
+}
+
 type ChampionCardProps = {
   champions: HomeCardData[];
 };
@@ -184,7 +214,7 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
   const router = useRouter();
   const [searchText, setSearchText] = useState('');
   const debouncedSearchText = useDebouncedValue(searchText);
-  const { isLoading, isError, refetch, primaryLabel, champions, trending, lastSection, refine1, refine2 } =
+  const { isLoading, isError, refetch, primaryLabel, champions, trending, lastSection, subtypes, refine1, refine2 } =
     useTypeDetail(dimension, id, debouncedSearchText);
 
   const goToRestaurant = (restaurant: HomeCardData) => {
@@ -258,14 +288,18 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
         />
         <RestaurantGrid restaurants={champions} onPress={goToRestaurant} />
 
-        <RefineSection
-          refine={refine1}
-          onPressRestaurant={goToRestaurant}
-          onViewAll={() => {
-            const refineId = refine1.options.find((option) => option.isActive)?.id;
-            if (refineId) goToSearch({ [refine1.dimension]: refineId });
-          }}
-        />
+        {dimension === 'cuisine' ? (
+          <SubtypeRow subtypes={subtypes} />
+        ) : (
+          <RefineSection
+            refine={refine1}
+            onPressRestaurant={goToRestaurant}
+            onViewAll={() => {
+              const refineId = refine1.options.find((option) => option.isActive)?.id;
+              if (refineId) goToSearch({ [refine1.dimension]: refineId });
+            }}
+          />
+        )}
 
         <SectionHeader
           icon={{ set: 'Ionicons', name: 'flame-outline' }}
@@ -274,14 +308,16 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
         />
         <RestaurantGrid restaurants={trending} onPress={goToRestaurant} />
 
-        <RefineSection
-          refine={refine2}
-          onPressRestaurant={goToRestaurant}
-          onViewAll={() => {
-            const refineId = refine2.options.find((option) => option.isActive)?.id;
-            if (refineId) goToSearch({ [refine2.dimension]: refineId });
-          }}
-        />
+        {dimension === 'cuisine' ? null : (
+          <RefineSection
+            refine={refine2}
+            onPressRestaurant={goToRestaurant}
+            onViewAll={() => {
+              const refineId = refine2.options.find((option) => option.isActive)?.id;
+              if (refineId) goToSearch({ [refine2.dimension]: refineId });
+            }}
+          />
+        )}
 
         <SectionHeader
           icon={lastSectionHeader.icon}

@@ -20,6 +20,10 @@ import type { Restaurant } from '@/types';
 
 const MAX_RADIUS_KM = Math.max(...RADIUS_OPTIONS_KM);
 
+// Occasion data isn't enriched enough yet to make this section useful — hidden, not
+// deleted, until that changes.
+const SHOW_EXPLORE_BY_TYPE = false;
+
 export default function HomeScreen() {
   const router = useRouter();
   const {
@@ -142,7 +146,7 @@ export default function HomeScreen() {
             </View>
           ) : null}
 
-          {occasions.length > 0 ? (
+          {SHOW_EXPLORE_BY_TYPE && occasions.length > 0 ? (
             <View>
               <View className="flex-row items-center justify-between px-md pb-sm pt-lg">
                 <View className="flex-row items-center gap-sm">

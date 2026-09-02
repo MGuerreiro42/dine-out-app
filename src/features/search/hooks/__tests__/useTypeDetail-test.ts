@@ -38,6 +38,26 @@ const RESTAURANTS: RestaurantSummary[] = [
   },
 ];
 
+function makeSummary(id: number, category: string, cuisineId: string): RestaurantSummary {
+  return {
+    id,
+    displayName: `Restaurant ${id}`,
+    formattedAddress: null,
+    latitude: 0,
+    longitude: 0,
+    category,
+    cuisineId,
+    photoUrl: 'https://images.unsplash.com/photo-placeholder?w=1200&q=80',
+    occasion: null,
+    ambient: null,
+    tags: [],
+    whatsapp: null,
+    instagramHandle: null,
+    brandName: null,
+    websites: [],
+  };
+}
+
 const TAXONOMIES: DiscoveryTaxonomies = {
   cuisines: [{ id: 'brazilian', label: 'Brazilian', photos: ['https://example.com/photo.jpg'] }],
   occasions: [{ id: 'date-night', label: 'Date Night', icon: { set: 'Ionicons', name: 'heart-outline' } }],
@@ -94,4 +114,32 @@ test('a search query on a cuisine page stays scoped to that cuisine', async () =
   await waitFor(() => expect(result.current.isLoading).toBe(false));
 
   expect(nearbySpy).toHaveBeenCalledWith({ query: 'fogo', cuisine: 'brazilian', limit: 100 });
+});
+
+test('cuisine pages rank the subtype row by how many nearby restaurants match, dropping zero-count entries', async () => {
+  const restaurants = [
+    makeSummary(1, 'steak_house', 'brazilian'),
+    makeSummary(2, 'steak_house', 'brazilian'),
+    makeSummary(3, 'churrascaria', 'brazilian'),
+  ];
+  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(restaurants);
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce({
+    ...TAXONOMIES,
+    categorySubtypes: {
+      brazilian: [
+        { icon: { set: 'Ionicons', name: 'restaurant-outline' }, label: 'Steak House' },
+        { icon: { set: 'Ionicons', name: 'restaurant-outline' }, label: 'Churrascaria' },
+        { icon: { set: 'Ionicons', name: 'restaurant-outline' }, label: 'Feijoada Restaurant' },
+      ],
+    },
+  });
+
+  const { result } = await renderHook(() => useTypeDetail('cuisine', 'brazilian'), { wrapper: createWrapper() });
+
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+  expect(result.current.subtypes).toEqual([
+    expect.objectContaining({ label: 'Steak House', count: 2 }),
+    expect.objectContaining({ label: 'Churrascaria', count: 1 }),
+  ]);
 });

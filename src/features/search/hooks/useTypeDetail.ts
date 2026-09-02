@@ -5,6 +5,7 @@ import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
 import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
 import type { Restaurant } from '@/types';
 
+import { humanizeCategory } from '@/features/search/lib/humanizeCategory';
 import { compareByRating } from '@/features/search/lib/ratingSort';
 import { useLocationStore } from '@/stores/location';
 
@@ -45,6 +46,7 @@ export function useTypeDetail(dimension: TaxonomyDimension, id: string | undefin
   const cuisines = taxonomies?.cuisines ?? [];
   const occasions = taxonomies?.occasions ?? [];
   const ambients = taxonomies?.ambients ?? [];
+  const categorySubtypes = taxonomies?.categorySubtypes ?? {};
   const taxonomyByDimension: Record<TaxonomyDimension, (Cuisine | Occasion | Ambient)[]> = {
     cuisine: cuisines,
     occasion: occasions,
@@ -68,6 +70,20 @@ export function useTypeDetail(dimension: TaxonomyDimension, id: string | undefin
   const refine1List = primaryList.filter((r) => r[refineDim1] === currentRefine1);
   const refine2List = primaryList.filter((r) => r[refineDim2] === currentRefine2);
 
+  // Cuisine pages get a subtype row instead of the two refine rows (specs/search.md
+  // US3 point 4) — ranked by how many restaurants in this already region-scoped pool
+  // actually match, since categorySubtypes carries no machine key, only a label
+  // derived the same way from the raw category (humanizeCategory).
+  const subtypeCounts = new Map<string, number>();
+  for (const restaurant of primaryList) {
+    const label = humanizeCategory(restaurant.category);
+    subtypeCounts.set(label, (subtypeCounts.get(label) ?? 0) + 1);
+  }
+  const subtypes = (id ? (categorySubtypes[id] ?? []) : [])
+    .map((subtype) => ({ ...subtype, count: subtypeCounts.get(subtype.label) ?? 0 }))
+    .filter((subtype) => subtype.count > 0)
+    .sort((a, b) => b.count - a.count);
+
   const champions = topRated(primaryList).slice(0, GRID_SIZE);
   const trending = [...primaryList].sort((a, b) => a.id - b.id).slice(0, GRID_SIZE);
   const lastSection = primaryList.slice(0, GRID_SIZE);
@@ -85,6 +101,7 @@ export function useTypeDetail(dimension: TaxonomyDimension, id: string | undefin
     champions: champions.map(toCard),
     trending: trending.map(toCard),
     lastSection: lastSection.map(toCard),
+    subtypes,
     refine1: {
       dimension: refineDim1,
       options: refine1Options.map((o) => ({ ...o, isActive: o.id === currentRefine1 })),

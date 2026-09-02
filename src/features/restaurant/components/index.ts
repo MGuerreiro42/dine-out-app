@@ -5,7 +5,6 @@ export * from './InfoActionsRow';
 export * from './InstagramSection';
 export * from './MenuSheetContent';
 export * from './RedirectOptionsSheetContent';
-export * from './ReserveSheetContent';
 export * from './ReviewsSection';
 export * from './ReviewsSheetContent';
 export * from './SimilarPlacesSection';

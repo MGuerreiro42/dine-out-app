@@ -2,7 +2,7 @@
 
 **Feature**: `restaurant` — folder `src/features/restaurant/`
 **Created**: 2026-07-23
-**Status**: Implemented — User Stories 1–7, now against real `dine-out-backend-overture` data. Description, amenities, opening hours, and price still have no backend field and render as correctly-empty/hidden — see 2026-08-26 Changelog entry and `PROJECT.md`'s decision log. Reviews and rating are real again as of 2026-08-31, first-party this time (`reviews.md`), not Google-sourced.
+**Status**: Implemented — User Stories 1–7, now against real `dine-out-backend-overture` data. Description, amenities, opening hours, and price still have no backend field and render as correctly-empty/hidden — see 2026-08-26 Changelog entry and `PROJECT.md`'s decision log. Reviews and rating are real again as of 2026-08-31, first-party this time (`reviews.md`), not Google-sourced. As of 2026-09-02: Takeaway/Delivery/Reserve stay permanently disabled (no real capability behind them), the share icon is removed, and Contact & socials is four fixed cards on-screen instead of a sheet — live-testing feedback, canonical design canvas not yet updated to match.
 **Design reference**: `App Flow.dc.html`, frame "2 · Restaurant Detail"
 
 ## Summary
@@ -23,23 +23,22 @@ A user who tapped a restaurant card sees a photo gallery, the restaurant's name,
 2. **Given** the restaurant has multiple photos, **when** the user taps the next/previous controls, **then** the displayed photo changes and the counter (e.g. "2/3") updates to match.
 3. **Given** a description longer than the truncation threshold, **when** the screen first renders, **then** the description shows truncated with a "see more" affordance; tapping it expands to the full text and flips the affordance to "see less."
 4. **Given** the user taps the back control, **when** a previous screen exists, **then** the app returns to it; **when** none exists (`router.canGoBack()` is `false`), **then** it navigates to Home.
-5. **Given** the photo gallery header, **when** it renders, **then** it shows a share icon and a like/favorite icon (User Story 7).
+5. **Given** the photo gallery header, **when** it renders, **then** it shows a like/favorite icon (User Story 7). No share icon — see 2026-09-02 Changelog entry.
 
 ---
 
 ### User Story 2 - Take a quick action on the restaurant (Priority: P1) — Implemented
 
-A user who has decided this restaurant is worth pursuing can see the menu, order takeaway or delivery, or reserve a table, without leaving the app.
+A user who has decided this restaurant is worth pursuing can see the menu, when one exists. Takeaway/Delivery/Reserve stay visibly disabled — see 2026-09-02 Changelog entry: the app has no real partner links or reservation system, so a live sheet for them would only simulate a capability that doesn't exist.
 
-**Independent test**: on `/restaurant/[id]`, tap each of Menu/Takeaway/Delivery/Reserve independently, confirm each opens its own sheet with the right content, and confirm closing one doesn't affect the others.
+**Independent test**: on `/restaurant/[id]`, a restaurant with menu items shows Menu enabled and Takeaway/Delivery/Reserve disabled; a restaurant with none shows all four disabled. Tapping "Menu" when enabled opens a sheet listing items with prices; tapping a disabled action does nothing.
 
 **Acceptance scenarios**:
 
-1. **Given** the detail screen, **when** the user taps "Menu," **then** a sheet opens listing menu items with prices.
-2. **Given** the detail screen, **when** the user taps "Takeaway," **then** a sheet opens with delivery-partner options that simulate a redirect.
-3. **Given** the detail screen, **when** the user taps "Delivery," **then** a sheet opens with delivery-app options that simulate a redirect.
-4. **Given** the detail screen, **when** the user taps "Reserve," **then** a sheet opens with a reservation confirmation action that simulates completing a booking.
-5. **Given** any of the four sheets is open, **when** the user taps outside it or its close control, **then** it closes without affecting the underlying screen's state.
+1. **Given** the detail screen, **when** the restaurant has at least one menu item, **then** "Menu" renders enabled and tapping it opens a sheet listing items with prices.
+2. **Given** the detail screen, **when** the restaurant has no menu items, **then** "Menu" renders disabled and does not respond to a tap.
+3. **Given** the detail screen, **when** it renders, **then** "Takeaway," "Delivery," and "Reserve" always render disabled, regardless of restaurant.
+4. **Given** the Menu sheet is open, **when** the user taps outside it or its close control, **then** it closes without affecting the underlying screen's state.
 
 ---
 
@@ -56,7 +55,7 @@ A user weighing whether to go can check what the place offers, when it's open, a
 3. **Given** the detail screen, **when** the user taps "Opening Hours," **then** a sheet opens showing hours for every day of the week.
 4. **Given** the detail screen, **when** it renders, **then** a "Things to know" section shows title+text pairs without requiring a tap.
 5. **Given** the detail screen, **when** it renders, **then** a tappable address opens a sheet offering to open the location in a maps app.
-6. **Given** the detail screen, **when** the user taps "Contact & socials," **then** a sheet opens listing every phone, WhatsApp, Instagram, website, and social link as its own row, each simulating a redirect on tap.
+6. **Given** the detail screen, **when** it renders, **then** a "How to reach them" section shows four cards directly on the screen — Phone, Website, Social, WhatsApp — each simulating a redirect on tap when data exists; see 2026-09-02 Changelog entry.
 
 ---
 
@@ -131,10 +130,10 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **FR-002**: The system MUST display a photo gallery with next/previous navigation and a position counter, when the restaurant has more than one photo.
 - **FR-003**: The system MUST truncate long descriptions with a "see more" affordance that expands to the full text on tap, and collapses again on a second tap.
 - **FR-004**: The user MUST be able to navigate back to the previous screen; if none exists, back MUST navigate to Home.
-- **FR-005**: The system MUST provide four quick actions — Menu, Takeaway, Delivery, Reserve — each opening a sheet with its own content.
+- **FR-005**: The system MUST provide four quick actions — Menu, Takeaway, Delivery, Reserve — Menu enabled (opens a sheet) only when the restaurant has at least one menu item; Takeaway/Delivery/Reserve always disabled, no backend field backs any of them.
 - **FR-006**: The Menu sheet MUST list menu items with their prices.
-- **FR-007**: The Takeaway and Delivery sheets MUST list simulated redirect options to third-party services.
-- **FR-008**: The Reserve sheet MUST provide a single confirmation action that simulates completing a reservation.
+- **FR-007**: Removed 2026-09-02 — Takeaway/Delivery no longer open a sheet; see FR-005.
+- **FR-008**: Removed 2026-09-02 — Reserve no longer opens a sheet; see FR-005.
 - **FR-009**: The system MUST display a capped preview of amenities with an option to view the full list.
 - **FR-010**: The system MUST display the restaurant's opening hours for all seven days of the week on request.
 - **FR-011**: The system MUST display a "Things to know" section without requiring a tap.
@@ -143,12 +142,12 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **FR-014**: The system MUST display the restaurant's Instagram handle, a preview photo grid, and a toggleable Follow/Following control — local UI state only.
 - **FR-015**: The system MUST display a "Similar Places" rail; tapping an entry MUST navigate to that restaurant's own detail screen, replacing the current screen (`router.replace`).
 - **FR-016**: The user MUST be able to toggle a restaurant's favorited state from the detail screen, reading and writing the shared favorites store defined in `favorites.md`.
-- **FR-017**: The system MUST display contact options (every phone number, WhatsApp, Instagram, every website, every social link) in a dedicated sheet, each simulating a redirect. Social links show a human platform label (e.g. "Facebook"), not the raw URL.
+- **FR-017**: The system MUST display four fixed contact cards directly on the screen — Phone, Website, Social (Instagram if present, else the first social link), WhatsApp — each showing its real value and simulating a redirect on tap, or "Not provided" and disabled when that channel is absent. Social shows a human platform label (e.g. "Facebook"), not the raw URL.
 - **FR-020**: The system MUST display a visible empty state (icon + "No reviews yet" + an "Add a review" control that opens the review submission sheet) when a restaurant has zero reviews, in place of hiding the section. Also present, not conditional on the empty state, in the populated view (US4, scenario 2's "view all N reviews" trigger sits alongside it) — submission itself is `reviews.md`'s contract.
 - **FR-021**: The system MUST display the restaurant's own category and any alternate categories as a humanized chip row (`snake_case` → `Title Case`), visually distinct from owner-authored tags.
 - **FR-022**: The system MUST display a "Part of {brandName}" badge near the restaurant name when the restaurant has a non-null `brandName`.
 - **FR-018**: The system MUST display a tappable address that opens a sheet offering to open the location in a maps app.
-- **FR-019**: The system MUST display a share icon over the photo gallery that shows simulated share feedback on tap.
+- **FR-019**: Removed 2026-09-02 — the share icon was a fully fake action (`Alert.alert` only); removed rather than kept as a non-functional placeholder. Real sharing is deferred, not scheduled.
 
 ### Key Entities
 
@@ -162,7 +161,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 ## Success Criteria
 
 - **SC-001**: From tapping a restaurant card to seeing its name, photo, and rating on the detail screen, there is no perceptible loading state.
-- **SC-002**: A user can reach any of the four quick actions in exactly 1 tap from the detail screen.
+- **SC-002**: A user can reach the Menu sheet, when it's enabled, in exactly 1 tap from the detail screen.
 - **SC-003**: Favoriting a restaurant and opening Profile shows it in the favorites rail with no manual refresh.
 - **SC-004**: Tapping through the entire photo gallery and back never shows an incorrect counter value.
 
@@ -170,12 +169,12 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 
 - **Feature folder**: `src/features/restaurant/{api,components,hooks,types}`. No `stores/` — the one piece of cross-screen state this feature touches (favorited) is global, owned by `favorites.md`.
 - **Shared `src/components/ui/` component**: `PhotoCarousel` (gallery with next/previous + counter).
-- **US3 components** (`features/restaurant/components/`): `InfoActionsRow` (Contact & socials button, reuses `RedirectOptionsSheetContent` for the sheet listing every phone/WhatsApp/Instagram/website/social-link row), `ThingsToKnowSection` (always visible, no sheet).
+- **US3 components** (`features/restaurant/components/`): `InfoActionsRow` ("How to reach them" — four fixed contact cards rendered directly on screen, no sheet; see 2026-09-02 Changelog entry), `ThingsToKnowSection` (always visible, no sheet).
 - **US4 components**: `ReviewsSection` (rating header, preview review, "view all N reviews" trigger, an `onAddReview` callback prop for the "Add a review" trigger — guards logged-out taps itself via `useAuthStore`, same `Alert` pattern as `favorites.md`'s toggle; renders a visible empty state when `reviews.length === 0`) + `ReviewsSheetContent`, `HighlightsRow` (always visible, no sheet). `ReviewsSection` does not import `reviews.md`'s submission form directly — same "features never import each other" rule as US6 below; `app/restaurant/[id].tsx` owns the sheet and passes `onAddReview` down.
 - **US5 component**: `InstagramSection` — handle, Follow/Following toggle (local `useState`), 3-column photo grid.
 - **Reuses from `src/components/ui/`**: `RestaurantCard`, `HorizontalRail` (Similar Places rail), `BottomSheet` (every quick-action and info sheet), `RatingBadge`.
 - **US6**: `app/restaurant/[id].tsx` reuses `useRestaurantsQuery` (from `features/search/api`) and filters client-side by cuisine, excluding the current id, capped at 3 — route-level composition, not a feature-to-feature import. `SimilarPlacesSection` returns `null` if zero candidates.
-- **Reuses from `src/components/layout/`**: `SearchBar`, overlaid on the photo gallery. Does not reuse `SideMenu` — this screen's header icon stack (share, favorite) is screen-specific, built in `DetailHeaderActions.tsx`.
+- **Reuses from `src/components/layout/`**: `SearchBar`, overlaid on the photo gallery. Does not reuse `SideMenu` — this screen's header icon stack (favorite only, since 2026-09-02) is screen-specific, built in `DetailHeaderActions.tsx`.
 - **Global state**: reads and writes `src/stores/favorites.ts` (contract defined in `favorites.md`) for User Story 7.
 - **Types**: `RestaurantDetail`, `MenuItem`, `Review`, `Amenity`, `ThingToKnow`, `OpeningHours` in `src/features/restaurant/types/`. `RestaurantDetail` extends the shared `Restaurant` from `src/types/restaurant.ts`.
 - **Mocks**: `src/mocks/restaurantDetails.ts`, keyed by place id, composed from `src/mocks/restaurants.ts`'s 30 base places plus detail-only fields. `useRestaurantDetailQuery(id)` calls the Google Places API (New) Place Details contract, resolves photo references through the same two-hop flow as the list, normalizes to `RestaurantDetailSchema`.
@@ -187,8 +186,9 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 
 ## Out of Scope
 
-- Real menu ordering / checkout flow — Menu is read-only, Takeaway/Delivery are simulated redirects.
-- A real reservation system — Reserve is a single simulated confirmation.
+- Real menu ordering / checkout flow — Menu is read-only.
+- Real takeaway/delivery partner integration — the actions stay disabled until one exists (2026-09-02).
+- A real reservation system — Reserve stays disabled until one exists (2026-09-02).
 - Real Instagram API/OAuth integration.
 - Writing or submitting new reviews — mechanism owned by `reviews.md`; this spec owns only the display surfaces (`ReviewsSection`, `ReviewsSheetContent`) and the trigger that opens the submission sheet, mirroring how `favorites.md` owns the favorite toggle's actual mechanism while this spec owns the like icon (User Story 7).
 - Real distance-to-user calculation (depends on `src/stores/location.ts`, not yet implemented).
@@ -223,3 +223,4 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 | 2026-08-26 | `InfoActionsRow` briefly moved to an inline (no-sheet) contact list; reverted the same day after checking the design canvas (`App Flow.dc.html`'s `screenshots/02-detail.png`) — "Contact & socials" is a single tappable button opening a sheet in the actual design, sitting alongside an "Opening Hours" button (the latter stays unbuilt, no data source exists). FR-017 restored to the sheet-based wording; `phones[]`/`websites[]`/`socialLinks[]` still populate that sheet's list, per the entry above. |
 | 2026-08-27 | `photos` no longer hardcoded to `[]`: `useRestaurantDetailQuery.ts` now threads the wire's `photoUrl` into `photos: [wire.photoUrl]` (`dine-out-backend-overture`'s `Restaurant.photoUrl`, FR-028–FR-031 there). `PhotoCarousel` needed zero code changes — its truthy/falsy branch on `photos.length` already handled this correctly. Verified live against the real backend: `PhotoCarousel` renders an actual stock photo instead of "No photos available" for restaurants that previously showed the empty state. |
 | 2026-08-31 | US4's `Review`/rating/reviews are real again, first-party this time (not Google): `useRestaurantDetailQuery.ts` threads `wire.reviews`/`wire.averageRating`/`wire.reviewCount` (`dine-out-backend`'s new `specs/reviews.md`) instead of the hardcoded `reviews: []`. FR-020's "Add a review" control is functional — opens the submission form specced in `reviews.md` (mechanism there; this spec keeps only the display + an `onAddReview` trigger prop, threaded from `app/restaurant/[id].tsx`). `ReviewsSection`/`ReviewsSheetContent` updated from the old `{name, time}` shape to `{userName, createdAt}`. Verified live. |
+| 2026-09-02 | Live device-testing feedback, three deliberate changes (FR-005–FR-008, FR-017, FR-019): (1) `ActionGrid` — Takeaway/Delivery/Reserve have no real per-restaurant data by design (same simulated options for every restaurant) and now render permanently disabled instead of opening a sheet that simulates a capability the app doesn't have; Menu stays gated on `menu.length > 0`. `ReserveSheetContent` deleted (no longer reachable); `RedirectOptionsSheetContent` stays (still used by the address sheet). (2) `DetailHeaderActions` — removed the fully-fake share icon (`Alert.alert` only); favorite stays. (3) `InfoActionsRow` rebuilt from a single "Contact & socials" button-that-opens-a-sheet into a "How to reach them" section with four fixed cards (Phone/Website/Social/WhatsApp) rendered directly on screen — missing channels show "Not provided" and render disabled rather than being omitted. This supersedes the 2026-08-26 revert of the same inline-layout idea, which was reverted that day for contradicting the canonical design canvas (`App Flow.dc.html`'s `screenshots/02-detail.png`); this time the direction is confirmed by a session mockup, but the canonical canvas itself has not been updated to match — do that before trusting the canvas over this spec for this screen. `npx tsc --noEmit`, `npx biome lint .`, `npx jest` (71 tests) clean; verified live on a physical Android device via `eas build --local`. |

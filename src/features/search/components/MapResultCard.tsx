@@ -1,4 +1,4 @@
-import { Alert, Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 
 import { Icon, PhotoPlaceholder } from '@/components/ui';
 import type { MapResultData } from '@/features/search/hooks';
@@ -36,12 +36,6 @@ export function MapResultCard({ restaurant, onPress }: MapResultCardProps) {
               size={iconSize.micro}
               color={isFavorite ? colors.danger : colors.inkMuted}
             />
-          </Pressable>
-          <Pressable
-            onPress={() => Alert.alert('Share', 'Coming soon.')}
-            className="h-6 w-6 items-center justify-center rounded-full bg-white/90"
-          >
-            <Icon spec={{ set: 'Ionicons', name: 'share-outline' }} size={iconSize.micro} color={colors.inkMuted} />
           </Pressable>
         </View>
       </View>
