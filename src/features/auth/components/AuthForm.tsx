@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
 
-import { Icon } from "@/components/ui";
+import { Icon, LoadingOverlay } from "@/components/ui";
 import { colors, iconSize } from "@/theme";
 
 type SubmitError = { field: "email" | "password"; message: string };
@@ -90,6 +90,7 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
 
   return (
     <View className="px-xl pb-xl pt-md2">
+      <LoadingOverlay visible={Boolean(isSubmitting)} label={isSignup ? "Creating your account..." : "Logging in..."} />
       <View className="mb-md2 h-1.5 w-11 rounded-full bg-accent" />
       <Text className="mb-sm text-2xl font-bold text-ink">{title}</Text>
       <Text className="mb-lg text-body text-muted">{subtitle}</Text>
