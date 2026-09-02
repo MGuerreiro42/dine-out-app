@@ -1,26 +1,22 @@
-import { type Href, useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { type Href, useRouter } from "expo-router";
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 
-import { FavoritesRail } from '@/features/favorites/components';
-import { AccountOptionsList, LoggedOutPrompt, ProfileHeader, ProfileStats } from '@/features/profile/components';
-import { useCurrentUserQuery } from '@/features/profile/api';
-import type { AccountOption } from '@/features/profile/types';
-import { useAuthStore } from '@/stores/auth';
-import { useFavoritesStore } from '@/stores/favorites';
+import { FavoritesRail } from "@/features/favorites/components";
+import { AccountOptionsList, LoggedOutPrompt, ProfileHeader, ProfileStats } from "@/features/profile/components";
+import { useCurrentUserQuery } from "@/features/profile/api";
+import type { AccountOption } from "@/features/profile/types";
+import { useAuthStore } from "@/stores/auth";
+import { useFavoritesStore } from "@/stores/favorites";
 
 const ACCOUNT_OPTIONS: AccountOption[] = [
-  { id: 'orders', label: 'My orders' },
-  { id: 'reservations', label: 'My reservations' },
-  { id: 'payment', label: 'Payment methods' },
-  { id: 'notifications', label: 'Notifications' },
-  { id: 'logout', label: 'Log out', danger: true },
+  { id: "payment", label: "Payment methods" },
+  { id: "notifications", label: "Notifications" },
+  { id: "logout", label: "Log out", danger: true },
 ];
 
 const ACCOUNT_OPTION_ROUTES: Record<string, string> = {
-  orders: '/profile/orders',
-  reservations: '/profile/reservations',
-  payment: '/profile/payment',
-  notifications: '/profile/notifications',
+  payment: "/profile/payment",
+  notifications: "/profile/notifications",
 };
 
 export default function ProfileScreen() {
@@ -31,7 +27,7 @@ export default function ProfileScreen() {
   const favCount = useFavoritesStore((s) => s.favoriteIds.size);
 
   const handleAccountOptionPress = (id: string) => {
-    if (id === 'logout') {
+    if (id === "logout") {
       logout();
       return;
     }
@@ -66,16 +62,16 @@ export default function ProfileScreen() {
 
       {isLoggedIn ? (
         <>
-          <ProfileStats favCount={favCount} orderCount={0} reservationCount={0} />
+          <ProfileStats favCount={favCount} />
           <FavoritesRail />
           <AccountOptionsList options={ACCOUNT_OPTIONS} onPress={handleAccountOptionPress} />
         </>
       ) : (
         <LoggedOutPrompt
-          onLogin={() => router.push('/login')}
-          onExploreRestaurants={() => router.push('/')}
-          onSearchOnMap={() => router.push('/search')}
-          onNotificationPreferences={() => router.push('/profile/notifications')}
+          onLogin={() => router.push("/login")}
+          onExploreRestaurants={() => router.push("/")}
+          onSearchOnMap={() => router.push("/search")}
+          onNotificationPreferences={() => router.push("/profile/notifications")}
         />
       )}
     </ScrollView>
