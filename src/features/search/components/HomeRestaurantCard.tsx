@@ -47,14 +47,6 @@ export function HomeRestaurantCard({ restaurant, onPress }: HomeRestaurantCardPr
         <Text className="text-xs font-bold text-ink" numberOfLines={1}>
           {restaurant.name}
         </Text>
-        {restaurant.websites.length > 0 ? (
-          <View className="mt-xs flex-row items-center gap-xs">
-            <Icon spec={{ set: 'Ionicons', name: 'globe-outline' }} size={iconSize.micro} color={colors.inkFaint} />
-            <Text className="text-caption text-muted" numberOfLines={1}>
-              Site
-            </Text>
-          </View>
-        ) : null}
         <Text className="mt-xs text-caption text-muted" numberOfLines={1}>
           {restaurant.cuisineLabel}
         </Text>

@@ -39,10 +39,15 @@ export function deriveHomeCard(
 
 type SpotlightMemo = { anchorKey: string; picks: Spotlight[] };
 
+// Standardized across every Home request, including the pool below — a small,
+// consistent preview size. "View more" on each section fetches its own larger set
+// on its own screen (/type/cuisine/:id, /type/occasion/:id) instead of scaling this up.
+export const HOME_SECTION_LIMIT = 10;
+
 export function useHomeDiscovery() {
-  const restaurantsQuery = useRestaurantsQuery();
+  const poolQuery = useRestaurantsQuery(undefined, { limit: HOME_SECTION_LIMIT });
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
-  const { data: restaurants = [] } = restaurantsQuery;
+  const { data: restaurants = [] } = poolQuery;
   const { data: taxonomies } = taxonomiesQuery;
   const latitude = useLocationStore((s) => s.latitude);
   const longitude = useLocationStore((s) => s.longitude);
@@ -56,7 +61,12 @@ export function useHomeDiscovery() {
 
   const currentCuisine = activeCuisine ?? cuisines[0]?.id ?? null;
 
-  const cuisineList = restaurants.filter((r) => r.cuisine === currentCuisine);
+  const cuisineListQuery = useRestaurantsQuery(undefined, {
+    cuisine: currentCuisine ?? undefined,
+    limit: HOME_SECTION_LIMIT,
+    enabled: currentCuisine !== null,
+  });
+  const cuisineListData = cuisineListQuery.data ?? [];
 
   const toHomeCard = (restaurant: Restaurant) =>
     deriveHomeCard(restaurant, cuisines, occasions, ambients, latitude, longitude);
@@ -85,7 +95,7 @@ export function useHomeDiscovery() {
     (spotlightMemoRef.current === null || spotlightMemoRef.current.anchorKey !== spotlightAnchorKey) &&
     restaurants.length > 0 &&
     cuisines.length > 0 &&
-    !restaurantsQuery.isPlaceholderData
+    !poolQuery.isPlaceholderData
   ) {
     spotlightMemoRef.current = {
       anchorKey: spotlightAnchorKey,
@@ -95,9 +105,25 @@ export function useHomeDiscovery() {
   const spotlightMemo = spotlightMemoRef.current;
   const spotlightPicks = spotlightMemo && spotlightMemo.anchorKey === spotlightAnchorKey ? spotlightMemo.picks : [];
 
-  const spotlights = spotlightPicks.map((pick) => ({
+  // One independent query per spotlight slot (fixed count, matching pickSpotlights'
+  // SPOTLIGHT_COUNT — not a variable-length hook call), each disabled until its slot
+  // has a pick.
+  const spotlightQuery0 = useRestaurantsQuery(undefined, {
+    cuisine: spotlightPicks[0]?.cuisineId,
+    limit: HOME_SECTION_LIMIT,
+    enabled: Boolean(spotlightPicks[0]),
+  });
+  const spotlightQuery1 = useRestaurantsQuery(undefined, {
+    cuisine: spotlightPicks[1]?.cuisineId,
+    limit: HOME_SECTION_LIMIT,
+    enabled: Boolean(spotlightPicks[1]),
+  });
+  const spotlightQueries = [spotlightQuery0, spotlightQuery1];
+
+  const spotlights = spotlightPicks.map((pick, index) => ({
     ...pick,
-    restaurants: restaurants.filter((r) => r.cuisine === pick.cuisineId).map(toHomeCard),
+    restaurants: (spotlightQueries[index]?.data ?? []).map(toHomeCard),
+    isLoading: spotlightQueries[index]?.isLoading ?? false,
   }));
 
   // One card per brand, keeping the first (nearest, per the backend's distance sort)
@@ -112,16 +138,17 @@ export function useHomeDiscovery() {
     .map(toHomeCard);
 
   return {
-    isLoading: restaurantsQuery.isLoading || taxonomiesQuery.isLoading,
-    isFetching: restaurantsQuery.isFetching,
-    isError: restaurantsQuery.isError || taxonomiesQuery.isError,
+    isLoading: poolQuery.isLoading || taxonomiesQuery.isLoading,
+    isFetching: poolQuery.isFetching,
+    isError: poolQuery.isError || taxonomiesQuery.isError,
     refetch: () => {
-      restaurantsQuery.refetch();
+      poolQuery.refetch();
       taxonomiesQuery.refetch();
     },
     restaurants: restaurants.map(toHomeCard),
     cuisines: cuisines.map((c) => ({ ...c, isActive: c.id === currentCuisine })),
-    cuisineList: (cuisineList.length ? cuisineList : restaurants.slice(0, 3)).map(toHomeCard),
+    cuisineList: (cuisineListData.length ? cuisineListData : restaurants.slice(0, 3)).map(toHomeCard),
+    cuisineListLoading: cuisineListQuery.isLoading,
     occasions,
     spotlights,
     featured,

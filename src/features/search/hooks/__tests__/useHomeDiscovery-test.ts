@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import React from 'react';
 
-import { useHomeDiscovery } from '@/features/search/hooks/useHomeDiscovery';
+import { HOME_SECTION_LIMIT, useHomeDiscovery } from '@/features/search/hooks/useHomeDiscovery';
 import type { DiscoveryTaxonomies } from '@/features/search/types';
 import type { RestaurantSummary } from '@/lib/api';
 import * as repository from '@/mocks/repository';
@@ -57,6 +57,18 @@ const TAXONOMIES: DiscoveryTaxonomies = {
 const ANCHOR_A_RESULTS = [makeSummary(1, 'italian'), makeSummary(2, 'japanese'), makeSummary(3, 'mexican')];
 const ANCHOR_B_RESULTS = [makeSummary(4, 'japanese')];
 
+// Each Home section (pool, active cuisine, each spotlight) now fires its own
+// getNearbyPlaces call, filtered server-side by `cuisine` — mirror that filtering here
+// instead of the old one-call-per-render assumption. Anchor selection is keyed off
+// radiusKm since (like the real backend) getNearbyPlaces itself reads the location
+// anchor from the store rather than receiving it as a param.
+function mockNearbyByAnchor(anchorA: RestaurantSummary[], anchorB: RestaurantSummary[]) {
+  return jest.spyOn(repository, 'getNearbyPlaces').mockImplementation(async (params) => {
+    const pool = useLocationStore.getState().radiusKm >= 100 ? anchorB : anchorA;
+    return params?.cuisine ? pool.filter((r) => r.cuisineId === params.cuisine) : pool;
+  });
+}
+
 afterEach(() => {
   useLocationStore.setState({
     ...FALLBACK_LOCATION,
@@ -71,10 +83,7 @@ afterEach(() => {
 
 test('re-picks spotlights against the new restaurant set when the radius/location anchor changes', async () => {
   jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
-  const nearbySpy = jest
-    .spyOn(repository, 'getNearbyPlaces')
-    .mockResolvedValueOnce(ANCHOR_A_RESULTS)
-    .mockResolvedValueOnce(ANCHOR_B_RESULTS);
+  mockNearbyByAnchor(ANCHOR_A_RESULTS, ANCHOR_B_RESULTS);
 
   const { result } = await renderHook(() => useHomeDiscovery(), { wrapper: createWrapper() });
 
@@ -87,13 +96,15 @@ test('re-picks spotlights against the new restaurant set when the radius/locatio
     useLocationStore.setState({ radiusKm: 100 });
   });
 
-  await waitFor(() => expect(nearbySpy).toHaveBeenCalledTimes(2));
+  // Anchor B only has a 'japanese' restaurant, so 'mexican' is no longer eligible —
+  // this also confirms the spotlight settles to its own independent query's result,
+  // not the (now stale) previous anchor's data.
   await waitFor(() => expect(result.current.spotlights.map((s) => s.cuisineId)).toEqual(['japanese']));
 });
 
 test('does not reshuffle the spotlight pick on a same-anchor refetch', async () => {
   jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValue(ANCHOR_A_RESULTS);
+  mockNearbyByAnchor(ANCHOR_A_RESULTS, ANCHOR_A_RESULTS);
 
   const { result } = await renderHook(() => useHomeDiscovery(), { wrapper: createWrapper() });
 
@@ -107,4 +118,24 @@ test('does not reshuffle the spotlight pick on a same-anchor refetch', async () 
   });
 
   await waitFor(() => expect(result.current.spotlights.map((s) => s.cuisineId)).toEqual(firstPick));
+});
+
+test('fetches the pool, the active cuisine, and each spotlight independently, all capped at HOME_SECTION_LIMIT', async () => {
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
+  const nearbySpy = mockNearbyByAnchor(ANCHOR_A_RESULTS, ANCHOR_A_RESULTS);
+
+  const { result } = await renderHook(() => useHomeDiscovery(), { wrapper: createWrapper() });
+
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+  await waitFor(() => expect(result.current.cuisineListLoading).toBe(false));
+  await waitFor(() => expect(result.current.spotlights.every((s) => !s.isLoading)).toBe(true));
+
+  const cuisinesRequested = new Set(nearbySpy.mock.calls.map(([params]) => params?.cuisine ?? null));
+  // The pool (no cuisine filter), the active cuisine ('italian'), and both spotlight
+  // picks ('japanese', 'mexican') — 4 independent requests, not 1 shared one.
+  expect(cuisinesRequested).toEqual(new Set([null, 'italian', 'japanese', 'mexican']));
+
+  for (const [params] of nearbySpy.mock.calls) {
+    expect(params?.limit).toBe(HOME_SECTION_LIMIT);
+  }
 });

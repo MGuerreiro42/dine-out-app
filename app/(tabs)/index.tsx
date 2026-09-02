@@ -11,6 +11,7 @@ import {
   LocationHeader,
   RADIUS_OPTIONS_KM,
   RestaurantSection,
+  SkeletonSection,
 } from '@/features/search/components';
 import { useHomeDiscovery } from '@/features/search/hooks';
 import { useLocationStore } from '@/stores/location';
@@ -29,6 +30,7 @@ export default function HomeScreen() {
     restaurants,
     cuisines,
     cuisineList,
+    cuisineListLoading,
     occasions,
     spotlights,
     featured,
@@ -116,14 +118,18 @@ export default function HomeScreen() {
             </Pressable>
           </View>
           <CuisineSelector cuisines={cuisines} onSelect={setActiveCuisine} />
-          <RestaurantSection
-            restaurants={cuisineList}
-            onSelectRestaurant={goToRestaurant}
-            viewMoreLabel="View more"
-            onViewMore={() => {
-              if (activeCuisine) router.push(`/type/cuisine/${activeCuisine.id}`);
-            }}
-          />
+          {cuisineListLoading ? (
+            <SkeletonSection />
+          ) : (
+            <RestaurantSection
+              restaurants={cuisineList}
+              onSelectRestaurant={goToRestaurant}
+              viewMoreLabel="View more"
+              onViewMore={() => {
+                if (activeCuisine) router.push(`/type/cuisine/${activeCuisine.id}`);
+              }}
+            />
+          )}
 
           {brandRestaurants.length > 0 ? (
             <View>
@@ -174,12 +180,16 @@ export default function HomeScreen() {
                   <Text className="text-xs font-normal text-accent">View more</Text>
                 </Pressable>
               </View>
-              <RestaurantSection
-                restaurants={spotlight.restaurants}
-                onSelectRestaurant={goToRestaurant}
-                viewMoreLabel="View more"
-                onViewMore={() => router.push(`/type/cuisine/${spotlight.cuisineId}`)}
-              />
+              {spotlight.isLoading ? (
+                <SkeletonSection />
+              ) : (
+                <RestaurantSection
+                  restaurants={spotlight.restaurants}
+                  onSelectRestaurant={goToRestaurant}
+                  viewMoreLabel="View more"
+                  onViewMore={() => router.push(`/type/cuisine/${spotlight.cuisineId}`)}
+                />
+              )}
             </View>
           ))}
 
