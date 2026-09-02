@@ -124,7 +124,10 @@ function SubtypeRow({ subtypes }: SubtypeRowProps) {
 
   return (
     <View>
-      <SectionHeader icon={{ set: 'Ionicons', name: 'pricetags-outline' }} title="Browse by Type" />
+      <View className="flex-row items-center gap-sm px-md pb-sm pt-lg">
+        <Icon spec={{ set: 'Ionicons', name: 'pricetags-outline' }} size={iconSize.inline} color={colors.accent} />
+        <Text className="text-lg font-bold text-ink">Browse by Type</Text>
+      </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
