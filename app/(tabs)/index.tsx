@@ -9,6 +9,7 @@ import {
   FeaturedBanner,
   HomeSkeleton,
   LocationHeader,
+  NearbySection,
   RADIUS_OPTIONS_KM,
   RestaurantSection,
   SkeletonSection,
@@ -134,6 +135,12 @@ export default function HomeScreen() {
               }}
             />
           )}
+
+          <NearbySection
+            restaurants={restaurants.slice(0, 5)}
+            onSelectRestaurant={goToRestaurant}
+            onViewAll={() => router.push('/search')}
+          />
 
           {brandRestaurants.length > 0 ? (
             <View>
