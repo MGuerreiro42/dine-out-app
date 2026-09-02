@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 
+import { Icon } from '@/components/ui';
+import { colors, iconSize } from '@/theme';
+
 type SubmitError = { field: 'email' | 'password'; message: string };
 
 type AuthFormProps = {
@@ -93,33 +96,39 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
       <View className="gap-sm2">
         {isSignup ? (
           <View>
+            <Text className="mb-xs text-xs font-bold text-ink">Full name</Text>
             <TextInput
               placeholder="Full name"
+              placeholderTextColor={colors.inkFaint}
               value={name}
               onChangeText={handleNameChange}
-              className={`rounded-sm border px-md py-md text-sm ${errors.name ? 'border-danger' : 'border-sand'}`}
+              className={`rounded-sm border px-md py-md text-sm text-ink ${errors.name ? 'border-danger bg-danger-tint' : 'border-sand-border bg-sand'}`}
             />
             {errors.name ? <Text className="mt-xs text-xs text-danger">{errors.name}</Text> : null}
           </View>
         ) : null}
         <View>
+          <Text className="mb-xs text-xs font-bold text-ink">Email</Text>
           <TextInput
             placeholder="Email"
+            placeholderTextColor={colors.inkFaint}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={handleEmailChange}
-            className={`rounded-sm border px-md py-md text-sm ${errors.email ? 'border-danger' : 'border-sand'}`}
+            className={`rounded-sm border px-md py-md text-sm text-ink ${errors.email ? 'border-danger bg-danger-tint' : 'border-sand-border bg-sand'}`}
           />
           {errors.email ? <Text className="mt-xs text-xs text-danger">{errors.email}</Text> : null}
         </View>
         <View>
+          <Text className="mb-xs text-xs font-bold text-ink">Password</Text>
           <TextInput
             placeholder="Password"
+            placeholderTextColor={colors.inkFaint}
             secureTextEntry
             value={password}
             onChangeText={handlePasswordChange}
-            className={`rounded-sm border px-md py-md text-sm ${errors.password ? 'border-danger' : 'border-sand'}`}
+            className={`rounded-sm border px-md py-md text-sm text-ink ${errors.password ? 'border-danger bg-danger-tint' : 'border-sand-border bg-sand'}`}
           />
           {errors.password ? <Text className="mt-xs text-xs text-danger">{errors.password}</Text> : null}
         </View>
@@ -148,14 +157,16 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubm
       <View className="flex-row gap-sm2">
         <Pressable
           onPress={() => Alert.alert('Demo', 'Log in with Google')}
-          className="flex-1 items-center rounded-lg border border-sand py-sm2"
+          className="flex-1 flex-row items-center justify-center gap-sm rounded-lg border border-sand-border py-sm2"
         >
+          <Icon spec={{ set: 'Ionicons', name: 'logo-google' }} size={iconSize.inline} color={colors.ink} />
           <Text className="text-body font-bold text-ink">Google</Text>
         </Pressable>
         <Pressable
           onPress={() => Alert.alert('Demo', 'Log in with Apple')}
-          className="flex-1 items-center rounded-lg border border-sand py-sm2"
+          className="flex-1 flex-row items-center justify-center gap-sm rounded-lg border border-sand-border py-sm2"
         >
+          <Icon spec={{ set: 'Ionicons', name: 'logo-apple' }} size={iconSize.inline} color={colors.ink} />
           <Text className="text-body font-bold text-ink">Apple</Text>
         </Pressable>
       </View>

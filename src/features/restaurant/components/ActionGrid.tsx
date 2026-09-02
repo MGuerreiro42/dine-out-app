@@ -6,11 +6,12 @@ import type { MenuItem } from '@/features/restaurant/types';
 import { colors, iconSize } from '@/theme';
 
 import { MenuSheetContent } from './MenuSheetContent';
-import { RedirectOptionsSheetContent } from './RedirectOptionsSheetContent';
-import { ReserveSheetContent } from './ReserveSheetContent';
 
 type ActionKey = 'menu' | 'takeaway' | 'delivery' | 'reserve';
 
+// Takeaway/Delivery/Reserve have no real per-restaurant backing data — no partner
+// links, no reservation system — so they stay disabled for every restaurant until
+// that capability exists, rather than opening a sheet that simulates having it.
 const ACTIONS: { key: ActionKey; icon: IconSpec; label: string }[] = [
   { key: 'menu', icon: { set: 'Ionicons', name: 'restaurant-outline' }, label: 'Menu' },
   { key: 'takeaway', icon: { set: 'MaterialCommunityIcons', name: 'food-takeout-box' }, label: 'Takeaway' },
@@ -23,47 +24,31 @@ type ActionGridProps = {
 };
 
 export function ActionGrid({ menu }: ActionGridProps) {
-  const [openAction, setOpenAction] = useState<ActionKey | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const hasMenu = menu.length > 0;
 
   return (
     <View className="flex-row gap-sm2 px-md py-md">
       {ACTIONS.map((action) => {
-        const isLead = action.key === 'menu';
+        const isMenu = action.key === 'menu';
+        const enabled = isMenu && hasMenu;
         return (
           <Pressable
             key={action.key}
-            onPress={() => setOpenAction(action.key)}
+            onPress={enabled ? () => setMenuOpen(true) : undefined}
+            disabled={!enabled}
             className={`flex-1 items-center gap-sm rounded-lg border py-sm2 ${
-              isLead ? 'border-accent bg-accent' : 'border-accent-tint bg-white'
+              enabled ? 'border-accent bg-accent' : 'border-sand bg-white opacity-60'
             }`}
           >
-            <Icon spec={action.icon} size={iconSize.ui} color={isLead ? colors.white : colors.accent} />
-            <Text className={`text-xs font-bold ${isLead ? 'text-white' : 'text-accent'}`}>{action.label}</Text>
+            <Icon spec={action.icon} size={iconSize.ui} color={enabled ? colors.white : colors.inkFaint} />
+            <Text className={`text-xs font-bold ${enabled ? 'text-white' : 'text-muted'}`}>{action.label}</Text>
           </Pressable>
         );
       })}
 
-      <BottomSheet visible={openAction !== null} onClose={() => setOpenAction(null)}>
-        {openAction === 'menu' ? <MenuSheetContent menu={menu} /> : null}
-        {openAction === 'takeaway' ? (
-          <RedirectOptionsSheetContent
-            title="Takeaway"
-            options={[
-              { icon: { set: 'Ionicons', name: 'bag-outline' }, label: 'Pedir pelo iFood' },
-              { icon: { set: 'Ionicons', name: 'globe-outline' }, label: 'Site do restaurante' },
-            ]}
-          />
-        ) : null}
-        {openAction === 'delivery' ? (
-          <RedirectOptionsSheetContent
-            title="Delivery"
-            options={[
-              { icon: { set: 'Ionicons', name: 'bag-outline' }, label: 'iFood' },
-              { icon: { set: 'Ionicons', name: 'car-outline' }, label: 'Uber Eats' },
-            ]}
-          />
-        ) : null}
-        {openAction === 'reserve' ? <ReserveSheetContent /> : null}
+      <BottomSheet visible={menuOpen} onClose={() => setMenuOpen(false)}>
+        <MenuSheetContent menu={menu} />
       </BottomSheet>
     </View>
   );

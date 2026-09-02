@@ -3,7 +3,7 @@ import type { MapRef } from '@maplibre/maplibre-react-native';
 import { forwardRef } from 'react';
 import { View } from 'react-native';
 
-import { OSM_RASTER_STYLE } from '@/features/search/lib/mapStyle';
+import { MAP_STYLE_URL } from '@/features/search/lib/mapStyle';
 
 type LocationPickerMapProps = {
   initialLatitude: number;
@@ -16,7 +16,7 @@ export const LocationPickerMap = forwardRef<MapRef, LocationPickerMapProps>(func
 ) {
   return (
     <View className="flex-1">
-      <MapLibreMap ref={ref} style={{ flex: 1 }} mapStyle={OSM_RASTER_STYLE}>
+      <MapLibreMap ref={ref} style={{ flex: 1 }} mapStyle={MAP_STYLE_URL}>
         <Camera
           initialViewState={{
             center: [initialLongitude, initialLatitude],
