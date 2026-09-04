@@ -72,7 +72,6 @@ test('renders the skeleton while the initial fetch is in flight', async () => {
 
   const { toJSON } = await render(<HomeScreen />, { wrapper: createWrapper() });
 
-  expect(screen.getByText('Search restaurants...')).toBeTruthy();
   expect(screen.queryByText('No restaurants found near you')).toBeNull();
   expect(screen.queryByText("Couldn't load Home.")).toBeNull();
 

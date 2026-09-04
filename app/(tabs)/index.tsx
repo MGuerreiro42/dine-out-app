@@ -1,14 +1,12 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
-import { SideMenu } from '@/components/layout';
 import { Chip, EmptyState, Icon } from '@/components/ui';
 import {
   BrandRail,
   CuisineSelector,
   FeaturedBanner,
   HomeSkeleton,
-  LocationHeader,
   NearbySection,
   RADIUS_OPTIONS_KM,
   RestaurantSection,
@@ -52,23 +50,9 @@ export default function HomeScreen() {
     router.push(`/restaurant/${restaurant.id}`);
   };
 
-  const searchBarHeader = (
-    <View className="flex-row items-center gap-sm2 px-md pt-md">
-      <Pressable
-        onPress={() => router.push('/search')}
-        className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2"
-      >
-        <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkFaint} />
-        <Text className="text-sm text-muted">Search restaurants...</Text>
-      </Pressable>
-      <SideMenu />
-    </View>
-  );
-
   if (isLoading) {
     return (
       <View className="flex-1 bg-white">
-        {searchBarHeader}
         <HomeSkeleton />
       </View>
     );
@@ -87,10 +71,6 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      {searchBarHeader}
-
-      <LocationHeader />
-
       {restaurants.length === 0 && isFetching ? (
         <View className="flex-1 items-center justify-center gap-sm px-xl">
           <ActivityIndicator />
