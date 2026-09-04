@@ -11,9 +11,10 @@ import {
   View,
 } from 'react-native';
 
+import { LocationHeader } from '@/components/layout';
 import { EmptyState, Icon, type IconSpec } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
-import { LocationHeader, MapResultCard } from '@/features/search/components';
+import { MapResultCard } from '@/features/search/components';
 import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hooks';
 import type { MapResultData } from '@/features/search/hooks';
 import { compareByRating } from '@/features/search/lib/ratingSort';

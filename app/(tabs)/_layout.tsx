@@ -1,6 +1,7 @@
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import type { ColorValue } from "react-native";
 
+import { AppHeader } from "@/components/layout";
 import { Icon, type IconSpec } from "@/components/ui";
 import { colors } from "@/theme";
 
@@ -13,6 +14,16 @@ const TAB_ICONS: Record<string, IconSpec> = {
 
 function TabIcon({ name, color }: { name: keyof typeof TAB_ICONS; color: ColorValue }) {
   return <Icon spec={TAB_ICONS[name]} color={color as string} />;
+}
+
+function HomeHeader() {
+  const router = useRouter();
+  return <AppHeader search={{ mode: "link", onPress: () => router.push("/search") }} showLocation />;
+}
+
+function CategoryHeader() {
+  const router = useRouter();
+  return <AppHeader search={{ mode: "link", onPress: () => router.push("/search") }} />;
 }
 
 export default function TabsLayout() {
@@ -28,7 +39,12 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: "Home", tabBarIcon: ({ color }) => <TabIcon name="index" color={color} /> }}
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color }) => <TabIcon name="index" color={color} />,
+          headerShown: true,
+          header: HomeHeader,
+        }}
       />
       <Tabs.Screen
         name="search"
@@ -40,6 +56,8 @@ export default function TabsLayout() {
           title: "Categories",
           href: null,
           tabBarIcon: ({ color }) => <TabIcon name="category" color={color} />,
+          headerShown: true,
+          header: CategoryHeader,
         }}
       />
       <Tabs.Screen

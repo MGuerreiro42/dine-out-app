@@ -3,7 +3,6 @@ export * from './CuisineSelector';
 export * from './FeaturedBanner';
 export * from './HomeRestaurantCard';
 export * from './HomeSkeleton';
-export * from './LocationHeader';
 export * from './MapResultCard';
 export * from './MapResultsSheet';
 export * from './MapSearchBar';

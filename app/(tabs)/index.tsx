@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { RADIUS_OPTIONS_KM } from '@/components/layout';
 import { Chip, EmptyState, Icon } from '@/components/ui';
 import {
   BrandRail,
@@ -8,7 +9,6 @@ import {
   FeaturedBanner,
   HomeSkeleton,
   NearbySection,
-  RADIUS_OPTIONS_KM,
   RestaurantSection,
   SkeletonSection,
 } from '@/features/search/components';
