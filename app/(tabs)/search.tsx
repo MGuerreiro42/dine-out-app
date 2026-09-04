@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Tabs, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -6,12 +6,11 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   useWindowDimensions,
   View,
 } from 'react-native';
 
-import { LocationHeader } from '@/components/layout';
+import { AppHeader } from '@/components/layout';
 import { EmptyState, Icon, type IconSpec } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { MapResultCard } from '@/features/search/components';
@@ -115,22 +114,39 @@ export default function SearchScreen() {
     router.push(`/restaurant/${restaurant.id}`);
   };
 
+  const header = (
+    <Tabs.Screen
+      options={{
+        headerShown: true,
+        header: () => (
+          <AppHeader search={{ mode: 'input', value: searchText, onChangeText: setSearchText }} showLocation />
+        ),
+      }}
+    />
+  );
+
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator />
-      </View>
+      <>
+        {header}
+        <View className="flex-1 items-center justify-center bg-white">
+          <ActivityIndicator />
+        </View>
+      </>
     );
   }
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
-        <Text className="text-center text-sm text-muted">Couldn't load search.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
-          <Text className="text-sm font-bold text-white">Try again</Text>
-        </Pressable>
-      </View>
+      <>
+        {header}
+        <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
+          <Text className="text-center text-sm text-muted">Couldn't load search.</Text>
+          <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
+            <Text className="text-sm font-bold text-white">Try again</Text>
+          </Pressable>
+        </View>
+      </>
     );
   }
 
@@ -171,29 +187,7 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row items-center gap-sm2 px-md pt-md">
-        <Pressable
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
-        >
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.ink} />
-        </Pressable>
-        <View className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2">
-          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkFaint} />
-          <TextInput
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholder="Search restaurants..."
-            placeholderTextColor={colors.inkFaint}
-            className="flex-1 text-sm text-ink"
-          />
-        </View>
-        <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-sand">
-          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={iconSize.ui} color={colors.ink} />
-        </Pressable>
-      </View>
-
-      <LocationHeader />
+      {header}
 
       <View className="flex-row items-center justify-between px-md pb-xs pt-md">
         {isFetching ? (
