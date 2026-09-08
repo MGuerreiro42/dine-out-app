@@ -1,9 +1,9 @@
-import { Animated, Image, Pressable, Text, View } from "react-native";
+import { Animated, Image, Text, View } from "react-native";
 
-import { Icon, PhotoPlaceholder } from "@/components/ui";
+import { CarouselArrows, CarouselDots, PhotoPlaceholder } from "@/components/ui";
 import type { HomeCardData } from "@/features/search/hooks/useHomeDiscovery";
 import { useCarouselIndex, useSlideAnimation } from "@/hooks";
-import { colors, iconSize } from "@/theme";
+import { iconSize } from "@/theme";
 
 type FeaturedBannerProps = {
   restaurants: HomeCardData[];
@@ -45,34 +45,10 @@ export function FeaturedBanner({ restaurants, taglineFor }: FeaturedBannerProps)
               {taglineFor(restaurant)}
             </Text>
           </View>
-          {hasMultiple ? (
-            <>
-              <Pressable
-                onPress={goPrev}
-                className="absolute left-sm2 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
-              >
-                <Icon spec={{ set: "Ionicons", name: "chevron-back" }} size={iconSize.ui} color={colors.white} />
-              </Pressable>
-              <Pressable
-                onPress={goNext}
-                className="absolute right-sm2 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
-              >
-                <Icon spec={{ set: "Ionicons", name: "chevron-forward" }} size={iconSize.ui} color={colors.white} />
-              </Pressable>
-            </>
-          ) : null}
+          {hasMultiple ? <CarouselArrows onPrev={goPrev} onNext={goNext} /> : null}
         </View>
       </View>
-      {hasMultiple ? (
-        <View className="mt-sm2 flex-row items-center justify-center gap-sm">
-          {restaurants.map((r, dotIndex) => (
-            <View
-              key={r.id}
-              className={`h-1.5 rounded-full ${dotIndex === index ? "w-4 bg-accent-pressed" : "w-1.5 bg-sand-border"}`}
-            />
-          ))}
-        </View>
-      ) : null}
+      {hasMultiple ? <CarouselDots count={restaurants.length} activeIndex={index} /> : null}
     </View>
   );
 }

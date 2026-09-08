@@ -1,5 +1,7 @@
 export * from "./AnchoredMenu";
 export * from "./BottomSheet";
+export * from "./CarouselArrows";
+export * from "./CarouselDots";
 export * from "./Chip";
 export * from "./EmptyState";
 export * from "./ErrorState";

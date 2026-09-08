@@ -3,7 +3,18 @@ import { useState } from 'react';
 import { Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
-import { BottomSheet, Chip, ErrorState, Icon, type IconSpec, LoadingState, PhotoPlaceholder, SectionHeader } from '@/components/ui';
+import {
+  BottomSheet,
+  CarouselArrows,
+  CarouselDots,
+  Chip,
+  ErrorState,
+  Icon,
+  type IconSpec,
+  LoadingState,
+  PhotoPlaceholder,
+  SectionHeader,
+} from '@/components/ui';
 import { RestaurantSection } from '@/features/search/components/RestaurantSection';
 import { useDebouncedValue } from '@/features/search/hooks/useDebouncedValue';
 import type { HomeCardData } from '@/features/search/hooks/useHomeDiscovery';
@@ -134,33 +145,9 @@ function ChampionCard({ champions }: ChampionCardProps) {
         <View className="absolute left-md top-md rounded-full bg-[#fef3c7] px-sm2 py-xs">
           <Text className="text-caption font-bold text-[#b45309]">Champion</Text>
         </View>
-        {hasMultiple ? (
-          <>
-            <Pressable
-              onPress={goPrev}
-              className="absolute left-sm2 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
-            >
-              <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.white} />
-            </Pressable>
-            <Pressable
-              onPress={goNext}
-              className="absolute right-sm2 top-1/2 h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40"
-            >
-              <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={iconSize.ui} color={colors.white} />
-            </Pressable>
-          </>
-        ) : null}
+        {hasMultiple ? <CarouselArrows onPrev={goPrev} onNext={goNext} /> : null}
       </View>
-      {hasMultiple ? (
-        <View className="mt-sm2 flex-row items-center justify-center gap-sm">
-          {champions.map((c, dotIndex) => (
-            <View
-              key={c.id}
-              className={`h-1.5 rounded-full ${dotIndex === index ? 'w-4 bg-accent-pressed' : 'w-1.5 bg-sand-border'}`}
-            />
-          ))}
-        </View>
-      ) : null}
+      {hasMultiple ? <CarouselDots count={champions.length} activeIndex={index} /> : null}
       <View className="p-md">
         <Text className="text-lg font-bold text-ink">{champion.name}</Text>
         {champion.rating !== null ? (
