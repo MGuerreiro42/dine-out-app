@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
-import { BottomSheet, Chip, ErrorState, HorizontalRail, Icon, type IconSpec, LoadingState, PhotoPlaceholder } from '@/components/ui';
-import { HomeRestaurantCard } from '@/features/search/components/HomeRestaurantCard';
+import { BottomSheet, Chip, ErrorState, Icon, type IconSpec, LoadingState, PhotoPlaceholder, SectionHeader } from '@/components/ui';
+import { RestaurantSection } from '@/features/search/components/RestaurantSection';
 import { useDebouncedValue } from '@/features/search/hooks/useDebouncedValue';
 import type { HomeCardData } from '@/features/search/hooks/useHomeDiscovery';
 import { type TaxonomyDimension, useTypeDetail } from '@/features/search/hooks/useTypeDetail';
@@ -38,41 +38,6 @@ function refineOptionIcon(dimension: TaxonomyDimension, option: RefineOption): I
   return AMBIENT_ICONS[option.id] ?? DEFAULT_AMBIENT_ICON;
 }
 
-type SectionHeaderProps = {
-  icon: IconSpec;
-  title: string;
-  onViewAll?: () => void;
-};
-
-function SectionHeader({ icon, title, onViewAll }: SectionHeaderProps) {
-  return (
-    <View className="flex-row items-center justify-between px-md pb-sm pt-lg">
-      <View className="flex-row items-center gap-sm">
-        <Icon spec={icon} size={iconSize.inline} color={colors.accent} />
-        <Text className="text-lg font-bold text-ink">{title}</Text>
-      </View>
-      <Pressable onPress={onViewAll}>
-        <Text className="text-xs font-normal text-accent">View all</Text>
-      </Pressable>
-    </View>
-  );
-}
-
-type RestaurantGridProps = {
-  restaurants: HomeCardData[];
-  onPress: (restaurant: HomeCardData) => void;
-};
-
-function RestaurantGrid({ restaurants, onPress }: RestaurantGridProps) {
-  return (
-    <HorizontalRail>
-      {restaurants.map((restaurant) => (
-        <HomeRestaurantCard key={restaurant.id} restaurant={restaurant} onPress={onPress} />
-      ))}
-    </HorizontalRail>
-  );
-}
-
 type RefineSectionProps = {
   refine: RefineData;
   onPressRestaurant: (restaurant: HomeCardData) => void;
@@ -84,7 +49,7 @@ function RefineSection({ refine, onPressRestaurant, onViewAll }: RefineSectionPr
 
   return (
     <View>
-      <SectionHeader icon={icon} title={heading} onViewAll={onViewAll} />
+      <SectionHeader icon={icon} title={heading} viewAll={onViewAll ? { onPress: onViewAll } : undefined} />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -107,9 +72,7 @@ function RefineSection({ refine, onPressRestaurant, onViewAll }: RefineSectionPr
           </Pressable>
         ))}
       </ScrollView>
-      <View className="mt-sm">
-        <RestaurantGrid restaurants={refine.results} onPress={onPressRestaurant} />
-      </View>
+      <RestaurantSection restaurants={refine.results} onSelectRestaurant={onPressRestaurant} />
     </View>
   );
 }
@@ -125,10 +88,7 @@ function SubtypeRow({ subtypes }: SubtypeRowProps) {
 
   return (
     <View>
-      <View className="flex-row items-center gap-sm px-md pb-sm pt-lg">
-        <Icon spec={{ set: 'Ionicons', name: 'pricetags-outline' }} size={iconSize.inline} color={colors.accent} />
-        <Text className="text-lg font-bold text-ink">Browse by Type</Text>
-      </View>
+      <SectionHeader icon={{ set: 'Ionicons', name: 'pricetags-outline' }} title="Browse by Type" />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -254,9 +214,9 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
         <SectionHeader
           icon={{ set: 'MaterialCommunityIcons', name: 'crown-outline' }}
           title="Champions - Best Rated"
-          onViewAll={() => id && goToSearch({ [dimension]: id })}
+          viewAll={{ onPress: () => id && goToSearch({ [dimension]: id }) }}
         />
-        <RestaurantGrid restaurants={champions} onPress={goToRestaurant} />
+        <RestaurantSection restaurants={champions} onSelectRestaurant={goToRestaurant} />
 
         {dimension === 'cuisine' ? (
           <SubtypeRow subtypes={subtypes} />
@@ -274,9 +234,9 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
         <SectionHeader
           icon={{ set: 'Ionicons', name: 'flame-outline' }}
           title="On Fire - Trending"
-          onViewAll={() => id && goToSearch({ [dimension]: id })}
+          viewAll={{ onPress: () => id && goToSearch({ [dimension]: id }) }}
         />
-        <RestaurantGrid restaurants={trending} onPress={goToRestaurant} />
+        <RestaurantSection restaurants={trending} onSelectRestaurant={goToRestaurant} />
 
         {dimension === 'cuisine' ? null : (
           <RefineSection
@@ -292,9 +252,9 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
         <SectionHeader
           icon={lastSectionHeader.icon}
           title={lastSectionHeader.heading}
-          onViewAll={() => id && goToSearch({ [dimension]: id })}
+          viewAll={{ onPress: () => id && goToSearch({ [dimension]: id }) }}
         />
-        <RestaurantGrid restaurants={lastSection} onPress={goToRestaurant} />
+        <RestaurantSection restaurants={lastSection} onSelectRestaurant={goToRestaurant} />
       </ScrollView>
     </View>
   );

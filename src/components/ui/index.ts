@@ -11,6 +11,7 @@ export * from "./PhotoPlaceholder";
 export * from "./PlaceholderScreen";
 export * from "./RatingBadge";
 export * from "./RestaurantCard";
+export * from "./SectionHeader";
 export * from "./Skeleton";
 export * from "./StarRating";
 export * from "./StarRatingInput";
