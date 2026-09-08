@@ -65,12 +65,12 @@ export function MapResultsSheet({ count, containerHeight, searchQuery, children 
     <Animated.View style={[{ height: sheetHeight }, animatedStyle]} className="absolute bottom-0 left-0 right-0">
       <View className="h-full rounded-t-3xl bg-white shadow-lg">
         <GestureDetector gesture={handleGesture}>
-          <View className="pb-1.5 pt-3.5">
-            <View className="mx-auto h-1 w-9 rounded-full bg-gray-300" />
-            <Text className="mt-2 px-4 text-xs font-bold text-ink">{count} restaurantes encontrados</Text>
+          <View className="pb-sm pt-md">
+            <View className="mx-auto h-1 w-9 rounded-full bg-sand-border" />
+            <Text className="mt-sm px-md text-xs font-bold text-ink">{count} restaurantes encontrados</Text>
           </View>
         </GestureDetector>
-        <View className="flex-1 px-4 pb-4 pt-1">{children}</View>
+        <View className="flex-1 px-md pb-md pt-xs">{children}</View>
       </View>
     </Animated.View>
   );

@@ -1,26 +1,23 @@
-import { type Href, useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { type Href, useRouter } from "expo-router";
+import { ScrollView } from "react-native";
 
-import { FavoritesRail } from '@/features/favorites/components';
-import { AccountOptionsList, LoggedOutPrompt, ProfileHeader, ProfileStats } from '@/features/profile/components';
-import { useCurrentUserQuery } from '@/features/profile/api';
-import type { AccountOption } from '@/features/profile/types';
-import { useAuthStore } from '@/stores/auth';
-import { useFavoritesStore } from '@/stores/favorites';
+import { ErrorState, LoadingState } from "@/components/ui";
+import { FavoritesRail } from "@/features/favorites/components";
+import { AccountOptionsList, LoggedOutPrompt, ProfileHeader, ProfileStats } from "@/features/profile/components";
+import { useCurrentUserQuery } from "@/features/profile/api";
+import type { AccountOption } from "@/features/profile/types";
+import { useAuthStore } from "@/stores/auth";
+import { useFavoritesStore } from "@/stores/favorites";
 
 const ACCOUNT_OPTIONS: AccountOption[] = [
-  { id: 'orders', label: 'My orders' },
-  { id: 'reservations', label: 'My reservations' },
-  { id: 'payment', label: 'Payment methods' },
-  { id: 'notifications', label: 'Notifications' },
-  { id: 'logout', label: 'Log out', danger: true },
+  { id: "payment", label: "Payment methods" },
+  { id: "notifications", label: "Notifications" },
+  { id: "logout", label: "Log out", danger: true },
 ];
 
 const ACCOUNT_OPTION_ROUTES: Record<string, string> = {
-  orders: '/profile/orders',
-  reservations: '/profile/reservations',
-  payment: '/profile/payment',
-  notifications: '/profile/notifications',
+  payment: "/profile/payment",
+  notifications: "/profile/notifications",
 };
 
 export default function ProfileScreen() {
@@ -31,7 +28,7 @@ export default function ProfileScreen() {
   const favCount = useFavoritesStore((s) => s.favoriteIds.size);
 
   const handleAccountOptionPress = (id: string) => {
-    if (id === 'logout') {
+    if (id === "logout") {
       logout();
       return;
     }
@@ -42,22 +39,11 @@ export default function ProfileScreen() {
   };
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator />
-      </View>
-    );
+    return <LoadingState />;
   }
 
   if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
-        <Text className="text-center text-sm text-muted">Couldn't load profile.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
-          <Text className="text-sm font-bold text-white">Try again</Text>
-        </Pressable>
-      </View>
-    );
+    return <ErrorState message="Couldn't load profile." onRetry={() => refetch()} />;
   }
 
   return (
@@ -66,16 +52,16 @@ export default function ProfileScreen() {
 
       {isLoggedIn ? (
         <>
-          <ProfileStats favCount={favCount} orderCount={0} reservationCount={0} />
+          <ProfileStats favCount={favCount} />
           <FavoritesRail />
           <AccountOptionsList options={ACCOUNT_OPTIONS} onPress={handleAccountOptionPress} />
         </>
       ) : (
         <LoggedOutPrompt
-          onLogin={() => router.push('/login')}
-          onExploreRestaurants={() => router.push('/')}
-          onSearchOnMap={() => router.push('/search')}
-          onNotificationPreferences={() => router.push('/profile/notifications')}
+          onLogin={() => router.push("/login")}
+          onExploreRestaurants={() => router.push("/")}
+          onSearchOnMap={() => router.push("/search")}
+          onNotificationPreferences={() => router.push("/profile/notifications")}
         />
       )}
     </ScrollView>

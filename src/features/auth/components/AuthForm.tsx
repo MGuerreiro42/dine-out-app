@@ -1,10 +1,17 @@
-import { useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from "react";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
+
+import { Icon, LoadingOverlay } from "@/components/ui";
+import { colors, iconSize } from "@/theme";
+
+type SubmitError = { field: "email" | "password"; message: string };
 
 type AuthFormProps = {
   isSignup: boolean;
   onToggleMode: () => void;
-  onSubmit: () => void;
+  onSubmit: (values: { name?: string; email: string; password: string }) => void;
+  submitError?: SubmitError | null;
+  isSubmitting?: boolean;
 };
 
 type FormErrors = {
@@ -15,18 +22,25 @@ type FormErrors = {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export function AuthForm({ isSignup, onToggleMode, onSubmit, submitError, isSubmitting }: AuthFormProps) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const title = isSignup ? 'Create account' : 'Log in';
+  useEffect(() => {
+    if (submitError) {
+      setErrors((prev) => ({ ...prev, [submitError.field]: submitError.message }));
+    }
+  }, [submitError]);
+
+  const title = isSignup ? "Create account" : "Log in";
   const subtitle = isSignup
-    ? 'Create your account to book, favorite and track orders.'
-    : 'Log in to access your reservations, orders and favorites.';
-  const switchText = isSignup ? 'Already have an account?' : "Don't have an account yet?";
-  const switchAction = isSignup ? 'Log in' : 'Create account';
+    ? "Create your account to book, favorite and track orders."
+    : "Log in to access your reservations, orders and favorites.";
+  const switchText = isSignup ? "Already have an account?" : "Don't have an account yet?";
+  const switchAction = isSignup ? "Log in" : "Create account";
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -44,22 +58,26 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
   };
 
   const handleSubmit = () => {
+    if (isSubmitting) {
+      return;
+    }
+
     const nextErrors: FormErrors = {};
 
     if (isSignup && name.trim().length === 0) {
-      nextErrors.name = 'Enter your full name.';
+      nextErrors.name = "Enter your full name.";
     }
 
     if (email.length === 0) {
-      nextErrors.email = 'Enter your email.';
+      nextErrors.email = "Enter your email.";
     } else if (!EMAIL_REGEX.test(email)) {
-      nextErrors.email = 'Invalid email.';
+      nextErrors.email = "Invalid email.";
     }
 
     if (password.length === 0) {
-      nextErrors.password = 'Enter your password.';
-    } else if (password.length < 6) {
-      nextErrors.password = 'Password must be at least 6 characters.';
+      nextErrors.password = "Enter your password.";
+    } else if (password.length < 8) {
+      nextErrors.password = "Password must be at least 8 characters.";
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -67,83 +85,107 @@ export function AuthForm({ isSignup, onToggleMode, onSubmit }: AuthFormProps) {
       return;
     }
 
-    onSubmit();
+    onSubmit({ name: isSignup ? name.trim() : undefined, email, password });
   };
 
   return (
-    <View className="px-7 pb-7 pt-5">
-      <View className="mb-[18px] h-1.5 w-11 rounded-full bg-accent" />
-      <Text className="mb-1.5 text-2xl font-bold text-ink">{title}</Text>
-      <Text className="mb-6 text-[15px] text-muted">{subtitle}</Text>
+    <View className="px-xl pb-xl pt-md2">
+      <LoadingOverlay visible={Boolean(isSubmitting)} label={isSignup ? "Creating your account..." : "Logging in..."} />
+      <View className="mb-md2 h-1.5 w-11 rounded-full bg-accent" />
+      <Text className="mb-sm text-2xl font-bold text-ink">{title}</Text>
+      <Text className="mb-lg text-body text-muted">{subtitle}</Text>
 
-      <View className="gap-3">
+      <View className="gap-sm2">
         {isSignup ? (
           <View>
+            <Text className="mb-xs text-xs font-bold text-ink">Full name</Text>
             <TextInput
               placeholder="Full name"
+              placeholderTextColor={colors.inkFaint}
               value={name}
               onChangeText={handleNameChange}
-              className={`rounded-xl border px-4 py-3.5 text-sm ${errors.name ? 'border-[#b23b3b]' : 'border-sand'}`}
+              className={`rounded-sm border px-md py-md text-sm text-ink ${errors.name ? "border-danger bg-danger-tint" : "border-sand-border bg-sand"}`}
             />
-            {errors.name ? <Text className="mt-1 text-xs text-[#b23b3b]">{errors.name}</Text> : null}
+            {errors.name ? <Text className="mt-xs text-xs text-danger">{errors.name}</Text> : null}
           </View>
         ) : null}
         <View>
+          <Text className="mb-xs text-xs font-bold text-ink">Email</Text>
           <TextInput
             placeholder="Email"
+            placeholderTextColor={colors.inkFaint}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={handleEmailChange}
-            className={`rounded-xl border px-4 py-3.5 text-sm ${errors.email ? 'border-[#b23b3b]' : 'border-sand'}`}
+            className={`rounded-sm border px-md py-md text-sm text-ink ${errors.email ? "border-danger bg-danger-tint" : "border-sand-border bg-sand"}`}
           />
-          {errors.email ? <Text className="mt-1 text-xs text-[#b23b3b]">{errors.email}</Text> : null}
+          {errors.email ? <Text className="mt-xs text-xs text-danger">{errors.email}</Text> : null}
         </View>
         <View>
-          <TextInput
-            placeholder="Password"
-            secureTextEntry
-            value={password}
-            onChangeText={handlePasswordChange}
-            className={`rounded-xl border px-4 py-3.5 text-sm ${errors.password ? 'border-[#b23b3b]' : 'border-sand'}`}
-          />
-          {errors.password ? <Text className="mt-1 text-xs text-[#b23b3b]">{errors.password}</Text> : null}
+          <Text className="mb-xs text-xs font-bold text-ink">Password</Text>
+          <View
+            className={`flex-row items-center rounded-sm border pl-md pr-sm2 ${errors.password ? "border-danger bg-danger-tint" : "border-sand-border bg-sand"}`}
+          >
+            <TextInput
+              placeholder="Password"
+              placeholderTextColor={colors.inkFaint}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={handlePasswordChange}
+              className="flex-1 py-md text-sm text-ink"
+            />
+            <Pressable onPress={() => setShowPassword((v) => !v)} hitSlop={8}>
+              <Icon
+                spec={{ set: "Ionicons", name: showPassword ? "eye-off-outline" : "eye-outline" }}
+                size={iconSize.inline}
+                color={colors.inkFaint}
+              />
+            </Pressable>
+          </View>
+          {errors.password ? <Text className="mt-xs text-xs text-danger">{errors.password}</Text> : null}
         </View>
       </View>
 
       {isSignup ? null : (
-        <Pressable onPress={() => Alert.alert('Demo', 'Reset password')} className="pt-2.5">
+        <Pressable onPress={() => Alert.alert("Demo", "Reset password")} className="pt-sm2">
           <Text className="text-xs font-bold text-ink underline">Forgot your password?</Text>
         </Pressable>
       )}
 
-      <Pressable onPress={handleSubmit} className="mt-5 items-center rounded-xl bg-ink py-3.5">
+      <Pressable
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+        className={`mt-md2 items-center rounded-lg bg-ink py-md ${isSubmitting ? "opacity-60" : ""}`}
+      >
         <Text className="text-sm font-bold text-white">{title}</Text>
       </Pressable>
 
-      <View className="my-[22px] flex-row items-center gap-2.5">
-        <View className="h-px flex-1 bg-gray-100" />
-        <Text className="text-[13px] text-muted">or continue with</Text>
-        <View className="h-px flex-1 bg-gray-100" />
+      <View className="my-lg flex-row items-center gap-sm2">
+        <View className="h-px flex-1 bg-sand-border" />
+        <Text className="text-caption text-muted">or continue with</Text>
+        <View className="h-px flex-1 bg-sand-border" />
       </View>
 
-      <View className="flex-row gap-2.5">
+      <View className="flex-row gap-sm2">
         <Pressable
-          onPress={() => Alert.alert('Demo', 'Log in with Google')}
-          className="flex-1 items-center rounded-xl border border-sand py-3"
+          onPress={() => Alert.alert("Demo", "Log in with Google")}
+          className="flex-1 flex-row items-center justify-center gap-sm rounded-lg border border-sand-border py-sm2"
         >
-          <Text className="text-[15px] font-bold text-ink">Google</Text>
+          <Icon spec={{ set: "Ionicons", name: "logo-google" }} size={iconSize.inline} color={colors.ink} />
+          <Text className="text-body font-bold text-ink">Google</Text>
         </Pressable>
         <Pressable
-          onPress={() => Alert.alert('Demo', 'Log in with Apple')}
-          className="flex-1 items-center rounded-xl border border-sand py-3"
+          onPress={() => Alert.alert("Demo", "Log in with Apple")}
+          className="flex-1 flex-row items-center justify-center gap-sm rounded-lg border border-sand-border py-sm2"
         >
-          <Text className="text-[15px] font-bold text-ink">Apple</Text>
+          <Icon spec={{ set: "Ionicons", name: "logo-apple" }} size={iconSize.inline} color={colors.ink} />
+          <Text className="text-body font-bold text-ink">Apple</Text>
         </Pressable>
       </View>
 
-      <Pressable onPress={onToggleMode} className="pt-[22px]">
-        <Text className="text-center text-[15px] text-[#3a3530]">
+      <Pressable onPress={onToggleMode} className="pt-lg">
+        <Text className="text-center text-body text-ink">
           {switchText} <Text className="font-bold underline">{switchAction}</Text>
         </Text>
       </Pressable>

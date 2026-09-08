@@ -1,21 +1,26 @@
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
-import { SideMenu } from '@/components/layout';
-import { EmptyState, Icon } from '@/components/ui';
+import { RADIUS_OPTIONS_KM } from '@/components/layout';
+import { Chip, EmptyState, ErrorState, LoadingState, SectionHeader } from '@/components/ui';
 import {
+  BrandRail,
   CuisineSelector,
   FeaturedBanner,
   HomeSkeleton,
-  LocationHeader,
-  RADIUS_OPTIONS_KM,
+  NearbySection,
   RestaurantSection,
+  SkeletonSection,
 } from '@/features/search/components';
 import { useHomeDiscovery } from '@/features/search/hooks';
 import { useLocationStore } from '@/stores/location';
 import type { Restaurant } from '@/types';
 
 const MAX_RADIUS_KM = Math.max(...RADIUS_OPTIONS_KM);
+
+// Occasion data isn't enriched enough yet to make this section useful — hidden, not
+// deleted, until that changes.
+const SHOW_EXPLORE_BY_TYPE = false;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -27,8 +32,11 @@ export default function HomeScreen() {
     restaurants,
     cuisines,
     cuisineList,
+    cuisineListLoading,
+    occasions,
     spotlights,
     featured,
+    brandRestaurants,
     taglineFor,
     setActiveCuisine,
   } = useHomeDiscovery();
@@ -41,50 +49,22 @@ export default function HomeScreen() {
     router.push(`/restaurant/${restaurant.id}`);
   };
 
-  const searchBarHeader = (
-    <View className="flex-row items-center gap-2.5 px-4 pt-4">
-      <Pressable
-        onPress={() => router.push('/search')}
-        className="flex-1 flex-row items-center gap-2 rounded-full bg-[#f3f4f6] px-4 py-3"
-      >
-        <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={16} color="#9ca3af" />
-        <Text className="text-sm text-[#9ca3af]">Search restaurants...</Text>
-      </Pressable>
-      <SideMenu />
-    </View>
-  );
-
   if (isLoading) {
     return (
       <View className="flex-1 bg-white">
-        {searchBarHeader}
         <HomeSkeleton />
       </View>
     );
   }
 
   if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-3 bg-white px-8">
-        <Text className="text-center text-sm text-muted">Couldn't load Home.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-xl bg-ink px-4 py-2.5">
-          <Text className="text-sm font-bold text-white">Try again</Text>
-        </Pressable>
-      </View>
-    );
+    return <ErrorState message="Couldn't load Home." onRetry={() => refetch()} />;
   }
 
   return (
     <View className="flex-1 bg-white">
-      {searchBarHeader}
-
-      <LocationHeader />
-
       {restaurants.length === 0 && isFetching ? (
-        <View className="flex-1 items-center justify-center gap-2 px-8">
-          <ActivityIndicator />
-          <Text className="text-center text-sm text-muted">Searching a wider area...</Text>
-        </View>
+        <LoadingState message="Searching a wider area..." />
       ) : restaurants.length === 0 && radiusKm >= MAX_RADIUS_KM ? (
         <EmptyState
           icon={{ set: 'Ionicons', name: 'restaurant-outline' }}
@@ -102,58 +82,86 @@ export default function HomeScreen() {
         <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
           {featured.length ? <FeaturedBanner restaurants={featured} taglineFor={taglineFor} /> : null}
 
-          <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
-            <View className="flex-row items-center gap-1.5">
-              <Icon spec={{ set: 'Ionicons', name: 'restaurant-outline' }} size={16} color="#4f46e5" />
-              <Text className="text-[17px] font-bold text-[#111827]">Choose your Cuisine</Text>
-            </View>
-            <Pressable onPress={() => router.push('/type-overview/cuisine')}>
-              <Text className="text-xs font-normal text-[#4f46e5]">View all cuisines</Text>
-            </Pressable>
-          </View>
-          <CuisineSelector cuisines={cuisines} onSelect={setActiveCuisine} />
-          <RestaurantSection
-            restaurants={cuisineList}
-            onSelectRestaurant={goToRestaurant}
-            viewMoreLabel="View more"
-            onViewMore={() => {
-              if (activeCuisine) router.push(`/type/cuisine/${activeCuisine.id}`);
-            }}
+          <SectionHeader
+            icon={{ set: 'Ionicons', name: 'restaurant-outline' }}
+            title="Choose your Cuisine"
+            viewAll={{ label: 'View all cuisines', onPress: () => router.push('/type-overview/cuisine') }}
           />
+          <CuisineSelector cuisines={cuisines} onSelect={setActiveCuisine} />
+          {cuisineListLoading ? (
+            <SkeletonSection />
+          ) : (
+            <RestaurantSection
+              restaurants={cuisineList}
+              onSelectRestaurant={goToRestaurant}
+              viewMoreLabel="View more"
+              onViewMore={() => {
+                if (activeCuisine && activeCuisine.id !== 'all') {
+                  router.push(`/type/cuisine/${activeCuisine.id}`);
+                } else {
+                  router.push('/search');
+                }
+              }}
+            />
+          )}
+
+          <NearbySection
+            restaurants={restaurants.slice(0, 5)}
+            onSelectRestaurant={goToRestaurant}
+            onViewAll={() => router.push('/search')}
+          />
+
+          {brandRestaurants.length > 0 ? (
+            <View>
+              <SectionHeader title="Brands you know" />
+              <BrandRail restaurants={brandRestaurants} onSelectRestaurant={goToRestaurant} />
+            </View>
+          ) : null}
+
+          {SHOW_EXPLORE_BY_TYPE && occasions.length > 0 ? (
+            <View>
+              <SectionHeader title="Explore by type" />
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}
+              >
+                {occasions.map((occasion) => (
+                  <Chip
+                    key={occasion.id}
+                    label={occasion.label}
+                    onPress={() => router.push(`/type/occasion/${occasion.id}`)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+          ) : null}
 
           {spotlights.map((spotlight, index) => (
             <View key={spotlight.cuisineId}>
-              <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
-                <View className="flex-row items-center gap-1.5">
-                  <Icon
-                    spec={{ set: 'Ionicons', name: index === 0 ? 'flame-outline' : 'trending-up-outline' }}
-                    size={16}
-                    color="#4f46e5"
-                  />
-                  <Text className="text-[17px] font-bold text-[#111827]">{spotlight.title}</Text>
-                </View>
-                <Pressable onPress={() => router.push(`/type/cuisine/${spotlight.cuisineId}`)}>
-                  <Text className="text-xs font-normal text-[#4f46e5]">View more</Text>
-                </Pressable>
-              </View>
-              <RestaurantSection
-                restaurants={spotlight.restaurants}
-                onSelectRestaurant={goToRestaurant}
-                viewMoreLabel="View more"
-                onViewMore={() => router.push(`/type/cuisine/${spotlight.cuisineId}`)}
+              <SectionHeader
+                icon={{ set: 'Ionicons', name: index === 0 ? 'flame-outline' : 'trending-up-outline' }}
+                title={spotlight.title}
+                viewAll={{ label: 'View more', onPress: () => router.push(`/type/cuisine/${spotlight.cuisineId}`) }}
               />
+              {spotlight.isLoading ? (
+                <SkeletonSection />
+              ) : (
+                <RestaurantSection
+                  restaurants={spotlight.restaurants}
+                  onSelectRestaurant={goToRestaurant}
+                  viewMoreLabel="View more"
+                  onViewMore={() => router.push(`/type/cuisine/${spotlight.cuisineId}`)}
+                />
+              )}
             </View>
           ))}
 
-          <View className="flex-row items-center justify-between px-4 pb-2 pt-6">
-            <View className="flex-row items-center gap-1.5">
-              <Icon spec={{ set: 'Ionicons', name: 'bag-outline' }} size={16} color="#4f46e5" />
-              <Text className="text-[17px] font-bold text-[#111827]">Best Deliveries & Takeaways</Text>
-            </View>
-            <Pressable onPress={() => router.push({ pathname: '/search', params: { delivery: '1' } })}>
-              <Text className="text-xs font-normal text-[#4f46e5]">View all</Text>
-            </Pressable>
-          </View>
+          <SectionHeader
+            icon={{ set: 'Ionicons', name: 'bag-outline' }}
+            title="Best Deliveries & Takeaways"
+            viewAll={{ onPress: () => router.push({ pathname: '/search', params: { delivery: '1' } }) }}
+          />
           <RestaurantSection
             restaurants={deliveryList}
             onSelectRestaurant={goToRestaurant}

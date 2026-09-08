@@ -13,6 +13,7 @@ export type RestaurantsQueryFilters = {
   occasion?: string;
   category?: string;
   limit?: number;
+  enabled?: boolean;
 };
 
 export function useRestaurantsQuery(query?: string, filters?: RestaurantsQueryFilters) {
@@ -33,9 +34,11 @@ export function useRestaurantsQuery(query?: string, filters?: RestaurantsQueryFi
       filters?.category ?? null,
       filters?.limit ?? null,
     ],
+    enabled: filters?.enabled ?? true,
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const data = await getNearbyPlaces({ query: trimmedQuery || undefined, ...filters });
+      const { enabled: _enabled, ...params } = filters ?? {};
+      const data = await getNearbyPlaces({ query: trimmedQuery || undefined, ...params });
       const summaries = WireRestaurantsResponseSchema.parse(data);
 
       const restaurants = summaries.map(mapSummaryToRestaurant);

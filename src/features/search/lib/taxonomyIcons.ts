@@ -1,6 +1,7 @@
 import type { IconSpec } from '@/components/ui';
 
 export const CUISINE_ICONS: Record<string, IconSpec> = {
+  all: { set: 'Ionicons', name: 'grid-outline' },
   bar: { set: 'Ionicons', name: 'beer-outline' },
   restaurant: { set: 'Ionicons', name: 'restaurant-outline' },
   pizza_italian: { set: 'Ionicons', name: 'pizza-outline' },

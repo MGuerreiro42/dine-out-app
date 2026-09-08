@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { View } from 'react-native';
 
+import { colors, iconSize } from '@/theme';
+
 type StarRatingProps = {
   rating: number | null | undefined;
   size?: number;
@@ -8,11 +10,11 @@ type StarRatingProps = {
   count?: number;
 };
 
-export function StarRating({ rating, size = 12, color = '#f5a623', count = 5 }: StarRatingProps) {
+export function StarRating({ rating, size = iconSize.micro, color = colors.rating, count = 5 }: StarRatingProps) {
   const filled = typeof rating === 'number' && Number.isFinite(rating) ? Math.round(rating) : 0;
 
   return (
-    <View className="flex-row items-center gap-0.5">
+    <View className="flex-row items-center gap-xs">
       {Array.from({ length: count }, (_, index) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length row of anonymous, non-reorderable stars — index is the only identity there is.
         <Ionicons key={index} name={index < filled ? 'star' : 'star-outline'} size={size} color={color} />

@@ -10,11 +10,14 @@ function makeRestaurant(id: number, cuisine: string): Restaurant {
     rating: null,
     priceLevel: null,
     cuisine,
+    category: cuisine,
     occasion: null,
     ambient: null,
     latitude: 0,
     longitude: 0,
     reviewCount: null,
+    brandName: null,
+    websites: [],
   };
 }
 

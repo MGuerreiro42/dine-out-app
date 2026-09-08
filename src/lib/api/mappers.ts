@@ -9,10 +9,13 @@ export function mapSummaryToRestaurant(summary: RestaurantSummary): Restaurant {
     rating: null,
     priceLevel: null,
     cuisine: summary.cuisineId,
+    category: summary.category,
     occasion: summary.occasion,
     ambient: summary.ambient,
     latitude: summary.latitude,
     longitude: summary.longitude,
     reviewCount: null,
+    brandName: summary.brandName,
+    websites: summary.websites,
   };
 }

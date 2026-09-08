@@ -7,18 +7,10 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('renders nothing when there is no contact info at all', async () => {
-  const { toJSON } = await render(
-    <InfoActionsRow phones={[]} whatsapp={null} instagramHandle={null} websites={[]} socialLinks={[]} />,
-  );
-
-  expect(toJSON()).toBeNull();
-});
-
-test('lists every phone, website and social link once the sheet is opened', async () => {
+test('renders all four cards, with real data even when only some channels are present', async () => {
   await render(
     <InfoActionsRow
-      phones={['+551156962828', '+551199998888']}
+      phones={['+551156962828']}
       whatsapp={null}
       instagramHandle={null}
       websites={['http://www.habibs.com.br']}
@@ -26,28 +18,48 @@ test('lists every phone, website and social link once the sheet is opened', asyn
     />,
   );
 
-  await fireEvent.press(screen.getByText('Contact & socials'));
-
-  expect(screen.getByText('Call: +551156962828')).toBeTruthy();
-  expect(screen.getByText('Call: +551199998888')).toBeTruthy();
-  expect(screen.getByText('Website: habibs.com.br')).toBeTruthy();
+  expect(screen.getByText('Phone')).toBeTruthy();
+  expect(screen.getByText('+551156962828')).toBeTruthy();
+  expect(screen.getByText('Website')).toBeTruthy();
+  expect(screen.getByText('habibs.com.br')).toBeTruthy();
   expect(screen.getByText('Facebook')).toBeTruthy();
+  expect(screen.getByText('WhatsApp')).toBeTruthy();
+  expect(screen.getByText('Not provided')).toBeTruthy();
 });
 
-test('shows a demo redirect alert when a contact option is pressed', async () => {
+test('prefers Instagram over a generic social link for the Social card', async () => {
+  await render(
+    <InfoActionsRow
+      phones={[]}
+      whatsapp={null}
+      instagramHandle="somerestaurant"
+      websites={[]}
+      socialLinks={['https://www.facebook.com/293209384107819']}
+    />,
+  );
+
+  expect(screen.getByText('Instagram')).toBeTruthy();
+  expect(screen.getByText('somerestaurant')).toBeTruthy();
+});
+
+test('shows a demo redirect alert when a card with real data is pressed', async () => {
   const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
   await render(
-    <InfoActionsRow
-      phones={['+551156962828']}
-      whatsapp={null}
-      instagramHandle={null}
-      websites={[]}
-      socialLinks={[]}
-    />,
+    <InfoActionsRow phones={['+551156962828']} whatsapp={null} instagramHandle={null} websites={[]} socialLinks={[]} />,
   );
-  await fireEvent.press(screen.getByText('Contact & socials'));
-  await fireEvent.press(screen.getByText('Call: +551156962828'));
+  await fireEvent.press(screen.getByText('Phone'));
 
-  expect(alertSpy).toHaveBeenCalledWith('Demo', 'Would redirect to Call: +551156962828');
+  expect(alertSpy).toHaveBeenCalledWith('Demo', 'Would redirect to Phone: +551156962828');
+});
+
+test('does not respond to a press on a card with no data', async () => {
+  const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+
+  await render(
+    <InfoActionsRow phones={[]} whatsapp={null} instagramHandle={null} websites={[]} socialLinks={[]} />,
+  );
+  await fireEvent.press(screen.getByText('Phone'));
+
+  expect(alertSpy).not.toHaveBeenCalled();
 });

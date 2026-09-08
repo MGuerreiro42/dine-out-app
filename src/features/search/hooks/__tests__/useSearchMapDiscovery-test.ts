@@ -33,6 +33,8 @@ const RESTAURANTS: RestaurantSummary[] = [
     tags: [],
     whatsapp: null,
     instagramHandle: null,
+    brandName: null,
+    websites: [],
   },
 ];
 
@@ -48,7 +50,7 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('derives distance, tagline, tags, and open status for the map result list', async () => {
+test('derives distance, tagline, and tags for the map result list', async () => {
   jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
   jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
@@ -61,10 +63,9 @@ test('derives distance, tagline, tags, and open status for the map result list',
   expect(result.current.results[0]).toMatchObject({
     id: expect.any(Number),
     cuisineLabel: 'Brazilian',
-    distance: expect.stringMatching(/^\d+\.\d km$/),
+    distance: expect.stringMatching(/^(\d+ m|\d+\.\d km)$/),
     tagline: expect.any(String),
     tags: expect.arrayContaining([expect.any(String)]),
-    isOpenNow: expect.any(Boolean),
   });
 });
 

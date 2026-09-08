@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import { HorizontalRail, Icon, RestaurantCard } from '@/components/ui';
+import { colors, iconSize } from '@/theme';
 import type { Restaurant } from '@/types';
 
 import { useFavoriteRestaurantsQuery } from '../api';
@@ -20,13 +21,13 @@ export function FavoritesRail() {
   }
 
   return (
-    <View className="border-t border-gray-100 py-5">
-      <Text className="mb-3 px-4 text-base font-bold text-ink">Favorites</Text>
+    <View className="border-t border-sand-border py-md2">
+      <Text className="mb-sm2 px-md text-base font-bold text-ink">Favorites</Text>
 
       {favoriteRestaurants.length === 0 ? (
-        <View className="px-4">
-          <View className="items-center gap-2 px-4 py-2">
-            <Icon spec={{ set: 'Ionicons', name: 'heart-outline' }} size={32} color="#8a8580" />
+        <View className="px-md">
+          <View className="items-center gap-sm px-md py-sm">
+            <Icon spec={{ set: 'Ionicons', name: 'heart-outline' }} size={iconSize.empty} color={colors.inkFaint} />
             <Text className="text-center text-sm font-bold text-ink">You don't have any favorites yet,</Text>
             <Text className="text-center text-xs text-muted">
               Tap the heart icon on a restaurant to save it here.
@@ -34,10 +35,10 @@ export function FavoritesRail() {
           </View>
           <Pressable
             onPress={() => router.push('/')}
-            className="flex-row items-center justify-between border-t border-sand py-3.5"
+            className="flex-row items-center justify-between border-t border-sand py-md"
           >
             <Text className="text-sm font-bold text-ink">Explore restaurants</Text>
-            <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={16} color="#d1d5db" />
+            <Icon spec={{ set: 'Ionicons', name: 'chevron-forward' }} size={iconSize.inline} color={colors.inkSubtle} />
           </Pressable>
         </View>
       ) : (

@@ -7,11 +7,14 @@ export const RestaurantSchema = z.object({
   rating: z.string().nullable(),
   priceLevel: z.string().nullable(),
   cuisine: z.string(),
+  category: z.string(),
   occasion: z.string().nullable(),
   ambient: z.string().nullable(),
   latitude: z.number(),
   longitude: z.number(),
   reviewCount: z.number().nullable(),
+  brandName: z.string().nullable(),
+  websites: z.array(z.string()),
 });
 
 export type Restaurant = z.infer<typeof RestaurantSchema>;

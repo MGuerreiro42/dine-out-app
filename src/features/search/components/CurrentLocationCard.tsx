@@ -2,6 +2,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { Icon } from '@/components/ui';
 import { useLocationStore } from '@/stores/location';
+import { colors, iconSize } from '@/theme';
 
 export function CurrentLocationCard() {
   const label = useLocationStore((s) => s.label);
@@ -11,10 +12,10 @@ export function CurrentLocationCard() {
   return (
     <Pressable
       onPress={() => resolveLocation()}
-      className="flex-row items-center gap-3 rounded-2xl border border-sand p-3"
+      className="flex-row items-center gap-sm2 rounded-lg border border-sand p-sm2"
     >
-      <View className="h-11 w-11 items-center justify-center rounded-full bg-[#eef2ff]">
-        <Icon spec={{ set: 'Ionicons', name: 'navigate' }} size={18} color="#4f46e5" />
+      <View className="h-11 w-11 items-center justify-center rounded-full bg-accent-tint">
+        <Icon spec={{ set: 'Ionicons', name: 'navigate' }} size={iconSize.ui} color={colors.accent} />
       </View>
       <View className="flex-1">
         <Text className="text-sm font-bold text-ink">{label}</Text>

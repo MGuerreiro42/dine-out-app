@@ -2,6 +2,7 @@ import { TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/ui';
+import { colors, iconSize, spacing } from '@/theme';
 
 type MapSearchBarProps = {
   value: string;
@@ -12,14 +13,14 @@ export function MapSearchBar({ value, onChangeText }: MapSearchBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ position: 'absolute', top: insets.top + 14, left: 14, right: 14 }}>
-      <View className="flex-row items-center gap-2 rounded-full bg-white px-4 py-3 shadow-lg">
-        <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={16} color="#8a8580" />
+    <View style={{ position: 'absolute', top: insets.top + spacing.md, left: spacing.md, right: spacing.md }}>
+      <View className="flex-row items-center gap-sm rounded-full bg-white px-md py-sm2 shadow-lg">
+        <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkFaint} />
         <TextInput
           value={value}
           onChangeText={onChangeText}
           placeholder="Search restaurants..."
-          placeholderTextColor="#8a8580"
+          placeholderTextColor={colors.inkFaint}
           className="flex-1 text-sm text-ink"
         />
       </View>

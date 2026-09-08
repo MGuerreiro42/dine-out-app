@@ -32,6 +32,8 @@ const RESTAURANTS: RestaurantSummary[] = [
     tags: [],
     whatsapp: null,
     instagramHandle: null,
+    brandName: null,
+    websites: [],
   },
   {
     id: 2,
@@ -47,6 +49,8 @@ const RESTAURANTS: RestaurantSummary[] = [
     tags: [],
     whatsapp: null,
     instagramHandle: null,
+    brandName: null,
+    websites: [],
   },
 ];
 
@@ -110,6 +114,18 @@ test('forwards cuisine/occasion/category/limit filters to getNearbyPlaces and ke
     occasion: 'date-night',
     limit: 100,
   });
+});
+
+test('does not fetch when enabled is false', async () => {
+  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+
+  const { result } = await renderHook(() => useRestaurantsQuery(undefined, { cuisine: 'brazilian', enabled: false }), {
+    wrapper: createWrapper(),
+  });
+
+  expect(result.current.isLoading).toBe(false);
+  expect(result.current.fetchStatus).toBe('idle');
+  expect(nearbySpy).not.toHaveBeenCalled();
 });
 
 test('does not share a cache entry between differently filtered queries', async () => {

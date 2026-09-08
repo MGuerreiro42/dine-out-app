@@ -11,7 +11,7 @@ export function HorizontalRail({ children }: HorizontalRailProps) {
   const breakpoint = useBreakpoint();
 
   if (breakpoint === 'tablet') {
-    return <View className="flex-row flex-wrap gap-3 px-4 pb-1.5">{children}</View>;
+    return <View className="flex-row flex-wrap gap-sm2 px-md pb-sm">{children}</View>;
   }
 
   return (

@@ -7,11 +7,14 @@ import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useFavoriteIdsQuery } from '@/features/favorites/api';
 import { queryClient } from '@/lib/queryClient';
+import { useAuthStore } from '@/stores/auth';
 import { useLocationStore } from '@/stores/location';
 
 function AppStack() {
   const insets = useSafeAreaInsets();
+  useFavoriteIdsQuery();
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top }}>
@@ -23,6 +26,7 @@ function AppStack() {
 export default function RootLayout() {
   useEffect(() => {
     useLocationStore.getState().resolveLocation();
+    useAuthStore.getState().bootstrap();
   }, []);
 
   return (

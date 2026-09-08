@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import { colors, iconSize as tokenIconSize } from '@/theme';
+
 import { Icon } from './Icon';
 
 type PhotoPlaceholderProps = {
@@ -8,11 +10,11 @@ type PhotoPlaceholderProps = {
   label?: string;
 };
 
-export function PhotoPlaceholder({ className = 'h-full w-full', iconSize = 20, label }: PhotoPlaceholderProps) {
+export function PhotoPlaceholder({ className = 'h-full w-full', iconSize = tokenIconSize.ui, label }: PhotoPlaceholderProps) {
   return (
-    <View className={`items-center justify-center gap-1 bg-sand-light ${className}`}>
-      <Icon spec={{ set: 'Ionicons', name: 'image-outline' }} size={iconSize} color="#8a8580" />
-      {label ? <Text className="px-2 text-center text-xs text-muted">{label}</Text> : null}
+    <View className={`items-center justify-center gap-xs bg-sand-light ${className}`}>
+      <Icon spec={{ set: 'Ionicons', name: 'image-outline' }} size={iconSize} color={colors.inkFaint} />
+      {label ? <Text className="px-sm text-center text-xs text-muted">{label}</Text> : null}
     </View>
   );
 }
