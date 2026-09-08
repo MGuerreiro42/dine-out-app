@@ -1,3 +1,4 @@
+export * from "./AnchoredMenu";
 export * from "./BottomSheet";
 export * from "./Chip";
 export * from "./EmptyState";
@@ -6,6 +7,7 @@ export * from "./HorizontalRail";
 export * from "./Icon";
 export * from "./LoadingOverlay";
 export * from "./LoadingState";
+export * from "./MenuOption";
 export * from "./PhotoCarousel";
 export * from "./PhotoPlaceholder";
 export * from "./PlaceholderScreen";

@@ -1,11 +1,12 @@
 import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
-import { Modal, Platform, Pressable, Text, useWindowDimensions, View } from "react-native";
+import { useState } from "react";
+import { Platform, Pressable, Text, View } from "react-native";
 
-import { BottomSheet, Icon } from "@/components/ui";
+import { AnchoredMenu, BottomSheet, Icon, MenuOption } from "@/components/ui";
 import { AddressSearchInput } from "@/features/search/components/AddressSearchInput";
 import { CurrentLocationCard } from "@/features/search/components/CurrentLocationCard";
+import { useAnchoredMenu } from "@/hooks";
 import { useLocationStore } from "@/stores/location";
 import { colors, iconSize } from "@/theme";
 
@@ -14,21 +15,11 @@ export const RADIUS_OPTIONS_KM = [5, 10, 50, 100];
 export function LocationHeader() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [radiusMenuOpen, setRadiusMenuOpen] = useState(false);
-  const [radiusAnchor, setRadiusAnchor] = useState({ top: 0, left: 0 });
+  const radiusMenu = useAnchoredMenu('start');
   const label = useLocationStore((s) => s.label);
   const status = useLocationStore((s) => s.status);
   const radiusKm = useLocationStore((s) => s.radiusKm);
   const setRadiusKm = useLocationStore((s) => s.setRadiusKm);
-  const radiusTriggerRef = useRef<View>(null);
-  const { width: windowWidth } = useWindowDimensions();
-
-  const openRadiusMenu = () => {
-    radiusTriggerRef.current?.measureInWindow((x, y, width, height) => {
-      setRadiusAnchor({ top: y + height + 4, left: Math.min(x, windowWidth - width) });
-      setRadiusMenuOpen(true);
-    });
-  };
 
   // `label` is store-formatted as "{street}, {district/city}" (src/stores/location.ts)
   // — split on the first ", " so the street can render bold/full-size and the rest
@@ -48,35 +39,27 @@ export function LocationHeader() {
       </Pressable>
 
       <Pressable
-        ref={radiusTriggerRef}
-        onPress={openRadiusMenu}
+        ref={radiusMenu.triggerRef}
+        onPress={radiusMenu.open}
         className="flex-row items-center gap-xs rounded-full border border-sand px-sm py-xs"
       >
         <Text className="text-xs font-bold text-ink">{radiusKm} km</Text>
         <Icon spec={{ set: "Ionicons", name: "chevron-down" }} size={iconSize.micro} color={colors.inkFaint} />
       </Pressable>
 
-      <Modal visible={radiusMenuOpen} transparent animationType="fade" onRequestClose={() => setRadiusMenuOpen(false)}>
-        <Pressable className="flex-1" onPress={() => setRadiusMenuOpen(false)}>
-          <View
-            className="absolute w-28 rounded-2xl bg-white py-sm shadow-lg"
-            style={{ top: radiusAnchor.top, left: radiusAnchor.left }}
-          >
-            {RADIUS_OPTIONS_KM.map((km) => (
-              <Pressable
-                key={km}
-                onPress={() => {
-                  setRadiusKm(km);
-                  setRadiusMenuOpen(false);
-                }}
-                className="px-md py-sm2"
-              >
-                <Text className={`text-sm ${km === radiusKm ? "font-bold text-accent" : "text-ink"}`}>{km} km</Text>
-              </Pressable>
-            ))}
-          </View>
-        </Pressable>
-      </Modal>
+      <AnchoredMenu visible={radiusMenu.visible} onClose={radiusMenu.close} anchor={radiusMenu.anchor} width="w-28">
+        {RADIUS_OPTIONS_KM.map((km) => (
+          <MenuOption
+            key={km}
+            label={`${km} km`}
+            active={km === radiusKm}
+            onPress={() => {
+              setRadiusKm(km);
+              radiusMenu.close();
+            }}
+          />
+        ))}
+      </AnchoredMenu>
 
       <BottomSheet visible={open} onClose={() => setOpen(false)}>
         <Text className="mb-md text-lg font-bold text-ink">Your location</Text>

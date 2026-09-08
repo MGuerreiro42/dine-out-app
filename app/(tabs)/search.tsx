@@ -1,21 +1,14 @@
 import { Tabs, useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Modal,
-  Pressable,
-  ScrollView,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
-import { EmptyState, ErrorState, Icon, type IconSpec, LoadingState } from '@/components/ui';
+import { AnchoredMenu, EmptyState, ErrorState, Icon, type IconSpec, LoadingState, MenuOption } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { MapResultCard } from '@/features/search/components';
 import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hooks';
 import type { MapResultData } from '@/features/search/hooks';
+import { useAnchoredMenu } from '@/hooks';
 import { compareByRating } from '@/features/search/lib/ratingSort';
 import { colors, iconSize } from '@/theme';
 
@@ -85,28 +78,12 @@ export default function SearchScreen() {
   const [deliveryOnly, setDeliveryOnly] = useState(params.delivery === '1');
   const [activeFeatures, setActiveFeatures] = useState<FeatureKey[]>([]);
   const [sortBy, setSortBy] = useState<SortKey>('top_rated');
-  const [openMenu, setOpenMenu] = useState<'sort' | 'filters' | null>(null);
   const [filterMenuView, setFilterMenuView] = useState<FilterMenuView>('root');
-  const [sortAnchor, setSortAnchor] = useState({ top: 0, right: 0 });
-  const [filtersAnchor, setFiltersAnchor] = useState({ top: 0, left: 0 });
-  const sortTriggerRef = useRef<View>(null);
-  const filtersTriggerRef = useRef<View>(null);
-  const { width: windowWidth } = useWindowDimensions();
+  const sortMenu = useAnchoredMenu('end');
+  const filtersMenu = useAnchoredMenu('start');
 
-  const openSortMenu = () => {
-    sortTriggerRef.current?.measureInWindow((x, y, width, height) => {
-      setSortAnchor({ top: y + height + 4, right: windowWidth - (x + width) });
-      setOpenMenu('sort');
-    });
-  };
-  const openFiltersMenu = () => {
-    filtersTriggerRef.current?.measureInWindow((x, y, _width, height) => {
-      setFiltersAnchor({ top: y + height + 4, left: x });
-      setOpenMenu('filters');
-    });
-  };
   const closeFiltersMenu = () => {
-    setOpenMenu(null);
+    filtersMenu.close();
     setFilterMenuView('root');
   };
 
@@ -191,7 +168,7 @@ export default function SearchScreen() {
         ) : (
           <Text className="text-sm text-muted">{filteredResults.length} results</Text>
         )}
-        <Pressable ref={sortTriggerRef} onPress={openSortMenu} className="flex-row items-center gap-xs">
+        <Pressable ref={sortMenu.triggerRef} onPress={sortMenu.open} className="flex-row items-center gap-xs">
           <Text className="text-body font-semibold text-accent">Sort: {sortLabel}</Text>
           <Icon spec={{ set: 'Ionicons', name: 'chevron-down' }} size={iconSize.inline} color={colors.accent} />
         </Pressable>
@@ -199,8 +176,8 @@ export default function SearchScreen() {
 
       <View className="mx-md mt-sm flex-row flex-wrap items-center gap-sm">
         <Pressable
-          ref={filtersTriggerRef}
-          onPress={openFiltersMenu}
+          ref={filtersMenu.triggerRef}
+          onPress={filtersMenu.open}
           className="flex-row items-center gap-sm self-start rounded-full border border-sand-border px-md py-sm"
         >
           <Icon spec={{ set: 'Ionicons', name: 'options-outline' }} size={iconSize.inline} color={colors.ink} />
@@ -233,39 +210,22 @@ export default function SearchScreen() {
         </ScrollView>
       )}
 
-      <Modal visible={openMenu === 'sort'} transparent animationType="fade" onRequestClose={() => setOpenMenu(null)}>
-        <Pressable className="flex-1" onPress={() => setOpenMenu(null)}>
-          <View
-            className="absolute w-48 rounded-2xl bg-white py-sm shadow-lg"
-            style={{ top: sortAnchor.top, right: sortAnchor.right }}
-          >
-            {SORT_OPTIONS.map((option) => (
-              <Pressable
-                key={option.key}
-                onPress={() => {
-                  setSortBy(option.key);
-                  setOpenMenu(null);
-                }}
-                className="px-md py-sm2"
-              >
-                <Text
-                  className={`text-sm ${option.key === sortBy ? 'font-bold text-accent' : 'text-ink'}`}
-                >
-                  {option.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </Pressable>
-      </Modal>
+      <AnchoredMenu visible={sortMenu.visible} onClose={sortMenu.close} anchor={sortMenu.anchor} width="w-48">
+        {SORT_OPTIONS.map((option) => (
+          <MenuOption
+            key={option.key}
+            label={option.label}
+            active={option.key === sortBy}
+            onPress={() => {
+              setSortBy(option.key);
+              sortMenu.close();
+            }}
+          />
+        ))}
+      </AnchoredMenu>
 
-      <Modal visible={openMenu === 'filters'} transparent animationType="fade" onRequestClose={closeFiltersMenu}>
-        <Pressable className="flex-1" onPress={closeFiltersMenu}>
-          <View
-            className="absolute w-56 rounded-2xl bg-white py-sm shadow-lg"
-            style={{ top: filtersAnchor.top, left: filtersAnchor.left }}
-          >
-            {filterMenuView === 'root' ? (
+      <AnchoredMenu visible={filtersMenu.visible} onClose={closeFiltersMenu} anchor={filtersMenu.anchor} width="w-56">
+        {filterMenuView === 'root' ? (
               FILTER_CATEGORIES.map((category) =>
                 category.dimension === 'delivery' ? (
                   <Pressable
@@ -369,9 +329,7 @@ export default function SearchScreen() {
                 )}
               </>
             )}
-          </View>
-        </Pressable>
-      </Modal>
+      </AnchoredMenu>
     </View>
   );
 }
