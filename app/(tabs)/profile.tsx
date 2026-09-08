@@ -1,6 +1,7 @@
 import { type Href, useRouter } from "expo-router";
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import { ScrollView } from "react-native";
 
+import { ErrorState, LoadingState } from "@/components/ui";
 import { FavoritesRail } from "@/features/favorites/components";
 import { AccountOptionsList, LoggedOutPrompt, ProfileHeader, ProfileStats } from "@/features/profile/components";
 import { useCurrentUserQuery } from "@/features/profile/api";
@@ -38,22 +39,11 @@ export default function ProfileScreen() {
   };
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator />
-      </View>
-    );
+    return <LoadingState />;
   }
 
   if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
-        <Text className="text-center text-sm text-muted">Couldn't load profile.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
-          <Text className="text-sm font-bold text-white">Try again</Text>
-        </Pressable>
-      </View>
-    );
+    return <ErrorState message="Couldn't load profile." onRetry={() => refetch()} />;
   }
 
   return (

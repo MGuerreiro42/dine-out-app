@@ -1,9 +1,9 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
-import { BottomSheet, Icon, PhotoCarousel } from '@/components/ui';
+import { BottomSheet, ErrorState, Icon, LoadingState, PhotoCarousel } from '@/components/ui';
 import {
   ActionGrid,
   DetailHeaderActions,
@@ -33,22 +33,11 @@ export default function RestaurantDetailScreen() {
   const [reviewFormOpen, setReviewFormOpen] = useState(false);
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator />
-      </View>
-    );
+    return <LoadingState />;
   }
 
   if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
-        <Text className="text-center text-sm text-muted">Couldn't load restaurant.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
-          <Text className="text-sm font-bold text-white">Try again</Text>
-        </Pressable>
-      </View>
-    );
+    return <ErrorState message="Couldn't load restaurant." onRetry={() => refetch()} />;
   }
 
   if (!restaurant) {

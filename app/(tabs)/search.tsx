@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
-import { EmptyState, Icon, type IconSpec } from '@/components/ui';
+import { EmptyState, ErrorState, Icon, type IconSpec, LoadingState } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { MapResultCard } from '@/features/search/components';
 import { useDebouncedValue, useSearchMapDiscovery } from '@/features/search/hooks';
@@ -129,9 +129,7 @@ export default function SearchScreen() {
     return (
       <>
         {header}
-        <View className="flex-1 items-center justify-center bg-white">
-          <ActivityIndicator />
-        </View>
+        <LoadingState />
       </>
     );
   }
@@ -140,12 +138,7 @@ export default function SearchScreen() {
     return (
       <>
         {header}
-        <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
-          <Text className="text-center text-sm text-muted">Couldn't load search.</Text>
-          <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
-            <Text className="text-sm font-bold text-white">Try again</Text>
-          </Pressable>
-        </View>
+        <ErrorState message="Couldn't load search." onRetry={() => refetch()} />
       </>
     );
   }

@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
-import { BottomSheet, Chip, HorizontalRail, Icon, PhotoPlaceholder, type IconSpec } from '@/components/ui';
+import { BottomSheet, Chip, ErrorState, HorizontalRail, Icon, type IconSpec, LoadingState, PhotoPlaceholder } from '@/components/ui';
 import { HomeRestaurantCard } from '@/features/search/components/HomeRestaurantCard';
 import { useDebouncedValue } from '@/features/search/hooks/useDebouncedValue';
 import type { HomeCardData } from '@/features/search/hooks/useHomeDiscovery';
@@ -230,22 +230,11 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
   };
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator />
-      </View>
-    );
+    return <LoadingState />;
   }
 
   if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
-        <Text className="text-center text-sm text-muted">Couldn't load this page.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
-          <Text className="text-sm font-bold text-white">Try again</Text>
-        </Pressable>
-      </View>
-    );
+    return <ErrorState message="Couldn't load this page." onRetry={() => refetch()} />;
   }
 
   const lastSectionHeader: { heading: string; icon: IconSpec } =

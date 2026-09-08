@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
-import { Icon, type IconSpec, PhotoPlaceholder } from '@/components/ui';
+import { ErrorState, Icon, type IconSpec, LoadingState, PhotoPlaceholder } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { AMBIENT_ICONS, DEFAULT_AMBIENT_ICON } from '@/features/search/lib/taxonomyIcons';
 import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
@@ -42,22 +42,11 @@ export function TypeOverviewScreen({ dimension, embedded = false }: TypeOverview
   };
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator />
-      </View>
-    );
+    return <LoadingState />;
   }
 
   if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
-        <Text className="text-center text-sm text-muted">Couldn't load categories.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
-          <Text className="text-sm font-bold text-white">Try again</Text>
-        </Pressable>
-      </View>
-    );
+    return <ErrorState message="Couldn't load categories." onRetry={() => refetch()} />;
   }
 
   const copy = DIMENSION_COPY[dimension];

@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { RADIUS_OPTIONS_KM } from '@/components/layout';
-import { Chip, EmptyState, Icon } from '@/components/ui';
+import { Chip, EmptyState, ErrorState, Icon, LoadingState } from '@/components/ui';
 import {
   BrandRail,
   CuisineSelector,
@@ -59,23 +59,13 @@ export default function HomeScreen() {
   }
 
   if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center gap-sm2 bg-white px-xl">
-        <Text className="text-center text-sm text-muted">Couldn't load Home.</Text>
-        <Pressable onPress={() => refetch()} className="rounded-lg bg-ink px-md py-sm2">
-          <Text className="text-sm font-bold text-white">Try again</Text>
-        </Pressable>
-      </View>
-    );
+    return <ErrorState message="Couldn't load Home." onRetry={() => refetch()} />;
   }
 
   return (
     <View className="flex-1 bg-white">
       {restaurants.length === 0 && isFetching ? (
-        <View className="flex-1 items-center justify-center gap-sm px-xl">
-          <ActivityIndicator />
-          <Text className="text-center text-sm text-muted">Searching a wider area...</Text>
-        </View>
+        <LoadingState message="Searching a wider area..." />
       ) : restaurants.length === 0 && radiusKm >= MAX_RADIUS_KM ? (
         <EmptyState
           icon={{ set: 'Ionicons', name: 'restaurant-outline' }}
