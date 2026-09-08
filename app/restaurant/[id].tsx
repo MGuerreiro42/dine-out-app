@@ -1,7 +1,8 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { AppHeader } from '@/components/layout';
 import { BottomSheet, Icon, PhotoCarousel } from '@/components/ui';
 import {
   ActionGrid,
@@ -74,29 +75,7 @@ export default function RestaurantDetailScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row items-center gap-sm2 px-md pt-md">
-        <Pressable
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
-        >
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.ink} />
-        </Pressable>
-        <View className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2">
-          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkFaint} />
-          <TextInput
-            editable={false}
-            placeholder="Search restaurants..."
-            placeholderTextColor={colors.inkFaint}
-            className="flex-1 text-sm text-ink"
-          />
-        </View>
-        <Pressable
-          onPress={() => router.push('/profile')}
-          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
-        >
-          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={iconSize.ui} color={colors.ink} />
-        </Pressable>
-      </View>
+      <AppHeader search={{ mode: 'link', onPress: () => router.push('/search') }} showBack />
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         <View className="mt-md">

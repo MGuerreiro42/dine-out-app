@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { AppHeader } from '@/components/layout';
 import { Icon, type IconSpec, PhotoPlaceholder } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
 import { AMBIENT_ICONS, DEFAULT_AMBIENT_ICON } from '@/features/search/lib/taxonomyIcons';
@@ -64,24 +65,7 @@ export function TypeOverviewScreen({ dimension, embedded = false }: TypeOverview
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 24 }}>
       {embedded ? null : (
-        <View className="flex-row items-center gap-sm2 px-md pt-md">
-          <Pressable
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-            className="h-10 w-10 items-center justify-center rounded-full bg-sand"
-          >
-            <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.ink} />
-          </Pressable>
-          <Pressable
-            onPress={() => router.push('/search')}
-            className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2"
-          >
-            <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkSubtle} />
-            <Text className="flex-1 text-sm text-ink-subtle">Search restaurants...</Text>
-          </Pressable>
-          <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-sand">
-            <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={iconSize.ui} color={colors.ink} />
-          </Pressable>
-        </View>
+        <AppHeader search={{ mode: 'link', onPress: () => router.push('/search') }} showBack />
       )}
 
       <View className="px-md pt-md">

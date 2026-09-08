@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Animated, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { AppHeader } from '@/components/layout';
 import { BottomSheet, Chip, HorizontalRail, Icon, PhotoPlaceholder, type IconSpec } from '@/components/ui';
 import { HomeRestaurantCard } from '@/features/search/components/HomeRestaurantCard';
 import { useDebouncedValue } from '@/features/search/hooks/useDebouncedValue';
@@ -254,30 +255,7 @@ export function TypeDetailScreen({ dimension, id }: TypeDetailScreenProps) {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row items-center gap-sm2 px-md pt-md">
-        <Pressable
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
-        >
-          <Icon spec={{ set: 'Ionicons', name: 'chevron-back' }} size={iconSize.ui} color={colors.ink} />
-        </Pressable>
-        <View className="flex-1 flex-row items-center gap-sm rounded-full bg-sand px-md py-sm2">
-          <Icon spec={{ set: 'Ionicons', name: 'search-outline' }} size={iconSize.inline} color={colors.inkSubtle} />
-          <TextInput
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholder="Search restaurants..."
-            placeholderTextColor={colors.inkSubtle}
-            className="flex-1 text-sm text-ink"
-          />
-        </View>
-        <Pressable
-          onPress={() => router.push('/profile')}
-          className="h-10 w-10 items-center justify-center rounded-full bg-sand"
-        >
-          <Icon spec={{ set: 'Ionicons', name: 'person-outline' }} size={iconSize.ui} color={colors.ink} />
-        </Pressable>
-      </View>
+      <AppHeader search={{ mode: 'input', value: searchText, onChangeText: setSearchText }} showBack />
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         <Text className="px-md pt-lg text-2xl font-bold text-ink">{primaryLabel}</Text>
