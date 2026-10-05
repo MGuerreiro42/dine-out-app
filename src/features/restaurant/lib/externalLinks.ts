@@ -35,7 +35,7 @@ export async function resolveMapOptions(latitude: number, longitude: number, lab
   const coords = `${latitude},${longitude}`;
 
   if (Platform.OS === 'android') {
-    const url = `geo:0,0?q=${coords}(${encodeGeoLabel(label)})`;
+    const url = `geo:${coords}?q=${coords}(${encodeGeoLabel(label)})`;
     return [{ icon: { set: 'Ionicons', name: 'map-outline' }, label: 'Open in maps', url }];
   }
 

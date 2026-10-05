@@ -153,7 +153,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **FR-021**: The system MUST display the restaurant's own category and any alternate categories as a humanized chip row (`snake_case` → `Title Case`), visually distinct from owner-authored tags.
 - **FR-022**: The system MUST display a "Part of {brandName}" badge near the restaurant name when the restaurant has a non-null `brandName`.
 - **FR-023**: The system MUST show an alert when an external URL cannot be opened.
-- **FR-018**: The system MUST display a tappable address that opens the location in a maps app: Android via a `geo:` URL (OS chooser); iOS via a sheet of Apple Maps plus installed Google Maps/Waze, opening directly when only one option exists; web via a Google Maps search URL.
+- **FR-018**: The system MUST display a tappable address that opens the location in a maps app: Android via a `geo:<lat>,<lng>?q=<lat>,<lng>(<name>)` URL (OS chooser; coordinates in the path, since Waze geocodes the label when the path is `0,0`); iOS via a sheet of Apple Maps plus installed Google Maps/Waze, opening directly when only one option exists; web via a Google Maps search URL.
 - **FR-019**: Removed 2026-09-02 — the share icon was a fully fake action (`Alert.alert` only); removed rather than kept as a non-functional placeholder. Real sharing is deferred, not scheduled.
 
 ### Key Entities

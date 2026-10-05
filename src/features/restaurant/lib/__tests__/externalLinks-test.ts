@@ -36,7 +36,7 @@ test('resolveMapOptions returns a single geo: url on Android', async () => {
 
   const options = await resolveMapOptions(-23.5, -46.6, 'Bar (Centro)');
 
-  expect(options.map((o) => o.url)).toEqual(['geo:0,0?q=-23.5,-46.6(Bar%20%28Centro%29)']);
+  expect(options.map((o) => o.url)).toEqual(['geo:-23.5,-46.6?q=-23.5,-46.6(Bar%20%28Centro%29)']);
 });
 
 test('resolveMapOptions on iOS always offers Apple Maps plus only the third-party apps it can confirm are installed', async () => {
