@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { BottomSheet, Icon, type IconSpec } from '@/components/ui';
 import { useLinkChooser } from '@/features/restaurant/hooks/useLinkChooser';
+import { confirmFarDelivery } from '@/features/restaurant/lib/deliveryDistance';
 import type { LinkOption } from '@/features/restaurant/lib/externalLinks';
 import { DELIVERY_PLATFORM_LABELS } from '@/features/restaurant/lib/labels';
 import type { DeliveryLink, MenuItem } from '@/features/restaurant/types';
@@ -25,9 +26,10 @@ const ACTIONS: { key: ActionKey; icon: IconSpec; label: string }[] = [
 type ActionGridProps = {
   menu: MenuItem[];
   deliveryLinks: DeliveryLink[];
+  distanceKm: number | null;
 };
 
-export function ActionGrid({ menu, deliveryLinks }: ActionGridProps) {
+export function ActionGrid({ menu, deliveryLinks, distanceKm }: ActionGridProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const deliveryChooser = useLinkChooser();
 
@@ -36,7 +38,8 @@ export function ActionGrid({ menu, deliveryLinks }: ActionGridProps) {
     label: DELIVERY_PLATFORM_LABELS[link.platform],
     url: link.url,
   }));
-  const openDelivery = deliveryOptions.length > 0 ? () => deliveryChooser.choose(() => deliveryOptions) : undefined;
+  const loadDeliveryOptions = async () => ((await confirmFarDelivery(distanceKm)) ? deliveryOptions : []);
+  const openDelivery = deliveryOptions.length > 0 ? () => deliveryChooser.choose(loadDeliveryOptions) : undefined;
 
   const handlers: Record<ActionKey, (() => void) | undefined> = {
     menu: menu.length > 0 ? () => setMenuOpen(true) : undefined,

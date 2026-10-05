@@ -29,6 +29,7 @@ export default function RestaurantDetailScreen() {
   const { data: allRestaurants } = useRestaurantsQuery();
   const fromLatitude = useLocationStore((s) => s.latitude);
   const fromLongitude = useLocationStore((s) => s.longitude);
+  const locationStatus = useLocationStore((s) => s.status);
   const [reviewFormOpen, setReviewFormOpen] = useState(false);
 
   if (isLoading) {
@@ -56,9 +57,8 @@ export default function RestaurantDetailScreen() {
   const hasAddress = restaurant.addressShort !== null;
   const hasInfoRow = hasRating || hasPrice || hasAddress;
   const alternateChips = restaurant.categoryAlternates.filter((category) => category !== restaurant.category);
-  const distanceLabel = formatDistanceKm(
-    haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude),
-  );
+  const distanceKm = haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude);
+  const distanceLabel = formatDistanceKm(distanceKm);
   const breadcrumb = restaurant.categoryHierarchy.map(humanizeCategory);
 
   return (
@@ -135,7 +135,11 @@ export default function RestaurantDetailScreen() {
           </View>
         ) : null}
 
-        <ActionGrid menu={restaurant.menu} deliveryLinks={restaurant.deliveryLinks} />
+        <ActionGrid
+          menu={restaurant.menu}
+          deliveryLinks={restaurant.deliveryLinks}
+          distanceKm={locationStatus === 'resolved' ? distanceKm : null}
+        />
 
         <InfoActionsRow
           phones={restaurant.phones}
