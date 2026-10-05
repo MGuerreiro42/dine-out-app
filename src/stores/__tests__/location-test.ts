@@ -20,6 +20,7 @@ afterEach(() => {
     radiusKm: 10,
   });
   jest.clearAllMocks();
+  jest.useRealTimers();
 });
 
 test('resolves the real device location on success', async () => {
@@ -53,11 +54,14 @@ test('marks status as denied (not fallback) when permission is denied', async ()
 test('falls back when getCurrentPositionAsync times out', async () => {
   mockedLocation.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' } as never);
   mockedLocation.getCurrentPositionAsync.mockImplementation(() => new Promise(() => {}));
+  jest.useFakeTimers();
 
-  await useLocationStore.getState().resolveLocation();
+  const resolving = useLocationStore.getState().resolveLocation();
+  await jest.runAllTimersAsync();
+  await resolving;
 
   expect(useLocationStore.getState().status).toBe('fallback');
-}, 10000);
+});
 
 test('keeps the resolved coordinate with a generic label when reverseGeocodeAsync throws (e.g. unsupported on web)', async () => {
   mockedLocation.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' } as never);
