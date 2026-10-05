@@ -2,7 +2,7 @@
 
 **Feature**: `restaurant` — folder `src/features/restaurant/`
 **Created**: 2026-07-23
-**Status**: Implemented — User Stories 1–7, now against real `dine-out-backend-overture` data. Description, amenities, opening hours, and price still have no backend field and render as correctly-empty/hidden — see 2026-08-26 Changelog entry and `PROJECT.md`'s decision log. Reviews and rating are real again as of 2026-08-31, first-party this time (`reviews.md`), not Google-sourced. As of 2026-09-02: Takeaway/Delivery/Reserve stay permanently disabled (no real capability behind them), the share icon is removed, and Contact & socials is four fixed cards on-screen instead of a sheet — live-testing feedback, canonical design canvas not yet updated to match.
+**Status**: Implemented — User Stories 1–7, now against real `dine-out-backend-overture` data. Description, amenities, opening hours, and price still have no backend field and render as correctly-empty/hidden — see 2026-08-26 Changelog entry and `PROJECT.md`'s decision log. Reviews and rating are real again as of 2026-08-31, first-party this time (`reviews.md`), not Google-sourced. As of 2026-09-02: the share icon is removed, and Contact & socials is four fixed cards on-screen instead of a sheet — live-testing feedback, canonical design canvas not yet updated to match. As of 2026-10-05: contact cards, the Instagram button, the address, and Takeaway/Delivery open real external links (`deliveryLinks`, `whatsappUrl` from `dine-out-backend`); Reserve stays disabled. Device verification pending.
 **Design reference**: `App Flow.dc.html`, frame "2 · Restaurant Detail"
 
 ## Summary
@@ -29,16 +29,20 @@ A user who tapped a restaurant card sees a photo gallery, the restaurant's name,
 
 ### User Story 2 - Take a quick action on the restaurant (Priority: P1) — Implemented
 
-A user who has decided this restaurant is worth pursuing can see the menu, when one exists. Takeaway/Delivery/Reserve stay visibly disabled — see 2026-09-02 Changelog entry: the app has no real partner links or reservation system, so a live sheet for them would only simulate a capability that doesn't exist.
+A user who has decided this restaurant is worth pursuing can see the menu, when one exists, and order through the restaurant's delivery platforms, when it lists any. Reserve stays disabled: no reservation system exists.
 
-**Independent test**: on `/restaurant/[id]`, a restaurant with menu items shows Menu enabled and Takeaway/Delivery/Reserve disabled; a restaurant with none shows all four disabled. Tapping "Menu" when enabled opens a sheet listing items with prices; tapping a disabled action does nothing.
+**Independent test**: on `/restaurant/[id]`, Menu is enabled only with menu items; Takeaway/Delivery are enabled only with at least one delivery link; Reserve is always disabled. One delivery link opens directly; several open a platform sheet. Tapping a disabled action does nothing.
 
 **Acceptance scenarios**:
 
 1. **Given** the detail screen, **when** the restaurant has at least one menu item, **then** "Menu" renders enabled and tapping it opens a sheet listing items with prices.
 2. **Given** the detail screen, **when** the restaurant has no menu items, **then** "Menu" renders disabled and does not respond to a tap.
-3. **Given** the detail screen, **when** it renders, **then** "Takeaway," "Delivery," and "Reserve" always render disabled, regardless of restaurant.
+3. **Given** the detail screen, **when** it renders, **then** "Reserve" always renders disabled, regardless of restaurant.
 4. **Given** the Menu sheet is open, **when** the user taps outside it or its close control, **then** it closes without affecting the underlying screen's state.
+5. **Given** a restaurant with no delivery links, **when** the screen renders, **then** "Takeaway" and "Delivery" render disabled.
+6. **Given** a restaurant with exactly one delivery link, **when** the user taps "Takeaway" or "Delivery," **then** that link opens in the platform's app or browser.
+7. **Given** a restaurant with several delivery links, **when** the user taps "Takeaway" or "Delivery," **then** a sheet lists the platforms by name; tapping one opens its link and closes the sheet.
+8. **Given** a link no installed app can open, **when** the user taps it, **then** an alert reports that it couldn't be opened.
 
 ---
 
@@ -54,8 +58,10 @@ A user weighing whether to go can check what the place offers, when it's open, a
 2. **Given** the amenities preview, **when** the user taps "show all N amenities," **then** a sheet opens listing every amenity.
 3. **Given** the detail screen, **when** the user taps "Opening Hours," **then** a sheet opens showing hours for every day of the week.
 4. **Given** the detail screen, **when** it renders, **then** a "Things to know" section shows title+text pairs without requiring a tap.
-5. **Given** the detail screen, **when** it renders, **then** a tappable address opens a sheet offering to open the location in a maps app.
-6. **Given** the detail screen, **when** it renders, **then** a "How to reach them" section shows four cards directly on the screen — Phone, Website, Social, WhatsApp — each simulating a redirect on tap when data exists; see 2026-09-02 Changelog entry.
+5. **Given** the detail screen on Android, **when** the user taps the address, **then** a `geo:` link opens the OS app chooser for maps apps.
+6. **Given** the detail screen on iOS, **when** the user taps the address, **then** a sheet lists Apple Maps plus each installed supported app (Google Maps, Waze); with Apple Maps as the only option, it opens directly.
+7. **Given** the detail screen on web, **when** the user taps the address, **then** a Google Maps search opens in the browser.
+8. **Given** the detail screen, **when** it renders, **then** a "How to reach them" section shows four cards directly on the screen — Phone, Website, Social, WhatsApp; tapping a card with data opens its target (dialer, browser, Instagram/social link, WhatsApp chat).
 
 ---
 
@@ -76,14 +82,14 @@ A user checks social proof — what other people say, and the standout qualities
 
 ### User Story 5 - Browse the restaurant's Instagram (Priority: P3) — Implemented
 
-A user curious about the vibe can see a preview of the restaurant's Instagram grid and toggle following it.
+A user curious about the vibe can open the restaurant's Instagram profile.
 
-**Independent test**: confirm the Instagram handle and a photo grid render; tap "Follow," confirm the label flips to "Following" and back on a second tap.
+**Independent test**: confirm the Instagram handle renders; tap "Open on Instagram," confirm the profile opens in the Instagram app or browser.
 
 **Acceptance scenarios**:
 
-1. **Given** the detail screen, **when** it renders, **then** the restaurant's Instagram handle and a grid of preview photos show.
-2. **Given** the Instagram section, **when** the user taps "Follow," **then** the button's label and style change to "Following"; tapping again reverts it. Local UI state only, no real Instagram integration.
+1. **Given** a restaurant with an Instagram handle, **when** the screen renders, **then** the handle and an "Open on Instagram" button show; without a handle, the section is hidden.
+2. **Given** the Instagram section, **when** the user taps "Open on Instagram," **then** `https://www.instagram.com/<handle>` opens (leading `@` stripped).
 
 ---
 
@@ -130,28 +136,31 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **FR-002**: The system MUST display a photo gallery with next/previous navigation and a position counter, when the restaurant has more than one photo.
 - **FR-003**: The system MUST truncate long descriptions with a "see more" affordance that expands to the full text on tap, and collapses again on a second tap.
 - **FR-004**: The user MUST be able to navigate back to the previous screen; if none exists, back MUST navigate to Home.
-- **FR-005**: The system MUST provide four quick actions — Menu, Takeaway, Delivery, Reserve — Menu enabled (opens a sheet) only when the restaurant has at least one menu item; Takeaway/Delivery/Reserve always disabled, no backend field backs any of them.
+- **FR-005**: The system MUST provide four quick actions — Menu, Takeaway, Delivery, Reserve. Menu is enabled (opens a sheet) only when the restaurant has at least one menu item. Takeaway and Delivery are enabled only when `deliveryLinks` is non-empty and share the same links: one link opens directly, several open a sheet listing platforms by name. Reserve is always disabled.
 - **FR-006**: The Menu sheet MUST list menu items with their prices.
-- **FR-007**: Removed 2026-09-02 — Takeaway/Delivery no longer open a sheet; see FR-005.
+- **FR-007**: Superseded 2026-10-05 by FR-005 (delivery-platform sheet).
 - **FR-008**: Removed 2026-09-02 — Reserve no longer opens a sheet; see FR-005.
 - **FR-009**: The system MUST display a capped preview of amenities with an option to view the full list.
 - **FR-010**: The system MUST display the restaurant's opening hours for all seven days of the week on request.
 - **FR-011**: The system MUST display a "Things to know" section without requiring a tap.
 - **FR-012**: The system MUST display the overall rating and one preview review, with an option to view all reviews.
 - **FR-013**: The system MUST display a row of highlight badges.
-- **FR-014**: The system MUST display the restaurant's Instagram handle, a preview photo grid, and a toggleable Follow/Following control — local UI state only.
+- **FR-014**: The system MUST display the restaurant's Instagram handle and an "Open on Instagram" control that opens the profile URL derived from the handle.
 - **FR-015**: The system MUST display a "Similar Places" rail; tapping an entry MUST navigate to that restaurant's own detail screen, replacing the current screen (`router.replace`).
 - **FR-016**: The user MUST be able to toggle a restaurant's favorited state from the detail screen, reading and writing the shared favorites store defined in `favorites.md`.
-- **FR-017**: The system MUST display four fixed contact cards directly on the screen — Phone, Website, Social (Instagram if present, else the first social link), WhatsApp — each showing its real value and simulating a redirect on tap, or "Not provided" and disabled when that channel is absent. Social shows a human platform label (e.g. "Facebook"), not the raw URL.
+- **FR-017**: The system MUST display four fixed contact cards directly on the screen — Phone (`tel:` of `phones[0]`), Website (`websites[0]`), Social (Instagram profile URL if `instagramHandle`, else `socialLinks[0]`), WhatsApp (`whatsappUrl`) — each showing a readable value and opening its URL on tap, or "Not provided" and disabled when that channel is absent. Social shows a human platform label (e.g. "Facebook"). The app does not classify links; `websites`/`socialLinks`/`deliveryLinks`/`whatsappUrl` arrive classified from the backend.
 - **FR-020**: The system MUST display a visible empty state (icon + "No reviews yet" + an "Add a review" control that opens the review submission sheet) when a restaurant has zero reviews, in place of hiding the section. Also present, not conditional on the empty state, in the populated view (US4, scenario 2's "view all N reviews" trigger sits alongside it) — submission itself is `reviews.md`'s contract.
 - **FR-021**: The system MUST display the restaurant's own category and any alternate categories as a humanized chip row (`snake_case` → `Title Case`), visually distinct from owner-authored tags.
 - **FR-022**: The system MUST display a "Part of {brandName}" badge near the restaurant name when the restaurant has a non-null `brandName`.
-- **FR-018**: The system MUST display a tappable address that opens a sheet offering to open the location in a maps app.
+- **FR-023**: The system MUST show an alert when an external URL cannot be opened.
+- **FR-018**: The system MUST display a tappable address that opens the location in a maps app: Android via a `geo:` URL (OS chooser); iOS via a sheet of Apple Maps plus installed Google Maps/Waze, opening directly when only one option exists; web via a Google Maps search URL.
 - **FR-019**: Removed 2026-09-02 — the share icon was a fully fake action (`Alert.alert` only); removed rather than kept as a non-functional placeholder. Real sharing is deferred, not scheduled.
 
 ### Key Entities
 
-- **RestaurantDetail**: extends the base `Restaurant` shape with `photos` (gallery), `description`, `tags`, `category`, `categoryAlternates`, `brandName`, `addressShort`, `reviewCount`, `amenities`, `highlights`, `thingsToKnow`, `instagramHandle`, `reviews`, `openingHours`, `phones`, `whatsapp`, `websites`, `socialLinks`.
+- **RestaurantDetail**: extends the base `Restaurant` shape with `photos` (gallery), `description`, `tags`, `category`, `categoryAlternates`, `brandName`, `addressShort`, `reviewCount`, `amenities`, `highlights`, `thingsToKnow`, `instagramHandle`, `reviews`, `openingHours`, `phones`, `whatsappUrl`, `websites`, `socialLinks`, `deliveryLinks`.
+- **DeliveryLink**: `platform` (`ifood` | `anota_ai` | `goomer` | `rappi`) + `url`. Classified server-side.
+- **whatsappUrl**: a ready-to-open `wa.me`/`api.whatsapp.com` URL resolved server-side (owner field > explicit link > BR mobile phone), or `null`. The raw wire `whatsapp` field is not mapped into `RestaurantDetail`.
 - **MenuItem**: name, price (display string, not a structured currency amount).
 - **Review**: a first-party review — reviewer's account name, star rating, text, submission timestamp. Contract owned by `reviews.md`; this spec only displays it.
 - **Amenity**: an icon + label pair.
@@ -171,25 +180,30 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 - **Shared `src/components/ui/` component**: `PhotoCarousel` (gallery with next/previous + counter).
 - **US3 components** (`features/restaurant/components/`): `InfoActionsRow` ("How to reach them" — four fixed contact cards rendered directly on screen, no sheet; see 2026-09-02 Changelog entry), `ThingsToKnowSection` (always visible, no sheet).
 - **US4 components**: `ReviewsSection` (rating header, preview review, "view all N reviews" trigger, an `onAddReview` callback prop for the "Add a review" trigger — guards logged-out taps itself via `useAuthStore`, same `Alert` pattern as `favorites.md`'s toggle; renders a visible empty state when `reviews.length === 0`) + `ReviewsSheetContent`, `HighlightsRow` (always visible, no sheet). `ReviewsSection` does not import `reviews.md`'s submission form directly — same "features never import each other" rule as US6 below; `app/restaurant/[id].tsx` owns the sheet and passes `onAddReview` down.
-- **US5 component**: `InstagramSection` — handle, Follow/Following toggle (local `useState`), 3-column photo grid.
+- **US5 component**: `InstagramSection` — handle and an "Open on Instagram" button.
+- **External links**: `src/features/restaurant/lib/externalLinks.ts` — `openExternalUrl` (`expo-linking`'s `openURL`; resolves `false` and shows an `Alert` on rejection), `toTelUrl`, `toInstagramUrl`, `resolveMapOptions` (sole `Platform.OS` branch for map targets; iOS filters Google Maps/Waze via `canOpenURL`, a rejected check counting as not installed), `LinkOption` type.
+- **Link chooser**: `hooks/useLinkChooser.ts` — one option opens directly, several are exposed for a sheet; ignores taps while resolving and skips opening after unmount. `components/LinkChooserSheet.tsx` (`BottomSheet` + `RedirectOptionsSheetContent`, closes after a successful open) serves both `ActionGrid`'s delivery sheet and `AddressLink` (address → maps, US3).
+- **iOS query schemes**: `app.json`'s `expo.ios.infoPlist.LSApplicationQueriesSchemes` = `comgooglemaps`, `waze`, required for `canOpenURL`. Takes effect only in a new native build.
 - **Reuses from `src/components/ui/`**: `RestaurantCard`, `HorizontalRail` (Similar Places rail), `BottomSheet` (every quick-action and info sheet), `RatingBadge`.
 - **US6**: `app/restaurant/[id].tsx` reuses `useRestaurantsQuery` (from `features/search/api`) and filters client-side by cuisine, excluding the current id, capped at 3 — route-level composition, not a feature-to-feature import. `SimilarPlacesSection` returns `null` if zero candidates.
 - **Reuses from `src/components/layout/`**: `SearchBar`, overlaid on the photo gallery. Does not reuse `SideMenu` — this screen's header icon stack (favorite only, since 2026-09-02) is screen-specific, built in `DetailHeaderActions.tsx`.
 - **Global state**: reads and writes `src/stores/favorites.ts` (contract defined in `favorites.md`) for User Story 7.
 - **Types**: `RestaurantDetail`, `MenuItem`, `Review`, `Amenity`, `ThingToKnow`, `OpeningHours` in `src/features/restaurant/types/`. `RestaurantDetail` extends the shared `Restaurant` from `src/types/restaurant.ts`.
 - **Mocks**: `src/mocks/restaurantDetails.ts`, keyed by place id, composed from `src/mocks/restaurants.ts`'s 30 base places plus detail-only fields. `useRestaurantDetailQuery(id)` calls the Google Places API (New) Place Details contract, resolves photo references through the same two-hop flow as the list, normalizes to `RestaurantDetailSchema`.
-- **US3 wire contract**: `regularOpeningHours.weekdayDescriptions`, `internationalPhoneNumber`, curated Google boolean amenity fields, mapped to `Amenity` icon+label pairs via a presentation-only lookup table. `whatsapp`/`instagramHandle`/`thingsToKnow` stay custom.
+- **US3 wire contract**: `regularOpeningHours.weekdayDescriptions`, `internationalPhoneNumber`, curated Google boolean amenity fields, mapped to `Amenity` icon+label pairs via a presentation-only lookup table. `whatsappUrl` (backend-resolved)/`instagramHandle`/`thingsToKnow` stay custom.
 - **US4 wire contract**: `reviews[]`/`averageRating`/`reviewCount` come from `dine-out-backend`'s first-party `Review` model (`reviews.md`, capped at the 20 most recent), not Google. `highlights` stays custom.
-- **US5**: Instagram has no Google Places equivalent — `instagramPhotos` (plain URLs) is fully custom.
-- **Category/contact labeling**: `src/features/restaurant/lib/labels.ts` — `humanizeCategory` (`snake_case` → `Title Case`, mirrors the backend's own `humanizeCategory()` in `dine-out-backend-overture/src/restaurants/taxonomies.data.ts`), `getSocialLinkLabel`/`getSocialLinkIcon` (hostname → platform name/icon, `facebook.com`/`instagram.com` mapped explicitly, else bare hostname), `getWebsiteLabel` (bare hostname).
+- **US5**: `instagramHandle` only; no Google Places equivalent.
+- **Category/contact labeling**: `src/features/restaurant/lib/labels.ts` — `humanizeCategory` (`snake_case` → `Title Case`, mirrors the backend's own `humanizeCategory()` in `dine-out-backend-overture/src/restaurants/taxonomies.data.ts`), `getSocialLinkLabel`/`getSocialLinkIcon` (hostname → platform name/icon, `facebook.com`/`instagram.com` mapped explicitly, else bare hostname), `getWebsiteLabel` (bare hostname), `DELIVERY_PLATFORM_LABELS` (`Record<DeliveryPlatform, string>`; a new backend platform is a compile error until labeled).
 - **New dependencies**: `zod`. `PhotoCarousel` uses a plain `ScrollView` and local state, no third-party carousel library.
 
 ## Out of Scope
 
 - Real menu ordering / checkout flow — Menu is read-only.
-- Real takeaway/delivery partner integration — the actions stay disabled until one exists (2026-09-02).
+- In-app ordering or partner API integration — Takeaway/Delivery only link out to the platform.
+- Separate takeaway links — Takeaway reuses `deliveryLinks`.
 - A real reservation system — Reserve stays disabled until one exists (2026-09-02).
 - Real Instagram API/OAuth integration.
+- Client-side link classification — owned by the backend.
 - Writing or submitting new reviews — mechanism owned by `reviews.md`; this spec owns only the display surfaces (`ReviewsSection`, `ReviewsSheetContent`) and the trigger that opens the submission sheet, mirroring how `favorites.md` owns the favorite toggle's actual mechanism while this spec owns the like icon (User Story 7).
 - Real distance-to-user calculation (depends on `src/stores/location.ts`, not yet implemented).
 - A map preview on this screen (`search.md`).
@@ -224,3 +238,4 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 | 2026-08-27 | `photos` no longer hardcoded to `[]`: `useRestaurantDetailQuery.ts` now threads the wire's `photoUrl` into `photos: [wire.photoUrl]` (`dine-out-backend-overture`'s `Restaurant.photoUrl`, FR-028–FR-031 there). `PhotoCarousel` needed zero code changes — its truthy/falsy branch on `photos.length` already handled this correctly. Verified live against the real backend: `PhotoCarousel` renders an actual stock photo instead of "No photos available" for restaurants that previously showed the empty state. |
 | 2026-08-31 | US4's `Review`/rating/reviews are real again, first-party this time (not Google): `useRestaurantDetailQuery.ts` threads `wire.reviews`/`wire.averageRating`/`wire.reviewCount` (`dine-out-backend`'s new `specs/reviews.md`) instead of the hardcoded `reviews: []`. FR-020's "Add a review" control is functional — opens the submission form specced in `reviews.md` (mechanism there; this spec keeps only the display + an `onAddReview` trigger prop, threaded from `app/restaurant/[id].tsx`). `ReviewsSection`/`ReviewsSheetContent` updated from the old `{name, time}` shape to `{userName, createdAt}`. Verified live. |
 | 2026-09-02 | Live device-testing feedback, three deliberate changes (FR-005–FR-008, FR-017, FR-019): (1) `ActionGrid` — Takeaway/Delivery/Reserve have no real per-restaurant data by design (same simulated options for every restaurant) and now render permanently disabled instead of opening a sheet that simulates a capability the app doesn't have; Menu stays gated on `menu.length > 0`. `ReserveSheetContent` deleted (no longer reachable); `RedirectOptionsSheetContent` stays (still used by the address sheet). (2) `DetailHeaderActions` — removed the fully-fake share icon (`Alert.alert` only); favorite stays. (3) `InfoActionsRow` rebuilt from a single "Contact & socials" button-that-opens-a-sheet into a "How to reach them" section with four fixed cards (Phone/Website/Social/WhatsApp) rendered directly on screen — missing channels show "Not provided" and render disabled rather than being omitted. This supersedes the 2026-08-26 revert of the same inline-layout idea, which was reverted that day for contradicting the canonical design canvas (`App Flow.dc.html`'s `screenshots/02-detail.png`); this time the direction is confirmed by a session mockup, but the canonical canvas itself has not been updated to match — do that before trusting the canvas over this spec for this screen. `npx tsc --noEmit`, `npx biome lint .`, `npx jest` (71 tests) clean; verified live on a physical Android device via `eas build --local`. |
+| 2026-10-05 | Deep links (FR-005, FR-014, FR-017, FR-018, FR-023). Depends on `dine-out-backend` FR-032–FR-036: `deliveryLinks`, `whatsappUrl`, `instagramHandle` fallback from an instagram.com link, delivery/WhatsApp links removed from `websites`/`socialLinks`. New `lib/externalLinks.ts`, `hooks/useLinkChooser.ts`, `components/LinkChooserSheet.tsx`, `components/AddressLink.tsx`; `DELIVERY_PLATFORM_LABELS` in `lib/labels.ts`. Contact cards, Instagram button, address, Takeaway/Delivery open real URLs; demo `Alert`s removed. `RestaurantDetail.whatsapp` replaced by `whatsappUrl`. `app.json` gains `LSApplicationQueriesSchemes` (`comgooglemaps`, `waze`). `npx tsc --noEmit`, `npx biome lint .`, `npx jest` (96 tests) clean. Device verification (Android chooser, iOS sheet, new native build) pending. |

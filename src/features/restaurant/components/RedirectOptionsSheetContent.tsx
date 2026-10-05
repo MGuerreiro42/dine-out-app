@@ -1,25 +1,26 @@
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import { Icon, type IconSpec } from '@/components/ui';
-
-type RedirectOption = {
-  icon: IconSpec;
-  label: string;
-};
+import { Icon } from '@/components/ui';
+import { type LinkOption, openExternalUrl } from '@/features/restaurant/lib/externalLinks';
 
 type RedirectOptionsSheetContentProps = {
   title: string;
-  options: RedirectOption[];
+  options: LinkOption[];
+  onOpened: () => void;
 };
 
-export function RedirectOptionsSheetContent({ title, options }: RedirectOptionsSheetContentProps) {
+export function RedirectOptionsSheetContent({ title, options, onOpened }: RedirectOptionsSheetContentProps) {
   return (
     <View>
       <Text className="mb-md text-lg font-bold text-ink">{title}</Text>
       {options.map((option) => (
         <Pressable
-          key={option.label}
-          onPress={() => Alert.alert('Demo', `Would redirect to ${option.label}`)}
+          key={option.url}
+          onPress={async () => {
+            if (await openExternalUrl(option.url)) {
+              onOpened();
+            }
+          }}
           className="mb-sm2 flex-row items-center gap-sm2 rounded-lg bg-sand-light p-md"
         >
           <Icon spec={option.icon} />

@@ -37,6 +37,8 @@ const WIRE_DETAIL: WireRestaurantDetail = {
   phones: ['+551156962828'],
   websites: ['http://www.habibs.com.br'],
   socialLinks: ['https://www.facebook.com/293209384107819'],
+  deliveryLinks: [{ platform: 'ifood', url: 'https://www.ifood.com.br/delivery/sao-paulo-sp/habibs' }],
+  whatsappUrl: 'https://wa.me/5511956962828',
   categoryAlternates: ['restaurant', 'diner'],
   categoryHierarchy: ['food_and_drink', 'casual_eatery', 'fast_food_restaurant'],
   postalCode: '03190-160',
@@ -53,7 +55,7 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('threads phones, websites, socialLinks, categoryAlternates, categoryHierarchy and brandName through to the domain type', async () => {
+test('threads contact, delivery, category and brand fields through to the domain type', async () => {
   jest.spyOn(repository, 'getPlaceDetails').mockResolvedValueOnce(WIRE_DETAIL);
 
   const { result } = await renderHook(() => useRestaurantDetailQuery(28379), { wrapper: createWrapper() });
@@ -64,6 +66,8 @@ test('threads phones, websites, socialLinks, categoryAlternates, categoryHierarc
     phones: ['+551156962828'],
     websites: ['http://www.habibs.com.br'],
     socialLinks: ['https://www.facebook.com/293209384107819'],
+    deliveryLinks: [{ platform: 'ifood', url: 'https://www.ifood.com.br/delivery/sao-paulo-sp/habibs' }],
+    whatsappUrl: 'https://wa.me/5511956962828',
     categoryAlternates: ['restaurant', 'diner'],
     categoryHierarchy: ['food_and_drink', 'casual_eatery', 'fast_food_restaurant'],
     category: 'fast_food_restaurant',

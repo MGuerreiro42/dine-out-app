@@ -1,4 +1,5 @@
 import type { IconSpec } from '@/components/ui';
+import type { DeliveryPlatform } from '@/features/restaurant/types';
 
 export function humanizeCategory(category: string): string {
   return category
@@ -41,3 +42,10 @@ export function getSocialLinkIcon(url: string): IconSpec {
 export function getWebsiteLabel(url: string): string {
   return getHostname(url) ?? url;
 }
+
+export const DELIVERY_PLATFORM_LABELS: Record<DeliveryPlatform, string> = {
+  ifood: 'iFood',
+  anota_ai: 'anota.ai',
+  goomer: 'Goomer',
+  rappi: 'Rappi',
+};
