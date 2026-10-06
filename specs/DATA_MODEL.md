@@ -60,6 +60,7 @@ Opening hours, review text/timestamp, and photo URLs are fetched live from Googl
 | `occasion`, `ambient` | string, nullable | Product-authored, no Overture equivalent. Null until an ownership claim sets them (`ARCHITECTURE.md` §9) — see the unclaimed-row open question above. |
 | `tags` | string[] | Product-authored. |
 | `whatsapp`, `instagramHandle` | string, nullable | Product-authored. |
+| `whatsappUrl`, `deliveryLinks` | — | Not persisted: derived by the backend at read time from `whatsapp`/`phones`/`websites`/`socialLinks` (`dine-out-backend` FR-032–FR-036). |
 | `photoUrl` | string, non-nullable | Ingestion-assigned, not Google-sourced and not product-authored: drawn once, randomly, from the restaurant's cuisine bucket's 5-photo stock pool at first ingestion; excluded from every later re-ingestion's upsert so it never reassigns. A stock fallback, not real per-restaurant photography. Backfilled across all 41,205 rows and confirmed `NOT NULL`. `dine-out-backend-overture`'s `specs/restaurants.md` FR-028–FR-031. |
 | `ownerId` | FK → `User`, nullable | Set on an approved ownership claim — `ARCHITECTURE.md` §9. |
 | `createdAt`, `updatedAt` | timestamp | |

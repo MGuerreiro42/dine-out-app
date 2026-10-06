@@ -97,17 +97,16 @@ Cross-feature index, not a feature spec — shows how screens chain together for
 6c. Tap "ver mais"/"ver menos" → description expands/collapses — **Implemented**.
 6d. Tap the back control → previous screen, or Home if there is none (`canGoBack()` guard) — **Implemented**.
 6e. Tap "Menu" → sheet listing items + prices — **Implemented**.
-6f. Tap "Takeaway" → sheet, simulated redirect options — **Implemented**.
-6g. Tap "Delivery" → sheet, simulated redirect options — **Implemented**.
-6h. Tap "Reserve" → sheet, simulated confirm action — **Implemented**.
+6f. Tap "Takeaway" → one delivery link opens directly, several open a platform sheet — `restaurant.md` US2 — **Implemented**.
+6g. Tap "Delivery" → same as 6f — `restaurant.md` US2 — **Implemented**.
+6h. "Reserve" renders disabled — `restaurant.md` US2 — **Implemented**.
 6i. Tap "show all N amenities" → sheet — **Implemented**.
 6j. Tap "Opening Hours" → sheet, 7-day schedule — **Implemented**.
-6k. Tap "Contact & socials" → sheet (call/WhatsApp/Instagram, simulated redirects) — **Implemented**.
-6l. Tap the address → sheet, simulated "open in maps" — **Implemented**.
+6k. Tap one of the four contact cards → dialer, browser, social profile, or WhatsApp opens — `restaurant.md` US3 — **Implemented**.
+6l. Tap the address → location opens in a maps app — `restaurant.md` FR-018 — **Implemented**.
 6m. Tap "view all N reviews" → sheet — **Implemented**.
-6n. Tap Instagram "Follow" → toggles Following (local state only) — **Implemented**.
+6n. Tap "Open on Instagram" → the profile opens — `restaurant.md` US5 — **Implemented**.
 6o. Tap a Similar Places card → back to **Flow 6** for that restaurant, replacing the current screen (not stacking) — **Implemented**.
-6s. Tap the header share icon → simulated feedback — **Implemented**.
 6t. Tap the like/favorite icon → toggles the global favorites store, reflected in **Flow 9** — **Implemented** (`restaurant.md` US7, via `DetailHeaderActions.tsx`).
 
 ---

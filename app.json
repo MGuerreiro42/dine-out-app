@@ -9,7 +9,13 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.miguelguerreiro.dineoutapp"
+      "bundleIdentifier": "com.miguelguerreiro.dineoutapp",
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "comgooglemaps",
+          "waze"
+        ]
+      }
     },
     "android": {
       "package": "com.miguelguerreiro.dineoutapp",

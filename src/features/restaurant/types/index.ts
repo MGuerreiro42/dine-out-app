@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
+import { DeliveryLinkSchema } from '@/lib/api';
 import { RestaurantSchema } from '@/types';
+
+export type { DeliveryLink, DeliveryPlatform } from '@/lib/api';
 
 export const MenuItemSchema = z.object({
   id: z.number(),
@@ -43,10 +46,11 @@ export const RestaurantDetailSchema = RestaurantSchema.extend({
   menu: z.array(MenuItemSchema),
   thingsToKnow: z.array(ThingToKnowSchema),
   phones: z.array(z.string()),
-  whatsapp: z.string().nullable(),
+  whatsappUrl: z.string().nullable(),
   instagramHandle: z.string().nullable(),
   websites: z.array(z.string()),
   socialLinks: z.array(z.string()),
+  deliveryLinks: z.array(DeliveryLinkSchema),
   categoryAlternates: z.array(z.string()),
   categoryHierarchy: z.array(z.string()),
   brandName: z.string().nullable(),

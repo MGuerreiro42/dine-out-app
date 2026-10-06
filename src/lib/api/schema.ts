@@ -68,12 +68,23 @@ export const ReviewSchema = z.object({
   createdAt: z.string(),
 });
 
+export const DeliveryPlatformSchema = z.enum(['ifood', 'anota_ai', 'goomer', 'rappi']);
+export type DeliveryPlatform = z.infer<typeof DeliveryPlatformSchema>;
+
+export const DeliveryLinkSchema = z.object({
+  platform: DeliveryPlatformSchema,
+  url: z.string(),
+});
+export type DeliveryLink = z.infer<typeof DeliveryLinkSchema>;
+
 export const RestaurantDetailSchema = RestaurantSummarySchema.extend({
   menuItems: z.array(MenuItemSchema),
   thingsToKnow: z.array(ThingToKnowSchema),
   highlights: z.array(HighlightSchema),
   phones: z.array(z.string()),
   socialLinks: z.array(z.string()),
+  deliveryLinks: z.array(DeliveryLinkSchema),
+  whatsappUrl: z.string().nullable(),
   categoryAlternates: z.array(z.string()),
   categoryHierarchy: z.array(z.string()),
   postalCode: z.string().nullable(),

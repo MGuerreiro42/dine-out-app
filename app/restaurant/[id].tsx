@@ -1,16 +1,16 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
 import { BottomSheet, ErrorState, Icon, LoadingState, PhotoCarousel } from '@/components/ui';
 import {
   ActionGrid,
+  AddressLink,
   DetailHeaderActions,
   HighlightsRow,
   InfoActionsRow,
   InstagramSection,
-  RedirectOptionsSheetContent,
   ReviewsSection,
   SimilarPlacesSection,
 } from '@/features/restaurant/components';
@@ -29,7 +29,7 @@ export default function RestaurantDetailScreen() {
   const { data: allRestaurants } = useRestaurantsQuery();
   const fromLatitude = useLocationStore((s) => s.latitude);
   const fromLongitude = useLocationStore((s) => s.longitude);
-  const [addressSheetOpen, setAddressSheetOpen] = useState(false);
+  const locationStatus = useLocationStore((s) => s.status);
   const [reviewFormOpen, setReviewFormOpen] = useState(false);
 
   if (isLoading) {
@@ -57,9 +57,8 @@ export default function RestaurantDetailScreen() {
   const hasAddress = restaurant.addressShort !== null;
   const hasInfoRow = hasRating || hasPrice || hasAddress;
   const alternateChips = restaurant.categoryAlternates.filter((category) => category !== restaurant.category);
-  const distanceLabel = formatDistanceKm(
-    haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude),
-  );
+  const distanceKm = haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude);
+  const distanceLabel = formatDistanceKm(distanceKm);
   const breadcrumb = restaurant.categoryHierarchy.map(humanizeCategory);
 
   return (
@@ -125,20 +124,26 @@ export default function RestaurantDetailScreen() {
             {hasRating && hasPrice ? <Text className="text-body text-muted">·</Text> : null}
             {hasPrice ? <Text className="text-body font-bold text-ink">{restaurant.priceLevel}</Text> : null}
             {(hasRating || hasPrice) && hasAddress ? <Text className="text-body text-muted">·</Text> : null}
-            {hasAddress ? (
-              <Pressable onPress={() => setAddressSheetOpen(true)} className="flex-row items-center gap-xs">
-                <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.inline} color={colors.rating} />
-                <Text className="text-body text-ink">{restaurant.addressShort}</Text>
-              </Pressable>
+            {restaurant.addressShort !== null ? (
+              <AddressLink
+                latitude={restaurant.latitude}
+                longitude={restaurant.longitude}
+                name={restaurant.name}
+                addressShort={restaurant.addressShort}
+              />
             ) : null}
           </View>
         ) : null}
 
-        <ActionGrid menu={restaurant.menu} />
+        <ActionGrid
+          menu={restaurant.menu}
+          deliveryLinks={restaurant.deliveryLinks}
+          distanceKm={locationStatus === 'resolved' ? distanceKm : null}
+        />
 
         <InfoActionsRow
           phones={restaurant.phones}
-          whatsapp={restaurant.whatsapp}
+          whatsappUrl={restaurant.whatsappUrl}
           instagramHandle={restaurant.instagramHandle}
           websites={restaurant.websites}
           socialLinks={restaurant.socialLinks}
@@ -160,13 +165,6 @@ export default function RestaurantDetailScreen() {
           onSelect={(similar) => router.replace(`/restaurant/${similar.id}`)}
         />
       </ScrollView>
-
-      <BottomSheet visible={addressSheetOpen} onClose={() => setAddressSheetOpen(false)}>
-        <RedirectOptionsSheetContent
-          title="Address"
-          options={[{ icon: { set: 'Ionicons', name: 'map-outline' }, label: 'Open in Google Maps' }]}
-        />
-      </BottomSheet>
 
       <BottomSheet visible={reviewFormOpen} onClose={() => setReviewFormOpen(false)}>
         <ReviewFormSheetContent restaurantId={restaurant.id} onSuccess={() => setReviewFormOpen(false)} />
