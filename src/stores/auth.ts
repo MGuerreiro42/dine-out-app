@@ -4,7 +4,6 @@ import { getCurrentUser, logoutSession, refreshSession } from '@/lib/api';
 import type { AuthUser } from '@/lib/api';
 import { setAccessToken as setApiAccessToken, setSessionExpiredHandler } from '@/lib/apiClient';
 import { clearRefreshToken, getRefreshToken, setRefreshToken } from '@/lib/secureTokenStorage';
-import { useFavoritesStore } from '@/stores/favorites';
 
 export type { AuthUser };
 
@@ -20,10 +19,12 @@ type AuthState = {
   logout: () => void;
 };
 
-function clearLocalSession(): void {
-  setApiAccessToken(null);
-  useFavoritesStore.getState().setFavoriteIds([]);
-}
+const GUEST_STATE: Pick<AuthState, 'status' | 'isLoggedIn' | 'user' | 'accessToken'> = {
+  status: 'guest',
+  isLoggedIn: false,
+  user: null,
+  accessToken: null,
+};
 
 export const useAuthStore = create<AuthState>((set) => ({
   status: 'hydrating',
@@ -34,7 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   bootstrap: async () => {
     const refreshToken = await getRefreshToken();
     if (!refreshToken) {
-      set({ status: 'guest', isLoggedIn: false, user: null, accessToken: null });
+      set(GUEST_STATE);
       return;
     }
 
@@ -46,8 +47,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ status: 'authenticated', isLoggedIn: true, user, accessToken: tokens.accessToken });
     } catch {
       await clearRefreshToken();
-      clearLocalSession();
-      set({ status: 'guest', isLoggedIn: false, user: null, accessToken: null });
+      setApiAccessToken(null);
+      set(GUEST_STATE);
     }
   },
 
@@ -59,8 +60,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     const pendingRefreshToken = getRefreshToken();
-    useFavoritesStore.getState().setFavoriteIds([]);
-    set({ status: 'guest', isLoggedIn: false, user: null, accessToken: null });
+    set(GUEST_STATE);
 
     pendingRefreshToken.then(async (refreshToken) => {
       if (refreshToken) {
@@ -74,6 +74,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 setSessionExpiredHandler(() => {
   clearRefreshToken();
-  clearLocalSession();
-  useAuthStore.setState({ status: 'guest', isLoggedIn: false, user: null, accessToken: null });
+  setApiAccessToken(null);
+  useAuthStore.setState(GUEST_STATE);
 });
