@@ -19,7 +19,7 @@ Read `specs/PROJECT.md` before any architecture-level decision (new feature, glo
 
 - **Stack**: Expo SDK 57, Expo Router (file-based, routes at `app/`), TypeScript, NativeWind v4 + Tailwind v3, TanStack Query (server state), Zustand (global client state only), `react-native-maps`.
 - **Architecture**: bulletproof-react adapted for React Native. `src/features/<name>/{api,components,hooks,stores,types}` are isolated vertical modules — **features never import each other**. `src/components/ui/` = generic primitives. `src/components/layout/` = structural app frame (search bar, side menu). `src/stores/` = state needed by more than one feature (see `favorites` in PROJECT.md's decision log for the promotion rule).
-- **Data**: everything reads from `src/mocks/` through a TanStack Query hook in each feature's `api/`. This is the seam for swapping in a real API later — never read a mock directly from a component.
+- **Data**: everything reads from `src/mocks/` through a TanStack Query hook in each feature's `api/`. This is the seam for swapping in a real API later — never read a mock directly from a component. API URL: committed `.env.development`/`.env.production`, optional gitignored `.env.local` override — see `specs/PROJECT.md` decision log (API base URL per build mode).
 - **Naming**: 100% English — folders, files, exports, variables, product name (`dine-out-app`, scheme `dineoutapp`). One exception: `app.json`'s `slug` stays `dine-out-discovery`, matching the registered EAS project (changing it locally breaks `eas init`).
 
 ## Working agreements
@@ -70,6 +70,7 @@ Machine-specific, not project bugs — kept here because they'll bite again:
 - `react-native-maps` doesn't run in Expo Go — needs a native dev build. AVD `dine_out_dev` (Android 36, Google Play x86_64) exists; boot with `npm run emulator` (`scripts/run-emulator.sh`), not directly.
 - `avdmanager` AVDs live in `~/.config/.android/avd`, but `emulator` defaults to `~/.android/avd` — `scripts/run-emulator.sh` exports `ANDROID_AVD_HOME` to fix this automatically.
 - Boot the emulator with `-gpu host`, not `swiftshader` — this machine's AMD/Mesa GPU works; `swiftshader` locked up the whole system under load. Already set in `scripts/run-emulator.sh`.
+- Android device or emulator against the local backend: `npm run android:reverse` (`adb reverse tcp:3000 tcp:3000`) after each device connect; Expo CLI reverses Metro's port itself.
 - New native/visual dependency? Get sign-off in the spec's Architecture Mapping first — don't add `react-native-svg`, `@expo/vector-icons`, etc. silently.
 
 ## Design source
