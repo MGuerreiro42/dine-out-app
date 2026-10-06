@@ -23,3 +23,5 @@ export const AMBIENT_ICONS: Record<string, IconSpec> = {
   agitated: { set: 'Ionicons', name: 'flash-outline' },
 };
 export const DEFAULT_AMBIENT_ICON: IconSpec = { set: 'Ionicons', name: 'happy-outline' };
+
+export const DEFAULT_OCCASION_ICON: IconSpec = { set: 'Ionicons', name: 'sparkles' };

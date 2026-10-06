@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { DiscoveryTaxonomiesSchema } from '@/features/search/types';
-import { getDiscoveryTaxonomies } from '@/mocks/repository';
+import { getDiscoveryTaxonomies } from '@/lib/api';
 
 export function useDiscoveryTaxonomiesQuery() {
   return useQuery({

@@ -1,8 +1,11 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
-import { RestaurantsResponseSchema as WireRestaurantsResponseSchema, mapSummaryToRestaurant } from '@/lib/api';
-import { getNearbyPlaces } from '@/mocks/repository';
+import {
+  RestaurantsResponseSchema as WireRestaurantsResponseSchema,
+  getNearbyRestaurants,
+  mapSummaryToRestaurant,
+} from '@/lib/api';
 import { useLocationStore } from '@/stores/location';
 import { RestaurantSchema } from '@/types';
 
@@ -38,7 +41,13 @@ export function useRestaurantsQuery(query?: string, filters?: RestaurantsQueryFi
     placeholderData: keepPreviousData,
     queryFn: async () => {
       const { enabled: _enabled, ...params } = filters ?? {};
-      const data = await getNearbyPlaces({ query: trimmedQuery || undefined, ...params });
+      const data = await getNearbyRestaurants({
+        latitude,
+        longitude,
+        radiusKm,
+        query: trimmedQuery || undefined,
+        ...params,
+      });
       const summaries = WireRestaurantsResponseSchema.parse(data);
 
       const restaurants = summaries.map(mapSummaryToRestaurant);

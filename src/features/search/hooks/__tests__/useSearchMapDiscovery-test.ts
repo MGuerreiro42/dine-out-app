@@ -6,8 +6,11 @@ import React from 'react';
 import type { DiscoveryTaxonomies } from '@/features/search/types';
 import { useSearchMapDiscovery } from '@/features/search/hooks/useSearchMapDiscovery';
 import type { RestaurantSummary } from '@/lib/api';
-import * as repository from '@/mocks/repository';
-import { FALLBACK_LOCATION, useLocationStore } from '@/stores/location';
+import * as restaurantsApi from '@/lib/api/restaurants';
+import * as taxonomiesApi from '@/lib/api/taxonomies';
+import { DEFAULT_RADIUS_KM, FALLBACK_LOCATION, useLocationStore } from '@/stores/location';
+
+const ANCHOR = { ...FALLBACK_LOCATION, radiusKm: DEFAULT_RADIUS_KM };
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -53,8 +56,8 @@ afterEach(() => {
 });
 
 test('omits the distance while the location is a fallback', async () => {
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   const { result } = await renderHook(() => useSearchMapDiscovery(), { wrapper: createWrapper() });
 
@@ -65,8 +68,8 @@ test('omits the distance while the location is a fallback', async () => {
 
 test('derives distance, tagline, and tags for the map result list', async () => {
   useLocationStore.setState({ status: 'resolved', source: 'manual' });
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   const { result } = await renderHook(() => useSearchMapDiscovery(), { wrapper: createWrapper() });
 
@@ -83,9 +86,9 @@ test('derives distance, tagline, and tags for the map result list', async () => 
   });
 });
 
-test('an active cuisine/occasion filter is forwarded to getNearbyPlaces with a 100 cap', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+test('an active cuisine/occasion filter is forwarded to getNearbyRestaurants with a 100 cap', async () => {
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   const { result } = await renderHook(
     () => useSearchMapDiscovery(undefined, { cuisine: 'brazilian', occasion: 'date-night' }),
@@ -95,6 +98,7 @@ test('an active cuisine/occasion filter is forwarded to getNearbyPlaces with a 1
   await waitFor(() => expect(result.current.isLoading).toBe(false));
 
   expect(nearbySpy).toHaveBeenCalledWith({
+    ...ANCHOR,
     query: undefined,
     cuisine: 'brazilian',
     occasion: 'date-night',
@@ -103,19 +107,19 @@ test('an active cuisine/occasion filter is forwarded to getNearbyPlaces with a 1
 });
 
 test('no free-text query or filter keeps the default nearby limit', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   const { result } = await renderHook(() => useSearchMapDiscovery(), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-  expect(nearbySpy).toHaveBeenCalledWith({ query: undefined });
+  expect(nearbySpy).toHaveBeenCalledWith({ ...ANCHOR, query: undefined });
 });
 
 test('a filter-chip change reports isFetching without flipping isLoading back to true, and keeps the previous results visible', async () => {
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValue(TAXONOMIES);
 
   const { result, rerender } = await renderHook(
     ({ filters }: { filters?: { cuisine?: string } }) => useSearchMapDiscovery(undefined, filters),
@@ -129,7 +133,7 @@ test('a filter-chip change reports isFetching without flipping isLoading back to
   const secondFetch = new Promise<RestaurantSummary[]>((resolve) => {
     resolveSecondFetch = resolve;
   });
-  jest.spyOn(repository, 'getNearbyPlaces').mockReturnValueOnce(secondFetch);
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockReturnValueOnce(secondFetch);
 
   rerender({ filters: { cuisine: 'brazilian' } });
 

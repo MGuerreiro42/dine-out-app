@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { login } from '@/mocks/repository';
+import { login } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth';
 
 export function useLoginMutation() {

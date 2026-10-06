@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { RestaurantDetailSchema as WireRestaurantDetailSchema, mapSummaryToRestaurant } from '@/lib/api';
-import { getPlaceDetails } from '@/mocks/repository';
+import { RestaurantDetailSchema as WireRestaurantDetailSchema, getRestaurant, mapSummaryToRestaurant } from '@/lib/api';
 import { RestaurantDetailSchema } from '@/features/restaurant/types';
 import type { RestaurantDetail } from '@/features/restaurant/types';
 
@@ -9,7 +8,7 @@ export function useRestaurantDetailQuery(id: number) {
   return useQuery({
     queryKey: ['restaurant', id],
     queryFn: async () => {
-      const data = await getPlaceDetails(String(id));
+      const data = await getRestaurant(id);
       if (!data) {
         return null;
       }

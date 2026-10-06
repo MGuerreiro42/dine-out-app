@@ -10,14 +10,14 @@ Restaurant and bar discovery app for iOS, Android, and web from a single Expo/Re
 
 ## Status
 
-Navigable prototype. No backend is deployed; every data read is served by a local mock repository whose function signatures mirror the response shapes the real backend will eventually call. The target backend — NestJS, PostgreSQL, JWT authentication, a Google Places Terms-of-Service-compliant caching strategy — is fully specified in [`specs/ARCHITECTURE.md`](./specs/ARCHITECTURE.md) but not yet built.
+Navigable app backed by a real NestJS backend (`dine-out-backend-overture`, PostgreSQL, JWT authentication, Overture Maps restaurant catalog). The app reads it through `src/lib/api/`: domain modules of plain async functions over a fetch client, with Zod wire contracts. Target backend architecture: [`specs/ARCHITECTURE.md`](./specs/ARCHITECTURE.md).
 
 ## Engineering notes
 
 - **Spec-driven development.** Every feature is specified before implementation — user stories, functional requirements, an architecture mapping, a changelog — in [`specs/`](./specs). No code ships without a written requirement behind it.
-- **Wire contract mirrors a real external API.** The mock data layer's shape reproduces the Google Places API (New)'s actual request/response contracts — Nearby Search, Text Search, Place Details, the two-hop photo-reference flow — validated against Google's current documentation. Replacing the mock repository with a real HTTP client changes no component or hook signature.
+- **Validated wire contract.** Backend responses are parsed against Zod schemas in `src/lib/api/schema.ts` and normalized to domain types in `src/lib/api/mappers.ts`; feature hooks call `src/lib/api/` domain modules and never fetch directly.
 - **Backend design accounts for third-party compliance constraints.** [`specs/ARCHITECTURE.md`](./specs/ARCHITECTURE.md) documents that Google Maps Platform's Terms of Service prohibit caching most Places content. The persistence model was corrected from an initial cache-aside design to a live pass-through pattern before any backend code was written.
-- **A runtime incompatibility diagnosed and resolved.** The original network-mocking layer (MSW) failed silently in release builds — Hermes lacks the WebSocket-related globals MSW's internals reference. Root cause was isolated via device logs from a release build; the layer was replaced with a plain in-process function repository, removing the dependency without changing any calling code.
+- **A runtime incompatibility diagnosed and resolved.** The original network-mocking layer (MSW) failed silently in release builds — Hermes lacks the WebSocket-related globals MSW's internals reference. Root cause was isolated via device logs from a release build; the layer was replaced with plain in-process async functions, which now call the real backend from `src/lib/api/`.
 
 ## Tech stack
 

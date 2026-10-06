@@ -5,7 +5,8 @@ import React from 'react';
 
 import { useFavoriteRestaurantsQuery } from '@/features/favorites/api/useFavoriteRestaurantsQuery';
 import type { RestaurantSummary } from '@/lib/api';
-import * as repository from '@/mocks/repository';
+import * as favoritesApi from '@/lib/api/favorites';
+import * as restaurantsApi from '@/lib/api/restaurants';
 import { useAuthStore } from '@/stores/auth';
 import { useFavoritesStore } from '@/stores/favorites';
 
@@ -49,15 +50,15 @@ afterEach(() => {
 
 test('reacts to favoriteIds changes without an extra mock/network call', async () => {
   useAuthStore.setState({ isLoggedIn: true });
-  jest.spyOn(repository, 'addFavorite').mockResolvedValue(undefined);
-  jest.spyOn(repository, 'removeFavorite').mockResolvedValue(undefined);
-  const getNearbyPlacesSpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(favoritesApi, 'addFavorite').mockResolvedValue(undefined);
+  jest.spyOn(favoritesApi, 'removeFavorite').mockResolvedValue(undefined);
+  const getNearbyRestaurantsSpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
 
   const { result } = await renderHook(() => useFavoriteRestaurantsQuery(), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
   expect(result.current.data).toHaveLength(0);
-  expect(getNearbyPlacesSpy).toHaveBeenCalledTimes(1);
+  expect(getNearbyRestaurantsSpy).toHaveBeenCalledTimes(1);
 
   // Favoriting a restaurant should update the filtered list on the next
   // render purely from the store's reactive `favoriteIds` dependency (see
@@ -68,7 +69,7 @@ test('reacts to favoriteIds changes without an extra mock/network call', async (
 
   await waitFor(() => expect(result.current.data).toHaveLength(1));
   expect(result.current.data?.[0]).toMatchObject({ id: 1 });
-  expect(getNearbyPlacesSpy).toHaveBeenCalledTimes(1);
+  expect(getNearbyRestaurantsSpy).toHaveBeenCalledTimes(1);
 
   // Unfavoriting removes it again, still without a new network/mock call.
   await act(async () => {
@@ -76,5 +77,5 @@ test('reacts to favoriteIds changes without an extra mock/network call', async (
   });
 
   await waitFor(() => expect(result.current.data).toHaveLength(0));
-  expect(getNearbyPlacesSpy).toHaveBeenCalledTimes(1);
+  expect(getNearbyRestaurantsSpy).toHaveBeenCalledTimes(1);
 });

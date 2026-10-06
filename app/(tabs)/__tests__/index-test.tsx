@@ -3,7 +3,8 @@ import { render, screen, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import React from 'react';
 
-import * as repository from '@/mocks/repository';
+import * as restaurantsApi from '@/lib/api/restaurants';
+import * as taxonomiesApi from '@/lib/api/taxonomies';
 import { useLocationStore } from '@/stores/location';
 
 import HomeScreen from '../index';
@@ -42,8 +43,8 @@ afterEach(() => {
 });
 
 test('renders the empty state with a radius-expansion CTA when below the max radius', async () => {
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce([]);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce([]);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   await render(<HomeScreen />, { wrapper: createWrapper() });
 
@@ -55,8 +56,8 @@ test('renders the empty state with a radius-expansion CTA when below the max rad
 
 test('renders a no-CTA empty state once the radius is already at its max', async () => {
   useLocationStore.setState({ radiusKm: 100 });
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce([]);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce([]);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   await render(<HomeScreen />, { wrapper: createWrapper() });
 
@@ -67,8 +68,8 @@ test('renders a no-CTA empty state once the radius is already at its max', async
 }, 20000);
 
 test('renders the skeleton while the initial fetch is in flight', async () => {
-  jest.spyOn(repository, 'getNearbyPlaces').mockReturnValue(new Promise(() => {}));
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockReturnValue(new Promise(() => {}));
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockReturnValue(new Promise(() => {}));
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockReturnValue(new Promise(() => {}));
 
   const { toJSON } = await render(<HomeScreen />, { wrapper: createWrapper() });
 
