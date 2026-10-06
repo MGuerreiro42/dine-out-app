@@ -65,6 +65,7 @@
     "reset-project": "node ./scripts/reset-project.js",
     "emulator": "bash ./scripts/run-emulator.sh",
     "android": "expo run:android",
+    "android:reverse": "adb reverse tcp:3000 tcp:3000",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "biome lint .",
