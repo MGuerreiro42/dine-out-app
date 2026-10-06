@@ -58,3 +58,9 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
 
   isFavorite: (id) => get().favoriteIds.has(id),
 }));
+
+useAuthStore.subscribe((state, prev) => {
+  if (prev.isLoggedIn && !state.isLoggedIn) {
+    useFavoritesStore.getState().setFavoriteIds([]);
+  }
+});
