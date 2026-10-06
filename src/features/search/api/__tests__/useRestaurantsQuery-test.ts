@@ -5,7 +5,10 @@ import React from 'react';
 
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
 import type { RestaurantSummary } from '@/lib/api';
-import * as repository from '@/mocks/repository';
+import * as restaurantsApi from '@/lib/api/restaurants';
+import { DEFAULT_RADIUS_KM, FALLBACK_LOCATION } from '@/stores/location';
+
+const ANCHOR = { ...FALLBACK_LOCATION, radiusKm: DEFAULT_RADIUS_KM };
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -59,7 +62,7 @@ afterEach(() => {
 });
 
 test('maps the nearby-places response into the domain restaurant list', async () => {
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
 
   const { result } = await renderHook(() => useRestaurantsQuery(), { wrapper: createWrapper() });
 
@@ -74,20 +77,20 @@ test('maps the nearby-places response into the domain restaurant list', async ()
   });
 });
 
-test('forwards a trimmed query to getNearbyPlaces', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce([RESTAURANTS[0]]);
+test('forwards a trimmed query to getNearbyRestaurants', async () => {
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce([RESTAURANTS[0]]);
 
   const { result } = await renderHook(() => useRestaurantsQuery(' Fogo '), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-  expect(nearbySpy).toHaveBeenCalledWith({ query: 'Fogo' });
+  expect(nearbySpy).toHaveBeenCalledWith({ ...ANCHOR, query: 'Fogo' });
   expect(result.current.data).toHaveLength(1);
   expect(result.current.data?.[0].name).toBe('Fogo & Brasa');
 });
 
 test('an empty-string query is not forwarded as an empty q param', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
 
   const { result } = await renderHook(() => useRestaurantsQuery('', { cuisine: 'brazilian', limit: 100 }), {
     wrapper: createWrapper(),
@@ -95,11 +98,11 @@ test('an empty-string query is not forwarded as an empty q param', async () => {
 
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-  expect(nearbySpy).toHaveBeenCalledWith({ query: undefined, cuisine: 'brazilian', limit: 100 });
+  expect(nearbySpy).toHaveBeenCalledWith({ ...ANCHOR, query: undefined, cuisine: 'brazilian', limit: 100 });
 });
 
-test('forwards cuisine/occasion/category/limit filters to getNearbyPlaces and keys the query on them', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce([RESTAURANTS[0]]);
+test('forwards cuisine/occasion/category/limit filters to getNearbyRestaurants and keys the query on them', async () => {
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce([RESTAURANTS[0]]);
 
   const { result } = await renderHook(
     () => useRestaurantsQuery(undefined, { cuisine: 'brazilian', occasion: 'date-night', limit: 100 }),
@@ -109,6 +112,7 @@ test('forwards cuisine/occasion/category/limit filters to getNearbyPlaces and ke
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
   expect(nearbySpy).toHaveBeenCalledWith({
+    ...ANCHOR,
     query: undefined,
     cuisine: 'brazilian',
     occasion: 'date-night',
@@ -117,7 +121,7 @@ test('forwards cuisine/occasion/category/limit filters to getNearbyPlaces and ke
 });
 
 test('does not fetch when enabled is false', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
 
   const { result } = await renderHook(() => useRestaurantsQuery(undefined, { cuisine: 'brazilian', enabled: false }), {
     wrapper: createWrapper(),
@@ -129,7 +133,7 @@ test('does not fetch when enabled is false', async () => {
 });
 
 test('does not share a cache entry between differently filtered queries', async () => {
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS).mockResolvedValueOnce([RESTAURANTS[0]]);
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS).mockResolvedValueOnce([RESTAURANTS[0]]);
 
   const wrapper = createWrapper();
   const unfiltered = await renderHook(() => useRestaurantsQuery(), { wrapper });

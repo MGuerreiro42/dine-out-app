@@ -14,6 +14,7 @@ import {
   LoadingState,
   PhotoPlaceholder,
   SectionHeader,
+  toIconSpec,
 } from '@/components/ui';
 import { RestaurantSection } from '@/features/search/components/RestaurantSection';
 import { useDebouncedValue } from '@/features/search/hooks/useDebouncedValue';
@@ -24,6 +25,7 @@ import {
   CUISINE_ICONS,
   DEFAULT_AMBIENT_ICON,
   DEFAULT_CUISINE_ICON,
+  DEFAULT_OCCASION_ICON,
 } from '@/features/search/lib/taxonomyIcons';
 import type { Occasion } from '@/features/search/types';
 import { useCarouselIndex, useSlideAnimation } from '@/hooks';
@@ -39,12 +41,12 @@ type RefineOption = RefineData['options'][number];
 
 const REFINE_HEADERS: Record<TaxonomyDimension, { heading: string; icon: IconSpec }> = {
   cuisine: { heading: 'Choose your Cuisine', icon: { set: 'Ionicons', name: 'restaurant-outline' } },
-  occasion: { heading: 'Perfect for the Occasion', icon: { set: 'Ionicons', name: 'sparkles' } },
+  occasion: { heading: 'Perfect for the Occasion', icon: DEFAULT_OCCASION_ICON },
   ambient: { heading: 'Outstanding Ambients', icon: { set: 'Ionicons', name: 'star-outline' } },
 };
 
 function refineOptionIcon(dimension: TaxonomyDimension, option: RefineOption): IconSpec {
-  if (dimension === 'occasion') return (option as Occasion).icon;
+  if (dimension === 'occasion') return toIconSpec((option as Occasion).icon, DEFAULT_OCCASION_ICON);
   if (dimension === 'cuisine') return CUISINE_ICONS[option.id] ?? DEFAULT_CUISINE_ICON;
   return AMBIENT_ICONS[option.id] ?? DEFAULT_AMBIENT_ICON;
 }

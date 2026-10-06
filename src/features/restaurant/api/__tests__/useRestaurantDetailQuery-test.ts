@@ -5,7 +5,7 @@ import React from 'react';
 
 import { useRestaurantDetailQuery } from '@/features/restaurant/api/useRestaurantDetailQuery';
 import type { RestaurantDetail as WireRestaurantDetail } from '@/lib/api';
-import * as repository from '@/mocks/repository';
+import * as restaurantsApi from '@/lib/api/restaurants';
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -56,7 +56,7 @@ afterEach(() => {
 });
 
 test('threads contact, delivery, category and brand fields through to the domain type', async () => {
-  jest.spyOn(repository, 'getPlaceDetails').mockResolvedValueOnce(WIRE_DETAIL);
+  jest.spyOn(restaurantsApi, 'getRestaurant').mockResolvedValueOnce(WIRE_DETAIL);
 
   const { result } = await renderHook(() => useRestaurantDetailQuery(28379), { wrapper: createWrapper() });
 
@@ -85,7 +85,7 @@ test('formats a real averageRating to one decimal and threads reviewCount/review
     text: 'Great food.',
     createdAt: '2026-08-31T00:00:00.000Z',
   };
-  jest.spyOn(repository, 'getPlaceDetails').mockResolvedValueOnce({
+  jest.spyOn(restaurantsApi, 'getRestaurant').mockResolvedValueOnce({
     ...WIRE_DETAIL,
     reviews: [review],
     averageRating: 4.5,
@@ -104,7 +104,7 @@ test('formats a real averageRating to one decimal and threads reviewCount/review
 });
 
 test('leaves rating null when there is no averageRating', async () => {
-  jest.spyOn(repository, 'getPlaceDetails').mockResolvedValueOnce(WIRE_DETAIL);
+  jest.spyOn(restaurantsApi, 'getRestaurant').mockResolvedValueOnce(WIRE_DETAIL);
 
   const { result } = await renderHook(() => useRestaurantDetailQuery(28379), { wrapper: createWrapper() });
 
@@ -114,7 +114,7 @@ test('leaves rating null when there is no averageRating', async () => {
 });
 
 test('resolves null when the restaurant does not exist', async () => {
-  jest.spyOn(repository, 'getPlaceDetails').mockResolvedValueOnce(null);
+  jest.spyOn(restaurantsApi, 'getRestaurant').mockResolvedValueOnce(null);
 
   const { result } = await renderHook(() => useRestaurantDetailQuery(999999), { wrapper: createWrapper() });
 

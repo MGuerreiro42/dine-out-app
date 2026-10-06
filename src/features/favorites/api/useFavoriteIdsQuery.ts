@@ -1,17 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
-import { getFavoriteIds } from '@/mocks/repository';
+import { getFavoriteIds } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth';
 import { useFavoritesStore } from '@/stores/favorites';
 
 export function useFavoriteIdsQuery() {
-  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const userId = useAuthStore((s) => s.user?.id ?? null);
 
   const query = useQuery({
-    queryKey: ['favorite-ids'],
+    queryKey: ['favorite-ids', userId],
     queryFn: getFavoriteIds,
-    enabled: isLoggedIn,
+    enabled: userId !== null,
+    // Toggles update the favorites store, not this cache; drop it once its user logs out so a re-login never replays a stale list.
+    gcTime: 0,
   });
 
   useEffect(() => {

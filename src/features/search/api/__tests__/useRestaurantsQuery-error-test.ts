@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import React from 'react';
 
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
-import * as repository from '@/mocks/repository';
+import * as restaurantsApi from '@/lib/api/restaurants';
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -17,7 +17,7 @@ function createWrapper() {
 }
 
 test('surfaces a query error when the endpoint returns a server error', async () => {
-  jest.spyOn(repository, 'getNearbyPlaces').mockRejectedValueOnce(new Error('Internal Server Error'));
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockRejectedValueOnce(new Error('Internal Server Error'));
 
   const { result } = await renderHook(() => useRestaurantsQuery(), { wrapper: createWrapper() });
 

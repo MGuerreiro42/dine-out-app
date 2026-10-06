@@ -7,7 +7,7 @@ export const FALLBACK_LOCATION = { latitude: -23.561, longitude: -46.656 };
 const FALLBACK_LABEL = 'Location unavailable';
 const GENERIC_RESOLVED_LABEL = 'Current location';
 const LOCATION_TIMEOUT_MS = 15_000;
-const DEFAULT_RADIUS_KM = 10;
+export const DEFAULT_RADIUS_KM = 10;
 
 type LocationStatus = 'resolved' | 'fallback' | 'denied';
 type LocationSource = 'gps' | 'manual';

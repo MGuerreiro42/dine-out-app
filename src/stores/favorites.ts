@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Alert } from 'react-native';
 import { create } from 'zustand';
 
-import { addFavorite, removeFavorite } from '@/mocks/repository';
+import { addFavorite, removeFavorite } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth';
 
 type FavoritesStore = {
@@ -58,3 +58,9 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
 
   isFavorite: (id) => get().favoriteIds.has(id),
 }));
+
+useAuthStore.subscribe((state, prev) => {
+  if (prev.isLoggedIn && !state.isLoggedIn) {
+    useFavoritesStore.getState().setFavoriteIds([]);
+  }
+});

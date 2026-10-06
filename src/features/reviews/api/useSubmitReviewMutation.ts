@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { submitReview } from '@/mocks/repository';
+import { submitReview } from '@/lib/api';
 
 export function useSubmitReviewMutation(restaurantId: number) {
   const queryClient = useQueryClient();

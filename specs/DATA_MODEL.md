@@ -5,7 +5,7 @@
 
 Cross-feature index, not a feature spec — same role `FLOWS.md` plays for user flows: a source of truth for the app's *persisted* entities and how they relate, citing the feature spec that owns each field's requirement. When this file and a feature spec disagree, the feature spec wins; fix this file to match. Full backend topology, auth design, and API surface: `ARCHITECTURE.md`, which owns the compliance rule below.
 
-**Why separate from the wire contract**: `src/lib/googlePlaces/schema.ts` defines a wire contract mirroring Google Places API (New), kept separate from internal domain types (`PROJECT.md`'s decision log). What a real backend persists is different again from what its API returns.
+**Why separate from the wire contract**: `src/lib/api/schema.ts` defines the wire contract of `dine-out-backend-overture`, kept separate from internal domain types and normalized by `src/lib/api/mappers.ts` (`PROJECT.md`'s decision log). What a real backend persists is different again from what its API returns.
 
 **Overture sourcing rule** (`ARCHITECTURE.md` §2/§3): the `Restaurant` catalog's base read path is populated by an offline ingestion script reading Overture Maps' Places dataset (`dine-out-backend`'s `specs/restaurants.md`), not a per-request Google fetch. Overture's CDLA Permissive 2.0 license permits indefinite retention of the full place record — `sourceId`, `source`, `category`, `confidence`, `sourceAttributes`, `lastSyncedAt`, `displayName`, `formattedAddress`, `latitude`, `longitude` are all persisted, with no TTL and no caching restriction.
 
@@ -27,7 +27,7 @@ Cross-feature index, not a feature spec — same role `FLOWS.md` plays for user 
 
 | Field | Wire contract today | Persisted model | Why |
 |---|---|---|---|
-| `cuisine`, price display (`$`/`$$$`) | Not on the wire contract as separate fields — derived at the frontend (`mapPrimaryTypeToCuisine`, `mapPriceLevel` in `src/lib/googlePlaces/mappers.ts`) | `cuisine` (frontend-derived): not stored — only `primaryType` and the real Google `priceLevel` enum are. Superseded once `Restaurant.cuisineId` (below) ships: a real, ingestion-computed, persisted, wire-exposed field, not a frontend derivation. Reconciling `mapPrimaryTypeToCuisine` with `cuisineId` is follow-up work for whenever `dine-out-app` swaps this mock for the real API, not resolved by this document. `priceLevel`: not stored, unaffected | Derive both display forms wherever needed, never store redundantly (still true for `priceLevel`; `cuisine` becomes a real column, see above). |
+| `cuisine`, price display (`$`/`$$$`) | `cuisine` maps from the wire `cuisineId` in `mapSummaryToRestaurant` (`src/lib/api/mappers.ts`); `priceLevel` has no wire field and maps to `null` | `cuisineId`: persisted, ingestion-computed column (see below). `priceLevel`: not stored | Derive display forms at the frontend, never store redundantly. |
 
 Opening hours, review text/timestamp, and photo URLs are fetched live from Google on every request and formatted into their wire shape at serve time. Not tables, not stored fields. See `ARCHITECTURE.md` §2-3.
 

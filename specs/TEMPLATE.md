@@ -99,7 +99,7 @@ resolve it before /plan.
 - **Reuses from `src/components/layout/`**: [e.g. SearchBar]
 - **Needs global state (`src/stores/`)?** [Yes/No + why. Rule: it only becomes global if more than one feature needs to read/write the same state — see the `favorites` case as precedent]
 - **Types**: what's shared (`src/types/`) vs feature-specific (`features/[slug]/types/`)?
-- **Mocks needed (`src/mocks/`)**: which files, and what changes once it becomes a real API?
+- **Data access (`src/lib/api/`)**: which domain-module functions and wire schemas does the feature call or add?
 - **New dependencies?** [package name + why it can't be solved with what's already installed — see the `react-native-maps` precedent in PROJECT.md]
 
 ## Out of Scope
@@ -117,7 +117,7 @@ resolve it before /plan.
 
 - Before coding: if the change touches more than ~3 files or involves an architecture decision not covered in the Architecture Mapping above, enter plan mode and validate with the user first.
 - Before creating a new component: check `src/components/ui/index.ts` and `src/components/layout/index.ts` — don't duplicate what already exists.
-- Implement only what's listed in the Functional Requirements above. Adjacent folders (`mocks/`, `stores/`, `hooks/` of other features) don't get logic ahead of time — that's its own spec.
+- Implement only what's listed in the Functional Requirements above. Adjacent folders (`lib/api/`, `stores/`, `hooks/` of other features) don't get logic ahead of time — that's its own spec.
 - Mandatory verification before reporting done: `npx tsc --noEmit` clean + bundle smoke test (web/iOS/Android via `curl` on the affected routes, the dev server is usually already running at `localhost:8081`).
 - On completion: update `Status` at the top of this file, fill in the Changelog below, and update the project memory with what was implemented and any new decision made along the way.
 

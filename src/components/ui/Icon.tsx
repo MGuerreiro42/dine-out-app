@@ -1,5 +1,4 @@
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { z } from 'zod';
 
 import { colors, iconSize } from '@/theme';
 
@@ -8,10 +7,15 @@ export type IconSpec =
   | { set: 'MaterialCommunityIcons'; name: keyof typeof MaterialCommunityIcons.glyphMap }
   | { set: 'MaterialIcons'; name: keyof typeof MaterialIcons.glyphMap };
 
-export const IconSpecSchema = z.object({
-  set: z.enum(['Ionicons', 'MaterialCommunityIcons', 'MaterialIcons']),
-  name: z.string(),
-}) as z.ZodType<IconSpec>;
+const GLYPH_MAPS: Record<IconSpec['set'], object> = {
+  Ionicons: Ionicons.glyphMap,
+  MaterialCommunityIcons: MaterialCommunityIcons.glyphMap,
+  MaterialIcons: MaterialIcons.glyphMap,
+};
+
+export function toIconSpec(icon: { set: IconSpec['set']; name: string }, fallback: IconSpec): IconSpec {
+  return icon.name in GLYPH_MAPS[icon.set] ? (icon as IconSpec) : fallback;
+}
 
 type IconProps = {
   spec: IconSpec;
