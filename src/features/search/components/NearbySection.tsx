@@ -1,6 +1,6 @@
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 
-import { Icon, PhotoPlaceholder } from '@/components/ui';
+import { DistanceChip, Icon, PhotoPlaceholder } from '@/components/ui';
 import type { HomeCardData } from '@/features/search/hooks/useHomeDiscovery';
 import { useFavoritesStore } from '@/stores/favorites';
 import { colors, iconSize } from '@/theme';
@@ -24,10 +24,7 @@ function NearbyCard({ restaurant, onPress }: NearbyCardProps) {
       )}
       <View className="absolute inset-0 bg-black/45" />
 
-      <View className="absolute left-sm2 top-sm2 flex-row items-center gap-xs rounded-full bg-white/95 px-sm2 py-xs">
-        <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.micro} color={colors.ink} />
-        <Text className="text-caption font-bold text-ink">{restaurant.distanceLabel}</Text>
-      </View>
+      <DistanceChip label={restaurant.distanceLabel} variant="light" />
       <Pressable
         onPress={() => toggleFavorite(restaurant.id)}
         className="absolute right-sm2 top-sm2 h-8 w-8 items-center justify-center rounded-full bg-white/95"

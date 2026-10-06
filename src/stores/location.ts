@@ -1,6 +1,8 @@
 import * as Location from 'expo-location';
 import { create } from 'zustand';
 
+import type { GeoPoint } from '@/lib/geo';
+
 export const FALLBACK_LOCATION = { latitude: -23.561, longitude: -46.656 };
 const FALLBACK_LABEL = 'Location unavailable';
 const GENERIC_RESOLVED_LABEL = 'Current location';
@@ -19,7 +21,7 @@ type LocationState = {
   source: LocationSource;
   radiusKm: number;
   resolveLocation: () => Promise<void>;
-  setManualLocation: (coords: { latitude: number; longitude: number }) => Promise<void>;
+  setManualLocation: (coords: GeoPoint) => Promise<void>;
   setRadiusKm: (km: number) => void;
 };
 

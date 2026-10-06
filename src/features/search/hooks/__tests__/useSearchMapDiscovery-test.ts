@@ -7,6 +7,7 @@ import type { DiscoveryTaxonomies } from '@/features/search/types';
 import { useSearchMapDiscovery } from '@/features/search/hooks/useSearchMapDiscovery';
 import type { RestaurantSummary } from '@/lib/api';
 import * as repository from '@/mocks/repository';
+import { FALLBACK_LOCATION, useLocationStore } from '@/stores/location';
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -48,9 +49,22 @@ const TAXONOMIES: DiscoveryTaxonomies = {
 
 afterEach(() => {
   jest.restoreAllMocks();
+  useLocationStore.setState({ ...FALLBACK_LOCATION, status: 'fallback', source: 'gps' });
+});
+
+test('omits the distance while the location is a fallback', async () => {
+  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+
+  const { result } = await renderHook(() => useSearchMapDiscovery(), { wrapper: createWrapper() });
+
+  await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+  expect(result.current.results[0].distanceLabel).toBeNull();
 });
 
 test('derives distance, tagline, and tags for the map result list', async () => {
+  useLocationStore.setState({ status: 'resolved', source: 'manual' });
   jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
   jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
@@ -63,7 +77,7 @@ test('derives distance, tagline, and tags for the map result list', async () => 
   expect(result.current.results[0]).toMatchObject({
     id: expect.any(Number),
     cuisineLabel: 'Brazilian',
-    distance: expect.stringMatching(/^(\d+ m|\d+\.\d km)$/),
+    distanceLabel: expect.stringMatching(/^(\d+ m|\d+\.\d km)$/),
     tagline: expect.any(String),
     tags: expect.arrayContaining([expect.any(String)]),
   });

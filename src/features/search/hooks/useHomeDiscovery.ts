@@ -5,7 +5,8 @@ import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
 import { interleaveByCuisine } from '@/features/search/lib/interleaveByCuisine';
 import { pickSpotlights, type Spotlight } from '@/features/search/lib/pickSpotlights';
 import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
-import { formatDistanceKm, haversineKm } from '@/lib/geo';
+import { useLocationOrigin } from '@/hooks/useLocationOrigin';
+import { distanceLabelFrom, type GeoPoint } from '@/lib/geo';
 import { useLocationStore } from '@/stores/location';
 import type { Restaurant } from '@/types';
 
@@ -13,7 +14,7 @@ export type HomeCardData = Restaurant & {
   cuisineLabel: string;
   tags: string[];
   hasDelivery: boolean;
-  distanceLabel: string;
+  distanceLabel: string | null;
 };
 
 export function deriveHomeCard(
@@ -21,8 +22,7 @@ export function deriveHomeCard(
   cuisines: Cuisine[],
   occasions: Occasion[],
   ambients: Ambient[],
-  fromLatitude: number,
-  fromLongitude: number,
+  origin: GeoPoint | null,
 ): HomeCardData {
   return {
     ...restaurant,
@@ -32,9 +32,7 @@ export function deriveHomeCard(
       occasions.find((o) => o.id === restaurant.occasion)?.label,
     ].filter((label): label is string => Boolean(label)),
     hasDelivery: restaurant.id % 3 !== 0,
-    distanceLabel: formatDistanceKm(
-      haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude),
-    ),
+    distanceLabel: distanceLabelFrom(origin, restaurant),
   };
 }
 
@@ -52,6 +50,7 @@ export function useHomeDiscovery() {
   const { data: taxonomies } = taxonomiesQuery;
   const latitude = useLocationStore((s) => s.latitude);
   const longitude = useLocationStore((s) => s.longitude);
+  const origin = useLocationOrigin();
   const radiusKm = useLocationStore((s) => s.radiusKm);
 
   const [activeCuisine, setActiveCuisineState] = useState<string | null>(null);
@@ -74,7 +73,7 @@ export function useHomeDiscovery() {
   const cuisineListData = cuisineListQuery.data ?? [];
 
   const toHomeCard = (restaurant: Restaurant) =>
-    deriveHomeCard(restaurant, cuisines, occasions, ambients, latitude, longitude);
+    deriveHomeCard(restaurant, cuisines, occasions, ambients, origin);
 
   const featured = restaurants.slice(0, 5).map(toHomeCard);
   const taglineFor = (restaurant: HomeCardData) => {

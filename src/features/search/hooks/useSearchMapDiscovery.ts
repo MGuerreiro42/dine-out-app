@@ -1,12 +1,12 @@
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api/useDiscoveryTaxonomiesQuery';
 import { useRestaurantsQuery } from '@/features/search/api/useRestaurantsQuery';
-import { formatDistanceKm, haversineKm } from '@/lib/geo';
-import { useLocationStore } from '@/stores/location';
+import { useLocationOrigin } from '@/hooks/useLocationOrigin';
+import { distanceLabelFrom, type GeoPoint } from '@/lib/geo';
 import type { Restaurant } from '@/types';
 
 export type MapResultData = Restaurant & {
   cuisineLabel: string;
-  distance: string;
+  distanceLabel: string | null;
   tagline: string;
   tags: string[];
   hasDelivery: boolean;
@@ -21,8 +21,7 @@ function toMapResult(
   cuisineLabel: string,
   occasionLabel: string,
   ambientLabel: string,
-  fromLatitude: number,
-  fromLongitude: number,
+  origin: GeoPoint | null,
 ): MapResultData {
   const tags = [ambientLabel, occasionLabel].filter((label): label is string => Boolean(label));
   const tagline = [
@@ -35,7 +34,7 @@ function toMapResult(
   return {
     ...restaurant,
     cuisineLabel,
-    distance: formatDistanceKm(haversineKm(fromLatitude, fromLongitude, restaurant.latitude, restaurant.longitude)),
+    distanceLabel: distanceLabelFrom(origin, restaurant),
     tagline,
     tags,
     hasDelivery: restaurant.id % 3 !== 0,
@@ -57,8 +56,7 @@ export function useSearchMapDiscovery(searchQuery?: string, filters?: { cuisine?
   const taxonomiesQuery = useDiscoveryTaxonomiesQuery();
   const { data: restaurants = [] } = restaurantsQuery;
   const { data: taxonomies } = taxonomiesQuery;
-  const latitude = useLocationStore((s) => s.latitude);
-  const longitude = useLocationStore((s) => s.longitude);
+  const origin = useLocationOrigin();
 
   const cuisines = taxonomies?.cuisines ?? [];
   const occasions = taxonomies?.occasions ?? [];
@@ -68,7 +66,7 @@ export function useSearchMapDiscovery(searchQuery?: string, filters?: { cuisine?
     const cuisineLabel = cuisines.find((c) => c.id === r.cuisine)?.label ?? '';
     const occasionLabel = occasions.find((o) => o.id === r.occasion)?.label ?? '';
     const ambientLabel = ambients.find((a) => a.id === r.ambient)?.label ?? '';
-    return toMapResult(r, cuisineLabel, occasionLabel, ambientLabel, latitude, longitude);
+    return toMapResult(r, cuisineLabel, occasionLabel, ambientLabel, origin);
   });
 
   return {
