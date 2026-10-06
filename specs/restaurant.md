@@ -133,7 +133,7 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 
 ## Functional Requirements
 
-- **FR-001**: The system MUST display, for the restaurant matching the route's `id`, its name, description, tags, address, price level, and rating.
+- **FR-001**: The system MUST display, for the restaurant matching the route's `id`, its name, description, tags, address, price level, and rating. The "X km from you" chip renders only for a `resolved` location (`search.md` FR-034).
 - **FR-002**: The system MUST display a photo gallery with next/previous navigation and a position counter, when the restaurant has more than one photo.
 - **FR-003**: The system MUST truncate long descriptions with a "see more" affordance that expands to the full text on tap, and collapses again on a second tap.
 - **FR-004**: The user MUST be able to navigate back to the previous screen; if none exists, back MUST navigate to Home.
@@ -243,3 +243,4 @@ A user can mark a restaurant as a favorite, or remove it, directly from the deta
 | 2026-10-05 | Deep links (FR-005, FR-014, FR-017, FR-018, FR-023). Depends on `dine-out-backend` FR-032–FR-036: `deliveryLinks`, `whatsappUrl`, `instagramHandle` fallback from an instagram.com link, delivery/WhatsApp links removed from `websites`/`socialLinks`. New `lib/externalLinks.ts`, `hooks/useLinkChooser.ts`, `components/LinkChooserSheet.tsx`, `components/AddressLink.tsx`; `DELIVERY_PLATFORM_LABELS` in `lib/labels.ts`. Contact cards, Instagram button, address, Takeaway/Delivery open real URLs; demo `Alert`s removed. `RestaurantDetail.whatsapp` replaced by `whatsappUrl`. `app.json` gains `LSApplicationQueriesSchemes` (`comgooglemaps`, `waze`). `npx tsc --noEmit`, `npx biome lint .`, `npx jest` (96 tests) clean. Device verification (Android chooser, iOS sheet, new native build) pending. |
 | 2026-10-05 | Device verification on a physical Android (Xiaomi): iFood, WhatsApp, dialer, Waze, and Google Maps links open correctly. FR-018's Android `geo:` URI changed from `geo:0,0?q=…` to `geo:<lat>,<lng>?q=…`: with a `0,0` path Waze geocoded the label instead of routing to the coordinates. Instagram handle truncated so its open button stays on screen. iOS sheet unverified. |
 | 2026-10-05 | FR-024 (US2 scenario 9): Takeaway/Delivery ask for confirmation when a resolved location is more than 15 km away. New `lib/deliveryDistance.ts`; `ActionGrid` gains `distanceKm: number \| null`. `npx tsc --noEmit`, `npx biome lint .`, `npx jest` clean. |
+| 2026-10-06 | FR-001 distance chip hidden unless the location is `resolved`; FR-024 reads the shared `useLocationOrigin` hook instead of an inline `status` check. `npx tsc --noEmit`, `npx biome lint .`, `npx jest` (105 tests) clean. |

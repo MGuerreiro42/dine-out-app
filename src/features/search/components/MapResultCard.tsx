@@ -1,6 +1,6 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
-import { Icon, PhotoPlaceholder } from '@/components/ui';
+import { DistanceChip, Icon, PhotoPlaceholder } from '@/components/ui';
 import type { MapResultData } from '@/features/search/hooks';
 import { useFavoritesStore } from '@/stores/favorites';
 import { colors, iconSize } from '@/theme';
@@ -22,10 +22,7 @@ export function MapResultCard({ restaurant, onPress }: MapResultCardProps) {
         ) : (
           <PhotoPlaceholder className="h-[110px] w-[130px]" iconSize={iconSize.ui} />
         )}
-        <View className="absolute left-sm top-sm flex-row items-center gap-xs rounded-lg bg-black/70 px-sm py-xs">
-          <Icon spec={{ set: 'Ionicons', name: 'location-outline' }} size={iconSize.micro} color={colors.white} />
-          <Text className="text-caption font-bold text-white">{restaurant.distance}</Text>
-        </View>
+        <DistanceChip label={restaurant.distanceLabel} />
         <View className="absolute right-sm top-sm flex-row gap-xs">
           <Pressable
             onPress={() => toggleFavorite(restaurant.id)}

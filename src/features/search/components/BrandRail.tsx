@@ -28,7 +28,9 @@ export function BrandRail({ restaurants, onSelectRestaurant }: BrandRailProps) {
           <Text className="text-center text-caption font-bold text-ink" numberOfLines={1}>
             {restaurant.brandName}
           </Text>
-          <Text className="text-caption text-muted">{restaurant.distanceLabel}</Text>
+          {restaurant.distanceLabel !== null ? (
+            <Text className="text-caption text-muted">{restaurant.distanceLabel}</Text>
+          ) : null}
         </Pressable>
       ))}
     </ScrollView>

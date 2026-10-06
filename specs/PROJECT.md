@@ -62,7 +62,8 @@ src/
   stores/                    # global state (favorites.ts, auth.ts, location.ts — see decision log)
   lib/                       # queryClient.ts, apiClient.ts (fetch wrapper), api/ (wire-contract schemas/mappers for dine-out-backend-overture, see decision log)
   types/                     # entities shared across features (Restaurant, UserProfile — Zod + inferred type)
-  theme/, hooks/, utils/     # placeholders, not yet specified
+  hooks/                     # shared hooks (useAnchoredMenu, useBreakpoint, useCarouselIndex, useLocationOrigin, useSlideAnimation)
+  theme/, utils/             # placeholders, not yet specified
 specs/                       # this directory — project and feature specs
 jest.config.js
 ```
