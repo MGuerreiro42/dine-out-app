@@ -6,12 +6,14 @@ import { useAuthStore } from '@/stores/auth';
 import { useFavoritesStore } from '@/stores/favorites';
 
 export function useFavoriteIdsQuery() {
-  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const userId = useAuthStore((s) => s.user?.id ?? null);
 
   const query = useQuery({
-    queryKey: ['favorite-ids'],
+    queryKey: ['favorite-ids', userId],
     queryFn: getFavoriteIds,
-    enabled: isLoggedIn,
+    enabled: userId !== null,
+    // Toggles update the favorites store, not this cache; drop it once its user logs out so a re-login never replays a stale list.
+    gcTime: 0,
   });
 
   useEffect(() => {
