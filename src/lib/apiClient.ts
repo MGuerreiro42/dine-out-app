@@ -1,13 +1,13 @@
-import { Platform } from 'react-native';
-
 import { getRefreshToken, setRefreshToken } from '@/lib/secureTokenStorage';
 
-// Android emulator's `localhost` is the emulator itself, not the host machine
-// running the backend — 10.0.2.2 is the emulator's documented alias for it.
-const DEFAULT_BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+const DEFAULT_BASE_URL = 'http://localhost:3000';
 
 function getBaseUrl(): string {
-  return process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_BASE_URL;
+  const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || (__DEV__ ? DEFAULT_BASE_URL : undefined);
+  if (!baseUrl) {
+    throw new Error('EXPO_PUBLIC_API_BASE_URL is not set');
+  }
+  return baseUrl;
 }
 
 export class ApiError extends Error {
