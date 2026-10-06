@@ -1,10 +1,9 @@
 import { create } from 'zustand';
 
-import { AuthUserSchema } from '@/lib/api';
+import { getCurrentUser, logoutSession, refreshSession } from '@/lib/api';
 import type { AuthUser } from '@/lib/api';
-import { apiGet, setAccessToken as setApiAccessToken, setSessionExpiredHandler } from '@/lib/apiClient';
+import { setAccessToken as setApiAccessToken, setSessionExpiredHandler } from '@/lib/apiClient';
 import { clearRefreshToken, getRefreshToken, setRefreshToken } from '@/lib/secureTokenStorage';
-import { logoutSession, refreshSession } from '@/mocks/repository';
 import { useFavoritesStore } from '@/stores/favorites';
 
 export type { AuthUser };
@@ -43,7 +42,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const tokens = await refreshSession(refreshToken);
       setApiAccessToken(tokens.accessToken);
       await setRefreshToken(tokens.refreshToken);
-      const user = AuthUserSchema.parse(await apiGet('/users/me'));
+      const user = await getCurrentUser();
       set({ status: 'authenticated', isLoggedIn: true, user, accessToken: tokens.accessToken });
     } catch {
       await clearRefreshToken();

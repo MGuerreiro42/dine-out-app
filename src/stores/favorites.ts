@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Alert } from 'react-native';
 import { create } from 'zustand';
 
-import { addFavorite, removeFavorite } from '@/mocks/repository';
+import { addFavorite, removeFavorite } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth';
 
 type FavoritesStore = {

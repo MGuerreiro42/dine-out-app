@@ -2,9 +2,9 @@ import { useRouter } from 'expo-router';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/layout';
-import { ErrorState, Icon, type IconSpec, LoadingState, PhotoPlaceholder } from '@/components/ui';
+import { ErrorState, Icon, type IconSpec, LoadingState, PhotoPlaceholder, toIconSpec } from '@/components/ui';
 import { useDiscoveryTaxonomiesQuery } from '@/features/search/api';
-import { AMBIENT_ICONS, DEFAULT_AMBIENT_ICON } from '@/features/search/lib/taxonomyIcons';
+import { AMBIENT_ICONS, DEFAULT_AMBIENT_ICON, DEFAULT_OCCASION_ICON } from '@/features/search/lib/taxonomyIcons';
 import type { Ambient, Cuisine, Occasion } from '@/features/search/types';
 import { colors, iconSize } from '@/theme';
 
@@ -25,7 +25,7 @@ type TypeOverviewItem = Cuisine | Occasion | Ambient;
 
 function getIconSpec(dimension: TypeOverviewDimension, item: TypeOverviewItem): IconSpec {
   if (dimension === 'occasion') {
-    return (item as Occasion).icon;
+    return toIconSpec((item as Occasion).icon, DEFAULT_OCCASION_ICON);
   }
   return AMBIENT_ICONS[item.id] ?? DEFAULT_AMBIENT_ICON;
 }

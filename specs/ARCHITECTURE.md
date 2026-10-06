@@ -43,7 +43,7 @@ Mobile (Expo/React Native) communicates over REST/JSON with a Bearer token to a 
 
 The catalog is populated and refreshed by a separate, offline ingestion script (`dine-out-backend`'s `specs/restaurants.md`), not by any request handler. A request never triggers ingestion and never blocks on an external service.
 
-Restaurant ownership claims and edit rights are unaffected by this change — §9 still governs who may set `occasion`/`ambient`/`tags`/`whatsapp`/`instagramHandle`, which are always product-authored regardless of catalog source. An ingested-but-unclaimed row returns `occasion`/`ambient` as `null` on the wire (`dine-out-backend`'s `specs/restaurants.md` FR-009) — the mobile client's wire contract (`src/types/restaurant.ts`, `src/lib/googlePlaces/schema.ts`) needs the same nullable update before it can consume this API; tracked as follow-up work, not part of this document.
+Restaurant ownership claims and edit rights are unaffected by this change — §9 still governs who may set `occasion`/`ambient`/`tags`/`whatsapp`/`instagramHandle`, which are always product-authored regardless of catalog source. An ingested-but-unclaimed row returns `occasion`/`ambient` as `null` on the wire (`dine-out-backend`'s `specs/restaurants.md` FR-009); the mobile wire contract (`src/lib/api/schema.ts`'s `RestaurantSummarySchema`) types both as nullable.
 
 ---
 
@@ -73,7 +73,7 @@ The retention restriction below (Google Maps Platform's Terms) applies only to t
 | Backend framework | NestJS | Assumed in `PROJECT.md`'s decision log. Modular controller/service structure matches the mobile app's feature-vertical isolation. |
 | Database | PostgreSQL | Relational schema matches `DATA_MODEL.md` — foreign keys and enums, not document storage. |
 | ORM | Prisma | Prisma Studio/migrate tooling already available in this environment. |
-| API style | REST | `repository.ts` mirrors Google's REST response shapes with Zod contracts. |
+| API style | REST | `src/lib/api/` domain modules wrap REST routes; `src/lib/api/schema.ts` holds the Zod contracts. |
 | Restaurant catalog source | Overture Maps Places, offline ingestion | CDLA Permissive 2.0 permits indefinite retention; unblocks `RestaurantsModule` without the still-blocked Google Places API key. §2/§3. A prior live Google pass-through design, and before that a 24h cache-aside design, are both superseded — see `DATA_MODEL.md`'s Changelog. |
 | Session strategy | JWT access (15 min), rotating refresh (30 d) | Access tokens are not persisted on either side. Refresh tokens rotate on each use with reuse detection; a stolen refresh token is usable once before all sessions for that user are revoked. |
 | Password hashing | argon2id | Current OWASP-recommended default. Applies only to email/password accounts — Google/Apple accounts have no `passwordHash`. |
@@ -104,12 +104,12 @@ The retention restriction below (Google Maps Platform's Terms) applies only to t
 
 ## 6. API surface
 
-`mocks/repository.ts`'s function signatures define the route contracts below, per `PROJECT.md`'s decision log.
+`src/lib/api/` domain-module function signatures define the route contracts below, per `PROJECT.md`'s decision log.
 
 | Mock function | Route | Change |
 |---|---|---|
-| `getNearbyPlaces()` / `searchPlaces(q)` | `GET /restaurants` | Single route. Radius-vs-substring-search selection (presence of `q`) is internal to `RestaurantsService`, resolved against Postgres per §2. |
-| `getPlaceDetails(id)` | `GET /restaurants/:id` | Same shape; stored-row read per §2, no merge step. |
+| `getNearbyRestaurants({ latitude, longitude, radiusKm, query? })` | `GET /restaurants` | Single route. Radius-vs-substring-search selection (presence of `q`) is internal to `RestaurantsService`, resolved against Postgres per §2. |
+| `getRestaurant(id)` | `GET /restaurants/:id` | Same shape; stored-row read per §2, no merge step. |
 | `getPlacePhotoUrl(name)` | `GET /restaurants/:id/photos/:photoName` | Deferred — see the row below and §10. |
 | `getDiscoveryTaxonomies()` | `GET /taxonomies` | No change. |
 | `getCurrentUser()` | `GET /users/me` | First route requiring the Bearer token. |
@@ -253,7 +253,7 @@ New table: `RestaurantClaim` — id, restaurantId (FK), claimantUserId (FK), doc
 - **Hosting/deployment**: not addressed. Object storage for claim evidence documents not chosen.
 - **Real OAuth**: `auth.md`'s Google/Apple buttons remain simulated. Real implementation (authorization code + PKCE) is out of scope for this document.
 - **First-run default**: whether a fresh install defaults to logged-out is unresolved, carried over from `auth.md`.
-- **Unclaimed-restaurant `occasion`/`ambient`**: resolved — the API returns `null` until a claim sets them (`dine-out-backend`'s `specs/restaurants.md` FR-009). The mobile wire contract (`src/types/restaurant.ts`, `src/lib/googlePlaces/schema.ts`) still needs updating to accept `null` and render a "no occasion/ambient set" state — tracked as follow-up work for whenever `dine-out-app` swaps its mocks for this API, not resolved by this document.
+- **Unclaimed-restaurant `occasion`/`ambient`**: resolved — the API returns `null` until a claim sets them (`dine-out-backend`'s `specs/restaurants.md` FR-009). The mobile wire contract (`src/lib/api/schema.ts`'s `RestaurantSummarySchema`) types both as nullable.
 - **Ingestion confidence floor**: resolved — `confidence >= 0.5` (`dine-out-backend`'s `specs/restaurants.md` FR-014).
 - **Photo fallback**: no image source is chosen for a restaurant with no photos (every ingested-but-unclaimed row, since Overture has no photo field). `GET /restaurants/:id/photos/:photoName` is dropped from `dine-out-backend`'s `specs/restaurants.md` this pass, not built.
 - **Category filter broadening**: resolved — `GET /restaurants?category=X` (§6) stays exact-match against `category` only, `Restaurant.categoryAlternates` is not matched. `dine-out-backend`'s `specs/restaurants.md` FR-021.

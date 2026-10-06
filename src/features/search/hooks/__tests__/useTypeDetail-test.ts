@@ -6,7 +6,11 @@ import React from 'react';
 import type { DiscoveryTaxonomies } from '@/features/search/types';
 import { useTypeDetail } from '@/features/search/hooks/useTypeDetail';
 import type { RestaurantSummary } from '@/lib/api';
-import * as repository from '@/mocks/repository';
+import * as restaurantsApi from '@/lib/api/restaurants';
+import * as taxonomiesApi from '@/lib/api/taxonomies';
+import { DEFAULT_RADIUS_KM, FALLBACK_LOCATION } from '@/stores/location';
+
+const ANCHOR = { ...FALLBACK_LOCATION, radiusKm: DEFAULT_RADIUS_KM };
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -71,41 +75,41 @@ afterEach(() => {
 });
 
 test('cuisine dimension fetches a dedicated, cuisine-scoped, 100-cap batch', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   const { result } = await renderHook(() => useTypeDetail('cuisine', 'brazilian'), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-  expect(nearbySpy).toHaveBeenCalledWith({ query: undefined, cuisine: 'brazilian', limit: 100 });
+  expect(nearbySpy).toHaveBeenCalledWith({ ...ANCHOR, query: undefined, cuisine: 'brazilian', limit: 100 });
 });
 
 test('occasion dimension fetches a dedicated, occasion-scoped, 100-cap batch', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   const { result } = await renderHook(() => useTypeDetail('occasion', 'date-night'), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-  expect(nearbySpy).toHaveBeenCalledWith({ query: undefined, occasion: 'date-night', limit: 100 });
+  expect(nearbySpy).toHaveBeenCalledWith({ ...ANCHOR, query: undefined, occasion: 'date-night', limit: 100 });
 });
 
 test('ambient dimension keeps the general, unfiltered fetch', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   const { result } = await renderHook(() => useTypeDetail('ambient', 'cozy'), { wrapper: createWrapper() });
 
   await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-  expect(nearbySpy).toHaveBeenCalledWith({ query: undefined });
+  expect(nearbySpy).toHaveBeenCalledWith({ ...ANCHOR, query: undefined });
 });
 
 test('a search query on a cuisine page stays scoped to that cuisine', async () => {
-  const nearbySpy = jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(RESTAURANTS);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
+  const nearbySpy = jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(RESTAURANTS);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce(TAXONOMIES);
 
   const { result } = await renderHook(() => useTypeDetail('cuisine', 'brazilian', 'fogo'), {
     wrapper: createWrapper(),
@@ -113,7 +117,7 @@ test('a search query on a cuisine page stays scoped to that cuisine', async () =
 
   await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-  expect(nearbySpy).toHaveBeenCalledWith({ query: 'fogo', cuisine: 'brazilian', limit: 100 });
+  expect(nearbySpy).toHaveBeenCalledWith({ ...ANCHOR, query: 'fogo', cuisine: 'brazilian', limit: 100 });
 });
 
 test('cuisine pages rank the subtype row by how many nearby restaurants match, dropping zero-count entries', async () => {
@@ -122,8 +126,8 @@ test('cuisine pages rank the subtype row by how many nearby restaurants match, d
     makeSummary(2, 'steak_house', 'brazilian'),
     makeSummary(3, 'churrascaria', 'brazilian'),
   ];
-  jest.spyOn(repository, 'getNearbyPlaces').mockResolvedValueOnce(restaurants);
-  jest.spyOn(repository, 'getDiscoveryTaxonomies').mockResolvedValueOnce({
+  jest.spyOn(restaurantsApi, 'getNearbyRestaurants').mockResolvedValueOnce(restaurants);
+  jest.spyOn(taxonomiesApi, 'getDiscoveryTaxonomies').mockResolvedValueOnce({
     ...TAXONOMIES,
     categorySubtypes: {
       brazilian: [
